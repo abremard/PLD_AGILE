@@ -1,15 +1,21 @@
 package objects;
 
-import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 public class Request {
     Intersection pickup;
     Intersection delivery;
     double pickupDur;
-    int deliveryDur;
-    LocalDateTime startTime;
+    double deliveryDur;
+    LocalTime startTime;
 
-    public Request(Intersection pickup, Intersection delivery, double pickupDur, int deliveryDur, LocalDateTime startTime) {
+    public Request(Intersection pickup, Intersection delivery, double pickupDur, double deliveryDur) {
+        this.pickup = pickup;
+        this.delivery = delivery;
+        this.pickupDur = pickupDur;
+        this.deliveryDur = deliveryDur;
+    }
+    public Request(Intersection pickup, Intersection delivery, double pickupDur, double deliveryDur, LocalTime startTime) {
         this.pickup = pickup;
         this.delivery = delivery;
         this.pickupDur = pickupDur;
@@ -41,7 +47,7 @@ public class Request {
         this.pickupDur = pickupDur;
     }
 
-    public int getDeliveryDur() {
+    public double getDeliveryDur() {
         return deliveryDur;
     }
 

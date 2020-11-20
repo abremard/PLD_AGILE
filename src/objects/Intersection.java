@@ -5,8 +5,10 @@ public class Intersection {
     int id;
 
     public Intersection(double latitude, double longitude, int id) {
-        this.latitude = latitude;
-        this.longitude = longitude;
+        this.id = id;
+    }
+
+    public Intersection(int id) {
         this.id = id;
     }
 

@@ -1,11 +1,11 @@
 package objects;
-import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 public class Depot {
     Intersection adresse;
-    LocalDateTime departureTime;
+    LocalTime departureTime;
 
-    public Depot(Intersection adresse, LocalDateTime departureTime) {
+    public Depot(Intersection adresse, LocalTime departureTime) {
         this.adresse = adresse;
         this.departureTime = departureTime;
     }
@@ -18,11 +18,11 @@ public class Depot {
         this.adresse = adresse;
     }
 
-    public LocalDateTime getDepartureTime() {
+    public LocalTime getDepartureTime() {
         return departureTime;
     }
 
-    public void setDepartureTime(LocalDateTime departureTime) {
+    public void setDepartureTime(LocalTime departureTime) {
         this.departureTime = departureTime;
     }
 }
