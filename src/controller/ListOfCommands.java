@@ -3,6 +3,22 @@ package controller;
 import java.util.LinkedList;
 
 public class ListOfCommands {
+    public LinkedList<Command> getL() {
+        return l;
+    }
+
+    public void setL(LinkedList<Command> l) {
+        this.l = l;
+    }
+
+    public int getI() {
+        return i;
+    }
+
+    public void setI(int i) {
+        this.i = i;
+    }
+
     private LinkedList<Command> l;
     private int i;
     public ListOfCommands() {
