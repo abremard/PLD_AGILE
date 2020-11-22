@@ -25,4 +25,12 @@ public class Depot {
     public void setDepartureTime(LocalTime departureTime) {
         this.departureTime = departureTime;
     }
+
+    @Override
+    public String toString() {
+        return "Depot{" +
+                "adresse=" + adresse +
+                ", departureTime=" + departureTime +
+                '}';
+    }
 }
