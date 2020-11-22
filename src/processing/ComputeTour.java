@@ -20,7 +20,7 @@ public class ComputeTour {
 
     // ----------------------------- Fonctions utilitaires
 
-    private static LinkedList<Segment> Dijkstra(Map map, Intersection depart, LinkedList<Intersection> ptsInteret) {
+    private static LinkedList<Segment> dijkstra(Map map, Intersection depart, LinkedList<Intersection> ptsInteret) {
 
         // --------- indexation des Intersections
         // liste des intersections -> todo changer les linkedlist vers arraylist ou qqch comme ça ?
@@ -35,13 +35,13 @@ public class ComputeTour {
         }
 
         // On recupere la liste d'adjacence
-        ArrayList<ArrayList<Segment>> adjList = GetListeAdj(map, intersecIdToIndex);
+        ArrayList<ArrayList<Segment>> adjList = getListeAdj(map, intersecIdToIndex);
 
         // methodes dispo sur la pQueue : add, poll, peek
-        PriorityQueue<TupleDijkstra> pQueue  = new PriorityQueue<TupleDijkstra>();
+        PriorityQueue<TupleDijkstra> pQueue = new PriorityQueue<TupleDijkstra>();
         pQueue.add(new TupleDijkstra(0, depart));
 
-        while(!pQueue.isEmpty()) {
+        while (!pQueue.isEmpty()) {
             TupleDijkstra curNoeud = pQueue.poll();
             for (Segment seg : adjList.get(0)) {
 
@@ -51,12 +51,29 @@ public class ComputeTour {
         return null;
     }
 
-    private static ArrayList<ArrayList<Segment>> GetListeAdj(Map map, HashMap<Integer, Integer> intersecIdToIndex) {
+    /**
+     * Renvoie la liste d'adjacence correspondant au graphe construit à partir des segments & intersections de la map
+     * passée en paramètre.
+     *
+     * @param map               La map à partir de laquelle on construit la liste d'adjacence (plus pratique pour les algos)
+     * @param intersecIdToIndex Dictionnaire faisant la correspondance entre ID d'une Intersection et son indice/index
+     *                          dans les différentes structures de données indexées par Intersection
+     * @return La liste d'adjacence, indexée par indices (obtenus à partir des ID des intersections avec la HashMap
+     * passée en paramètre) et contenant pour chaque Intersection la liste des sommets directement accessibles depuis
+     * cette Intersection en passant par un seul Segment.
+     */
+    private static ArrayList<ArrayList<Segment>> getListeAdj(Map map, HashMap<Integer, Integer> intersecIdToIndex) {
 
-        ArrayList<ArrayList<Segment>> listeAdj = new ArrayList<>();
+        // capacité initiale (taille max atteignable sans réallouer de la mémoire)
+        ArrayList<ArrayList<Segment>> listeAdj = new ArrayList<>(map.getNoOfIntersections());
 
-        for (Segment segment: map.getSegmentList()) {
+        for (int i = 0; i < map.getNoOfIntersections(); ++i) {
+            listeAdj.add(new ArrayList<Segment>());     // optimisation possible : capacité initiale != 0
+        }
 
+        for (Segment segment : map.getSegmentList()) {
+            int departId = intersecIdToIndex.get(segment.getOrigin());
+            int arriveeId = intersecIdToIndex.get(segment.getDestination());
         }
 
         return null;
