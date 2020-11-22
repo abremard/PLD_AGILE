@@ -1,23 +1,17 @@
+
 package objects;
+
 public class Intersection {
+
     double latitude;
     double longitude;
-    int id;
+    long id;
 
-    @Override
-    public String toString() {
-        return "Intersection{" +
-                "latitude=" + latitude +
-                ", longitude=" + longitude +
-                ", id=" + id +
-                '}';
-    }
-
-    public Intersection(double latitude, double longitude, int id) {
+    public Intersection(double latitude, double longitude, long id) {
         this.id = id;
     }
 
-    public Intersection(int id) {
+    public Intersection(long id) {
         this.id = id;
     }
 
@@ -37,13 +31,20 @@ public class Intersection {
         this.longitude = longitude;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 
-
+    @Override
+    public String toString() {
+        return "Intersection{" +
+                "latitude=" + latitude +
+                ", longitude=" + longitude +
+                ", id=" + id +
+                '}';
+    }
 }

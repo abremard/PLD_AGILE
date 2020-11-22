@@ -1,4 +1,4 @@
-package controller;
+package command;
 import objects.Map;
 
 public class LoadMapCommand implements Command {

@@ -1,9 +1,9 @@
-package controller;
+package command;
 
 import objects.Map;
 import objects.PlanningRequest;
 
-public class ComputeTourneeCommand implements Command {
+public class ComputeTourCommand implements Command {
 
     public Map getMap() {
         return map;
@@ -24,7 +24,7 @@ public class ComputeTourneeCommand implements Command {
     private Map map;
     private PlanningRequest planningRequest;
 
-    public ComputeTourneeCommand(Map m, PlanningRequest p) {
+    public ComputeTourCommand(Map m, PlanningRequest p) {
         this.map = m;
         this.planningRequest = p;
     }

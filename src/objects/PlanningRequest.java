@@ -1,3 +1,4 @@
+
 package objects;
 
 import org.w3c.dom.Document;
@@ -14,13 +15,15 @@ import java.io.IOException;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
 
 public class PlanningRequest {
+
     Depot depot;
-    List<Request> requestList = new ArrayList<Request>();
+    ArrayList<Request> requestList = new ArrayList<Request>();
 
     public PlanningRequest() {
     }
@@ -31,6 +34,14 @@ public class PlanningRequest {
 
     public void setDepot(Depot depot) {
         this.depot = depot;
+    }
+
+    public ArrayList<Request> getRequestList() {
+        return requestList;
+    }
+
+    public void setRequestList(ArrayList<Request> requestList) {
+        this.requestList = requestList;
     }
 
     public void parseRequest(String requestFile) throws ParserConfigurationException, IOException, SAXException {
@@ -45,7 +56,7 @@ public class PlanningRequest {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("H:m:s", Locale.ENGLISH);
         String dateDepot = depotRecupere.getAttribute("departureTime");
         LocalTime dateDepotParsed = LocalTime.parse(dateDepot, formatter);
-        Depot depotParsed = new Depot(new Intersection(Integer.parseInt(depotRecupere.getAttribute("address"))), dateDepotParsed);
+        Depot depotParsed = new Depot(new Intersection(Long.parseLong(depotRecupere.getAttribute("address"))), dateDepotParsed);
         setDepot(depotParsed);
         NodeList nodeRequestList = doc.getElementsByTagName("request");
 
@@ -65,4 +76,5 @@ public class PlanningRequest {
             }
         }
     }
+
 }

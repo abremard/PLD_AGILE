@@ -1,4 +1,4 @@
-package controller;
+package command;
 
 import objects.PlanningRequest;
 import org.xml.sax.SAXException;
@@ -26,7 +26,7 @@ public class LoadRequestPlanCommand implements Command {
     private PlanningRequest planningRequest;
     private String path;
 
-    public LoadRequestPlanCommand( String pa) {
+    public LoadRequestPlanCommand(String pa) {
         this.path = pa;
     }
 

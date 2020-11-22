@@ -1,4 +1,4 @@
-package controller;
+package command;
 
 public class ReverseCommand implements Command{
     private Command cmd;
