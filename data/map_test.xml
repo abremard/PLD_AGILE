@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<map>
+
+<intersection id="012" latitude="45.75406" longitude="4.857418"/>
+<intersection id="123" latitude="45.75406" longitude="4.857418"/>
+<intersection id="234" latitude="45.750404" longitude="4.8744674"/>
+<intersection id="345" latitude="45.75871" longitude="4.8704023"/>
+<intersection id="456" latitude="45.75171" longitude="4.8718166"/>
+<intersection id="567" latitude="45.750896" longitude="4.859119"/>
+
+<segment origin="012" destination="123" length="3" name="S01" />
+<segment origin="123" destination="567" length="12" name="S15" />
+<segment origin="567" destination="123" length="8" name="S51" />
+<segment origin="123" destination="234" length="4" name="S12" />
+<segment origin="234" destination="567" length="2" name="S25" />
+<segment origin="234" destination="345" length="5" name="S23" />
+<segment origin="345" destination="012" length="6" name="S30" />
+
+</map>
