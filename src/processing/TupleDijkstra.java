@@ -7,10 +7,16 @@ public class TupleDijkstra implements Comparable<TupleDijkstra> {
 
     float distance;
     Intersection intersection;
+    Color color;
 
-    public TupleDijkstra(float distance, Intersection intersection){
+    enum Color {
+        WHITE, GREY, BLACK;
+    }
+
+    public TupleDijkstra(Intersection intersection, float distance){
         this.distance = distance;
         this.intersection = intersection;
+        this.color = Color.WHITE;
     }
 
     public String toString(){
