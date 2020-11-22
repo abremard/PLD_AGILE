@@ -5,6 +5,14 @@ public class Depot {
     Intersection adresse;
     LocalTime departureTime;
 
+    @Override
+    public String toString() {
+        return "Depot{" +
+                "adresse=" + adresse +
+                ", departureTime=" + departureTime +
+                '}';
+    }
+
     public Depot(Intersection adresse, LocalTime departureTime) {
         this.adresse = adresse;
         this.departureTime = departureTime;

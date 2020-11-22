@@ -4,6 +4,15 @@ public class Intersection {
     double longitude;
     int id;
 
+    @Override
+    public String toString() {
+        return "Intersection{" +
+                "latitude=" + latitude +
+                ", longitude=" + longitude +
+                ", id=" + id +
+                '}';
+    }
+
     public Intersection(double latitude, double longitude, int id) {
         this.id = id;
     }

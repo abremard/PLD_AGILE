@@ -59,6 +59,8 @@ public class PlanningRequest {
                 Intersection pickupIntersection = new Intersection(Integer.parseInt(requestElement.getAttribute("pickupAddress")));
                 Intersection deliveryIntersection = new Intersection(Integer.parseInt(requestElement.getAttribute("deliveryAddress")));
                 Request requestParsed = new Request(pickupIntersection, deliveryIntersection, Double.parseDouble(requestElement.getAttribute("pickupDuration")), Double.parseDouble(requestElement.getAttribute("deliveryDuration")));
+                // for debugging purposes
+                // System.out.println(requestParsed.toString());
                 requestList.add(requestParsed);
             }
         }
