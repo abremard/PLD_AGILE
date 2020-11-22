@@ -1,10 +1,7 @@
 
 package processing;
 
-import objects.Intersection;
-import objects.Map;
-import objects.PlanningRequest;
-import objects.Tournee;
+import objects.*;
 
 import java.util.PriorityQueue;
 
@@ -12,12 +9,12 @@ public class processingTest {
 
     public static void main(String[] args) {
 
-        Map map = new Map("data/smallMap.xml");
+        Map map = new Map("data/map_test.xml");
         System.out.println("Map chargee, nombre d'intersections : " + map.getNoOfIntersections() + ",   nombre de segments : " + map.getNoOfSegments());
 
         PlanningRequest listRequests = new PlanningRequest();
         try {
-            listRequests.parseRequest("data/requestsSmall2.xml");
+            listRequests.parseRequest("data/requests_test.xml");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -25,7 +22,9 @@ public class processingTest {
 
         Tournee tournee = ComputeTour.planTour(map, listRequests.getRequestList());
         System.out.println("Tournee calculee :");
-        System.out.println(tournee.getSegmentList());
+        for (Segment seg : tournee.getSegmentList()) {
+            System.out.println(seg);
+        }
     }
 
 }

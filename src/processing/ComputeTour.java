@@ -15,7 +15,8 @@ public class ComputeTour {
         // constructeur : Request(Intersection pickup, Intersection delivery, double pickupDur, double deliveryDur, [LocalTime startTime])
         // constructeur : Segment(int origin, int destination, Float length, String name)
         // constructeur : Tournee(LinkedList<Segment> segmentList, LinkedList<Request> requestList)
-        return tourneeTriviale(map, requestList);
+        HashMap<Long, Integer> intersecIdToIndex = indexationIntersections(map);
+        return tourneeTriviale(map, requestList, intersecIdToIndex);
     }
 
     // ----------------------------- Fonctions utilitaires
@@ -32,19 +33,11 @@ public class ComputeTour {
      * points qui sont plus proches que le plus lointain point d'intérêt ,pas forcément pour les autres
      * (arrêt de l'algo quand on a fini de traiter tous les points d'intérêt)
      */
-    private static ArrayList<Segment> dijkstra(Map map, Intersection depart, LinkedList<Intersection> ptsInteret) {
+    private static ArrayList<Segment> dijkstra(Map map, Intersection depart, LinkedList<Intersection> ptsInteret, HashMap<Long, Integer> intersecIdToIndex) {
 
         // --------- indexation des Intersections
         // liste des intersections -> todo changer les linkedlist vers arraylist ou qqch comme ça ?
         ArrayList<Intersection> intersections = map.getIntersectionList();
-
-        // dico id -> index dans les tableaux indexés par intersections
-        // pour le sens inverse : utiliser le tableau intersections
-        HashMap<Long, Integer> intersecIdToIndex = new HashMap<Long, Integer>();
-
-        for (int i = 0; i < map.getNoOfIntersections(); ++i) {
-            intersecIdToIndex.put(intersections.get(i).getId(), i);
-        }
 
         // On recupere la liste d'adjacence
         ArrayList<ArrayList<Segment>> adjList = getListeAdj(map, intersecIdToIndex);
@@ -119,10 +112,37 @@ public class ComputeTour {
         return listeAdj;
     }
 
+    private static HashMap<Long, Integer> indexationIntersections(Map map) {
+        // dico id -> index dans les tableaux indexés par intersections
+        // pour le sens inverse : utiliser le tableau intersections
+        HashMap<Long, Integer> intersecIdToIndex = new HashMap<Long, Integer>();
+        ArrayList<Intersection> intersections = map.getIntersectionList();
+
+        for(int i = 0; i < map.getNoOfIntersections(); ++i){
+            intersecIdToIndex.put(intersections.get(i).getId(), i);
+        }
+
+        return intersecIdToIndex;
+    }
+
+    private static ArrayList<Segment> recreateChemin(ArrayList<Segment> predList, Intersection depart, Intersection arrivee, ArrayList<Intersection> intersections, HashMap<Long, Integer> intersecIdToIndex) {
+        ArrayList<Segment> chemin = new ArrayList<Segment>();
+        Intersection curNode = arrivee;
+
+        while(curNode.getId() != depart.getId()) {
+            Segment boutChemin = predList.get(intersecIdToIndex.get(curNode.getId()));
+            chemin.add(0, boutChemin);
+            curNode = intersections.get(intersecIdToIndex.get(boutChemin.getOrigin()));
+        }
+
+        return chemin;
+    }
+
     // ----------------------------- Heuristiques
 
-    private static Tournee tourneeTriviale(Map map, ArrayList<Request> requestList) {
+    private static Tournee tourneeTriviale(Map map, ArrayList<Request> requestList, HashMap<Long, Integer> intersecIdToIndex) {
         ArrayList<Segment> chemin = new ArrayList<Segment>();
+        ArrayList<Intersection> intersections = map.getIntersectionList();
 
         Intersection previousDelivery = null;
         LinkedList<Intersection> ptsInteret;
@@ -130,13 +150,13 @@ public class ComputeTour {
             if (previousDelivery != null) {
                 ptsInteret = new LinkedList<Intersection>();
                 ptsInteret.add(request.getPickup());
-                ArrayList<Segment> boutChemin = dijkstra(map, previousDelivery, ptsInteret);
-                chemin.addAll(boutChemin);
+                ArrayList<Segment> predList = dijkstra(map, previousDelivery, ptsInteret, intersecIdToIndex);
+                chemin.addAll(recreateChemin(predList, previousDelivery, request.getPickup(), intersections, intersecIdToIndex));
             }
             ptsInteret = new LinkedList<Intersection>();
             ptsInteret.add(request.getDelivery());
-            ArrayList<Segment> boutChemin = dijkstra(map, request.getPickup(), ptsInteret);
-            chemin.addAll(boutChemin);
+            ArrayList<Segment> predList = dijkstra(map, request.getPickup(), ptsInteret, intersecIdToIndex);
+            chemin.addAll(recreateChemin(predList, request.getPickup(), request.getDelivery(), intersections, intersecIdToIndex));
             previousDelivery = request.getDelivery();
         }
 
