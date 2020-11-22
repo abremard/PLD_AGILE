@@ -53,4 +53,15 @@ public class Segment {
     public void setName(String name) {
         this.name = name;
     }
+
+    @Override
+    public String toString() {      // généré par IntelliJ <3
+        return "Segment{" +
+                "origin=" + origin +
+                ", destination=" + destination +
+                ", length=" + length +
+                ", time=" + time +
+                ", name='" + name + '\'' +
+                '}';
+    }
 }
