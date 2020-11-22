@@ -30,20 +30,32 @@ public class ComputeTour {
         // pour le sens inverse : utiliser le tableau intersections
         HashMap<Integer, Integer> intersecIdToIndex = new HashMap<Integer, Integer>();
 
-        for (int i = 0; i < intersections.length; ++i) {
+        for (int i = 0; i < map.getNoOfIntersections(); ++i) {
             intersecIdToIndex.put(intersections[i].getId(), i);
         }
 
         // On recupere la liste d'adjacence
         ArrayList<ArrayList<Segment>> adjList = getListeAdj(map, intersecIdToIndex);
 
+
+        // tableau des distances
+        ArrayList<Float> dist = new ArrayList<>(map.getNoOfIntersections());
+        for (int i = 0; i < map.getNoOfIntersections(); ++i) {
+            dist.add((float) -1);
+        }
+        dist.set(intersecIdToIndex.get(depart.getId()), (float) 0);     // initialisation de la distance de la premiere Intersection
+
         // methodes dispo sur la pQueue : add, poll, peek
         PriorityQueue<TupleDijkstra> pQueue = new PriorityQueue<TupleDijkstra>();
-        pQueue.add(new TupleDijkstra(0, depart));
+        pQueue.add(new TupleDijkstra(0, depart));       // initialisation de la pQueue
 
         while (!pQueue.isEmpty()) {
+
             TupleDijkstra curNoeud = pQueue.poll();
-            for (Segment seg : adjList.get(0)) {
+            int curIndex = intersecIdToIndex.get(curNoeud.intersection.getId());
+
+            for (Segment seg : adjList.get(curIndex)) {     // parcours des voisins/arcs sortants
+                int indexArrivee = intersecIdToIndex.get(seg.getDestination());
 
             }
         }
