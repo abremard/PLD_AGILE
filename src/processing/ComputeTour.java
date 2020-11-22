@@ -10,12 +10,12 @@ import objects.*;
 
 public class ComputeTour {
 
-    public static Tournee planTour(Map map, LinkedList<Request> requestList) {
+    public static Tournee planTour(Map map, ArrayList<Request> requestList) {
 
         // constructeur : Request(Intersection pickup, Intersection delivery, double pickupDur, double deliveryDur, [LocalTime startTime])
         // constructeur : Segment(int origin, int destination, Float length, String name)
         // constructeur : Tournee(LinkedList<Segment> segmentList, LinkedList<Request> requestList)
-        return null;
+        return tourneeTriviale(map, requestList);
     }
 
     // ----------------------------- Fonctions utilitaires
@@ -36,14 +36,14 @@ public class ComputeTour {
 
         // --------- indexation des Intersections
         // liste des intersections -> todo changer les linkedlist vers arraylist ou qqch comme ça ?
-        Intersection[] intersections = (Intersection[]) map.getIntersectionList().toArray();
+        ArrayList<Intersection> intersections = map.getIntersectionList();
 
         // dico id -> index dans les tableaux indexés par intersections
         // pour le sens inverse : utiliser le tableau intersections
         HashMap<Long, Integer> intersecIdToIndex = new HashMap<Long, Integer>();
 
         for (int i = 0; i < map.getNoOfIntersections(); ++i) {
-            intersecIdToIndex.put(intersections[i].getId(), i);
+            intersecIdToIndex.put(intersections.get(i).getId(), i);
         }
 
         // On recupere la liste d'adjacence
@@ -52,7 +52,7 @@ public class ComputeTour {
         // tableau des distances
         ArrayList<TupleDijkstra> dist = new ArrayList<>(map.getNoOfIntersections());
         for (int i = 0; i < map.getNoOfIntersections(); ++i) {
-            dist.add(new TupleDijkstra(intersections[i], (float) -1));
+            dist.add(new TupleDijkstra(intersections.get(i), (float) -1));
         }
         dist.get(intersecIdToIndex.get(depart.getId())).distance = 0;   // initialisation de la distance de la premiere Intersection
 
@@ -121,8 +121,8 @@ public class ComputeTour {
 
     // ----------------------------- Heuristiques
 
-    private static Tournee tourneeTriviale(Map map, LinkedList<Request> requestList) {
-        LinkedList<Segment> chemin = new LinkedList<Segment>();
+    private static Tournee tourneeTriviale(Map map, ArrayList<Request> requestList) {
+        ArrayList<Segment> chemin = new ArrayList<Segment>();
 
         Intersection previousDelivery = null;
         LinkedList<Intersection> ptsInteret;
