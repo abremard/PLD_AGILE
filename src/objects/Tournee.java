@@ -26,4 +26,12 @@ public class Tournee {
     public void setRequestList(LinkedList<Request> requestList) {
         this.requestList = requestList;
     }
+
+    @Override
+    public String toString() {
+        return "Tournee{" +
+                "segmentList=" + segmentList +
+                ", requestList=" + requestList +
+                '}';
+    }
 }

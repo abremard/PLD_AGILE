@@ -56,4 +56,15 @@ public class Request {
     public void setDelivery_dur(int deliveryDur) {
         this.deliveryDur = deliveryDur;
     }
+
+    @Override
+    public String toString() {
+        return "Request{" +
+                "pickup=" + pickup +
+                ", delivery=" + delivery +
+                ", pickupDur=" + pickupDur +
+                ", deliveryDur=" + deliveryDur +
+                ", startTime=" + startTime +
+                '}';
+    }
 }

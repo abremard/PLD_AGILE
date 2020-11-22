@@ -39,4 +39,12 @@ public class Intersection {
         this.id = id;
     }
 
+    @Override
+    public String toString() {
+        return "Intersection{" +
+                "latitude=" + latitude +
+                ", longitude=" + longitude +
+                ", id=" + id +
+                '}';
+    }
 }
