@@ -1,11 +1,12 @@
 
 package processing;
 
-import objects.*;
-
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
+
+import objects.*;
 
 public class ComputeTour {
 
@@ -21,17 +22,22 @@ public class ComputeTour {
 
     private static LinkedList<Segment> Dijkstra(Map map, Intersection depart, LinkedList<Intersection> ptsInteret) {
 
-        // indexation des Intersections
-        // todo changer linkedlist vers arraylist :(
+        // --------- indexation des Intersections
+        // liste des intersections -> todo changer les linkedlist vers arraylist ou qqch comme ça ?
+        Intersection[] intersections = (Intersection[]) map.getIntersectionList().toArray();
 
-        for (int i = 0; i < map.getIntersectionList().toArray().length; ++i) {
+        // dico id -> index dans les tableaux indexés par intersections
+        // pour le sens inverse : utiliser le tableau intersections
+        HashMap<Integer, Integer> intersecIdToIndex = new HashMap<Integer, Integer>();
 
+        for (int i = 0; i < intersections.length; ++i) {
+            intersecIdToIndex.put(intersections[i].getId(), i);
         }
 
         // On recupere la liste d'adjacence
-        ArrayList<ArrayList<Segment>> adjList = new ArrayList<ArrayList<Segment>>();
+        ArrayList<ArrayList<Segment>> adjList = GetListeAdj(map, intersecIdToIndex);
 
-        // add, poll, peek
+        // methodes dispo sur la pQueue : add, poll, peek
         PriorityQueue<TupleDijkstra> pQueue  = new PriorityQueue<TupleDijkstra>();
         pQueue.add(new TupleDijkstra(0, depart));
 
@@ -40,6 +46,17 @@ public class ComputeTour {
             for (Segment seg : adjList.get(0)) {
 
             }
+        }
+
+        return null;
+    }
+
+    private static ArrayList<ArrayList<Segment>> GetListeAdj(Map map, HashMap<Integer, Integer> intersecIdToIndex) {
+
+        ArrayList<ArrayList<Segment>> listeAdj = new ArrayList<>();
+
+        for (Segment segment: map.getSegmentList()) {
+
         }
 
         return null;

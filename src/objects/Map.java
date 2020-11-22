@@ -10,8 +10,12 @@ import org.w3c.dom.Node;
 import org.w3c.dom.Element;
 
 public class Map {
+
     LinkedList<Intersection> intersectionList;
     LinkedList<Segment> segmentList;
+    // plus pratique pour l'algo
+    Integer noOfIntersections;
+    Integer noOfSegments;
 
     public Map(String documentName) {
         try {
@@ -51,6 +55,10 @@ public class Map {
                     segmentList.add(newSegment);
                 }
             }
+
+            this.noOfIntersections = this.intersectionList.size();
+            this.noOfSegments = this.segmentList.size();
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -71,4 +79,13 @@ public class Map {
     public void setSegmentList(LinkedList<Segment> segmentList) {
         this.segmentList = segmentList;
     }
+
+    public Integer getNoOfIntersections() {
+        return noOfIntersections;
+    }
+
+    public Integer getNoOfSegments() {
+        return noOfSegments;
+    }
+
 }
