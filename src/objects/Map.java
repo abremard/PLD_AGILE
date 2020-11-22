@@ -19,12 +19,14 @@ public class Map {
 
     public Map(String documentName) {
         try {
-            File inputFile = new File("../temp/"+documentName);
+            File inputFile = new File(documentName);
+            // File inputFile = new File("../temp/"+documentName);
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
             Document doc = dBuilder.parse(inputFile);
             doc.getDocumentElement().normalize();
             NodeList nList = doc.getElementsByTagName("intersection");
+            intersectionList = new LinkedList<Intersection>();
 
             for (int temp = 0; temp < nList.getLength(); temp++) {
                 Node nNode = nList.item(temp);
@@ -32,8 +34,9 @@ public class Map {
                 if (nNode.getNodeType() == Node.ELEMENT_NODE) {
                     Element eElement = (Element) nNode;
 
-                    Intersection newIntersection = new Intersection(Double.parseDouble(eElement.getAttribute("latitude")),
-                        Double.parseDouble(eElement.getAttribute("longitude")),
+                    Intersection newIntersection = new Intersection(
+                            Double.parseDouble(eElement.getAttribute("latitude")),
+                            Double.parseDouble(eElement.getAttribute("longitude")),
                             Integer.parseInt(eElement.getAttribute("id")));
 
                     intersectionList.add(newIntersection);

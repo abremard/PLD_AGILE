@@ -1,6 +1,8 @@
+
 package objects;
 
 public class Intersection {
+
     double latitude;
     double longitude;
     int id;
@@ -36,6 +38,5 @@ public class Intersection {
     public void setId(int id) {
         this.id = id;
     }
-
-
+    
 }
