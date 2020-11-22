@@ -27,6 +27,7 @@ public class Map {
             doc.getDocumentElement().normalize();
             NodeList nList = doc.getElementsByTagName("intersection");
             intersectionList = new LinkedList<Intersection>();
+            segmentList = new LinkedList<Segment>();
 
             for (int temp = 0; temp < nList.getLength(); temp++) {
                 Node nNode = nList.item(temp);
@@ -37,7 +38,7 @@ public class Map {
                     Intersection newIntersection = new Intersection(
                             Double.parseDouble(eElement.getAttribute("latitude")),
                             Double.parseDouble(eElement.getAttribute("longitude")),
-                            Integer.parseInt(eElement.getAttribute("id")));
+                            Long.parseLong(eElement.getAttribute("id")));
 
                     intersectionList.add(newIntersection);
                 }
@@ -51,8 +52,9 @@ public class Map {
                 if (nNode.getNodeType() == Node.ELEMENT_NODE) {
                     Element eElement = (Element) nNode;
 
-                    Segment newSegment = new Segment(Integer.parseInt(eElement.getAttribute("origin")),
-                        Integer.parseInt(eElement.getAttribute("destination")),
+                    Segment newSegment = new Segment(
+                            Long.parseLong(eElement.getAttribute("origin")),
+                            Long.parseLong(eElement.getAttribute("destination")),
                             Float.parseFloat(eElement.getAttribute("length")), eElement.getAttribute("name"));
 
                     segmentList.add(newSegment);

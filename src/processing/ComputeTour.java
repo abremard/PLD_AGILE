@@ -28,7 +28,7 @@ public class ComputeTour {
 
         // dico id -> index dans les tableaux indexés par intersections
         // pour le sens inverse : utiliser le tableau intersections
-        HashMap<Integer, Integer> intersecIdToIndex = new HashMap<Integer, Integer>();
+        HashMap<Long, Integer> intersecIdToIndex = new HashMap<Long, Integer>();
 
         for (int i = 0; i < map.getNoOfIntersections(); ++i) {
             intersecIdToIndex.put(intersections[i].getId(), i);
@@ -74,7 +74,7 @@ public class ComputeTour {
      * passée en paramètre) et contenant pour chaque Intersection la liste des segments ayant pour origine cette
      * Intersection.
      */
-    private static ArrayList<ArrayList<Segment>> getListeAdj(Map map, HashMap<Integer, Integer> intersecIdToIndex) {
+    private static ArrayList<ArrayList<Segment>> getListeAdj(Map map, HashMap<Long, Integer> intersecIdToIndex) {
 
         // capacité initiale (taille max atteignable sans réallouer de la mémoire)
         ArrayList<ArrayList<Segment>> listeAdj = new ArrayList<>(map.getNoOfIntersections());

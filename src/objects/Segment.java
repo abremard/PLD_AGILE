@@ -1,24 +1,24 @@
 package objects;
 
 public class Segment {
-    int origin;
-    int destination;
+    long origin;
+    long destination;
     Float length;
     Float time;
     String name;
 
-    public Segment(int origin, int destination, Float length, String name) {
+    public Segment(long origin, long destination, Float length, String name) {
         this.origin = origin;
         this.destination = destination;
         this.length = length;
         this.name = name;
     }
 
-    public int getOrigin() {
+    public long getOrigin() {
         return origin;
     }
 
-    public int getDestination() {
+    public long getDestination() {
         return destination;
     }
 
@@ -34,11 +34,11 @@ public class Segment {
         return name;
     }
 
-    public void setOrigin(int origin) {
+    public void setOrigin(long origin) {
         this.origin = origin;
     }
 
-    public void setDestination(int destination) {
+    public void setDestination(long destination) {
         this.destination = destination;
     }
 

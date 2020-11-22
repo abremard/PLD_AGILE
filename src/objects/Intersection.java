@@ -5,9 +5,9 @@ public class Intersection {
 
     double latitude;
     double longitude;
-    int id;
+    long id;
 
-    public Intersection(double latitude, double longitude, int id) {
+    public Intersection(double latitude, double longitude, long id) {
         this.id = id;
     }
 
@@ -31,12 +31,12 @@ public class Intersection {
         this.longitude = longitude;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
-    
+
 }
