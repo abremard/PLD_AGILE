@@ -1,4 +1,5 @@
 package objects;
+
 public class Intersection {
     double latitude;
     double longitude;

@@ -3,6 +3,7 @@ package objects;
 import java.time.LocalTime;
 
 public class Request {
+
     Intersection pickup;
     Intersection delivery;
     double pickupDur;
@@ -15,6 +16,7 @@ public class Request {
         this.pickupDur = pickupDur;
         this.deliveryDur = deliveryDur;
     }
+
     public Request(Intersection pickup, Intersection delivery, double pickupDur, double deliveryDur, LocalTime startTime) {
         this.pickup = pickup;
         this.delivery = delivery;
