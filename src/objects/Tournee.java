@@ -1,29 +1,29 @@
 package objects;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 
 public class Tournee {
-    LinkedList<Segment> segmentList;
-    LinkedList<Request> requestList;
+    ArrayList<Segment> segmentList;
+    ArrayList<Request> requestList;
 
-    public Tournee(LinkedList<Segment> segmentList, LinkedList<Request> requestList) {
+    public Tournee(ArrayList<Segment> segmentList, ArrayList<Request> requestList) {
         this.segmentList = segmentList;
         this.requestList = requestList;
     }
 
-    public LinkedList<Segment> getSegmentList() {
+    public ArrayList<Segment> getSegmentList() {
         return segmentList;
     }
 
-    public void setSegmentList(LinkedList<Segment> segmentList) {
+    public void setSegmentList(ArrayList<Segment> segmentList) {
         this.segmentList = segmentList;
     }
 
-    public LinkedList<Request> getRequestList() {
+    public ArrayList<Request> getRequestList() {
         return requestList;
     }
 
-    public void setRequestList(LinkedList<Request> requestList) {
+    public void setRequestList(ArrayList<Request> requestList) {
         this.requestList = requestList;
     }
 }

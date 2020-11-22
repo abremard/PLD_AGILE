@@ -11,7 +11,7 @@ public class Intersection {
         this.id = id;
     }
 
-    public Intersection(int id) {
+    public Intersection(long id) {
         this.id = id;
     }
 

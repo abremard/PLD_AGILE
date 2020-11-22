@@ -1,5 +1,6 @@
 package objects;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.io.File;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -11,8 +12,8 @@ import org.w3c.dom.Element;
 
 public class Map {
 
-    LinkedList<Intersection> intersectionList;
-    LinkedList<Segment> segmentList;
+    ArrayList<Intersection> intersectionList;
+    ArrayList<Segment> segmentList;
     // plus pratique pour l'algo
     Integer noOfIntersections;
     Integer noOfSegments;
@@ -26,8 +27,8 @@ public class Map {
             Document doc = dBuilder.parse(inputFile);
             doc.getDocumentElement().normalize();
             NodeList nList = doc.getElementsByTagName("intersection");
-            intersectionList = new LinkedList<Intersection>();
-            segmentList = new LinkedList<Segment>();
+            intersectionList = new ArrayList<Intersection>();
+            segmentList = new ArrayList<Segment>();
 
             for (int temp = 0; temp < nList.getLength(); temp++) {
                 Node nNode = nList.item(temp);
@@ -69,19 +70,19 @@ public class Map {
         }
     }
 
-    public LinkedList<Intersection> getIntersectionList() {
+    public ArrayList<Intersection> getIntersectionList() {
         return intersectionList;
     }
 
-    public LinkedList<Segment> getSegmentList() {
+    public ArrayList<Segment> getSegmentList() {
         return segmentList;
     }
 
-    public void setIntersectionList(LinkedList<Intersection> intersectionList) {
+    public void setIntersectionList(ArrayList<Intersection> intersectionList) {
         this.intersectionList = intersectionList;
     }
 
-    public void setSegmentList(LinkedList<Segment> segmentList) {
+    public void setSegmentList(ArrayList<Segment> segmentList) {
         this.segmentList = segmentList;
     }
 
