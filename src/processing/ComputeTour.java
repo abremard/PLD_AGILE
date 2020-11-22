@@ -70,12 +70,19 @@ public class ComputeTour {
 
                 // relâcher l'arc
                 if (distVoisin == -1 || distVoisin > curNoeud.distance + seg.getLength()) {     // meilleur chemin qu'avant
-                    dist.get(indexArrivee).distance = curNoeud.distance + seg.getLength();      // màj distance
+                    TupleDijkstra voisin = dist.get(indexArrivee);
+                    if(pQueue.contains(voisin)) {
+                        pQueue.remove(voisin);
+                        voisin.distance = curNoeud.distance + seg.getLength();      // màj distance
+                        pQueue.add(voisin);
+                    } else {
+                        voisin.distance = curNoeud.distance + seg.getLength();      // màj distance
+                    }
                     pred.set(indexArrivee, seg);            // màj prédécesseur
 
-                    if (dist.get(indexArrivee).color == TupleDijkstra.Color.WHITE) {            // noeud pas encore traité
-                        pQueue.add(dist.get(indexArrivee));
-                        dist.get(indexArrivee).color = TupleDijkstra.Color.GREY;
+                    if (voisin.color == TupleDijkstra.Color.WHITE) {            // noeud pas encore traité
+                        pQueue.add(voisin);
+                        voisin.color = TupleDijkstra.Color.GREY;
                     }
                 }
             } // fin du parcours des arcs sortants

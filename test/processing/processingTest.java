@@ -21,7 +21,7 @@ public class processingTest {
         System.out.println("Liste de requetes chargee, nombre de requetes : " + planning.getRequestList().size());
 
         Tournee tournee = ComputeTour.planTour(map, planning);
-        System.out.println("Tournee calculee :");
+        System.out.println("Tournee calculee :"); // pour map_test.xml, requests_test.xml, tourneeTriviale : S01, S12, S25, S51, S23, S30
         for (Segment seg : tournee.getSegmentList()) {
             System.out.println(seg);
         }
