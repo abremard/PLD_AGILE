@@ -82,8 +82,25 @@ public class ComputeTour {
     // ----------------------------- Heuristiques
 
     private static Tournee tourneeTriviale(Map map, LinkedList<Request> requestList) {
+        LinkedList<Segment> chemin = new LinkedList<Segment>();
 
-        return null;
+        Intersection previousDelivery = null;
+        LinkedList<Intersection> ptsInteret;
+        for(Request request : requestList) {
+            if(previousDelivery != null) {
+                ptsInteret = new LinkedList<Intersection>();
+                ptsInteret.add(request.getPickup());
+                LinkedList<Segment> boutChemin = dijkstra(map, previousDelivery, ptsInteret);
+                chemin.addAll(boutChemin);
+            }
+            ptsInteret = new LinkedList<Intersection>();
+            ptsInteret.add(request.getDelivery());
+            LinkedList<Segment> boutChemin = dijkstra(map, request.getPickup(), ptsInteret);
+            chemin.addAll(boutChemin);
+            previousDelivery = request.getDelivery();
+        }
+
+        return new Tournee(chemin, requestList);
     }
 
     private static Tournee geneticATSP() {
