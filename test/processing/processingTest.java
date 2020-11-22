@@ -12,15 +12,15 @@ public class processingTest {
         Map map = new Map("data/map_test.xml");
         System.out.println("Map chargee, nombre d'intersections : " + map.getNoOfIntersections() + ",   nombre de segments : " + map.getNoOfSegments());
 
-        PlanningRequest listRequests = new PlanningRequest();
+        PlanningRequest planning = new PlanningRequest();
         try {
-            listRequests.parseRequest("data/requests_test.xml");
+            planning.parseRequest("data/requests_test.xml");
         } catch (Exception e) {
             e.printStackTrace();
         }
-        System.out.println("Liste de requetes chargee, nombre de requetes : " + listRequests.getRequestList().size());
+        System.out.println("Liste de requetes chargee, nombre de requetes : " + planning.getRequestList().size());
 
-        Tournee tournee = ComputeTour.planTour(map, listRequests.getRequestList());
+        Tournee tournee = ComputeTour.planTour(map, planning);
         System.out.println("Tournee calculee :");
         for (Segment seg : tournee.getSegmentList()) {
             System.out.println(seg);

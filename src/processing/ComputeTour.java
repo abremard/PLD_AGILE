@@ -10,13 +10,13 @@ import objects.*;
 
 public class ComputeTour {
 
-    public static Tournee planTour(Map map, ArrayList<Request> requestList) {
+    public static Tournee planTour(Map map, PlanningRequest planning) {
 
         // constructeur : Request(Intersection pickup, Intersection delivery, double pickupDur, double deliveryDur, [LocalTime startTime])
         // constructeur : Segment(int origin, int destination, Float length, String name)
         // constructeur : Tournee(LinkedList<Segment> segmentList, LinkedList<Request> requestList)
         HashMap<Long, Integer> intersecIdToIndex = indexationIntersections(map);
-        return tourneeTriviale(map, requestList, intersecIdToIndex);
+        return tourneeTriviale(map, planning, intersecIdToIndex);
     }
 
     // ----------------------------- Fonctions utilitaires
@@ -140,27 +140,33 @@ public class ComputeTour {
 
     // ----------------------------- Heuristiques
 
-    private static Tournee tourneeTriviale(Map map, ArrayList<Request> requestList, HashMap<Long, Integer> intersecIdToIndex) {
+    private static Tournee tourneeTriviale(Map map, PlanningRequest planning, HashMap<Long, Integer> intersecIdToIndex) {
         ArrayList<Segment> chemin = new ArrayList<Segment>();
         ArrayList<Intersection> intersections = map.getIntersectionList();
 
-        Intersection previousDelivery = null;
+        Intersection previousDelivery = planning.getDepot().getAdresse();
         LinkedList<Intersection> ptsInteret;
-        for (Request request : requestList) {
-            if (previousDelivery != null) {
-                ptsInteret = new LinkedList<Intersection>();
-                ptsInteret.add(request.getPickup());
-                ArrayList<Segment> predList = dijkstra(map, previousDelivery, ptsInteret, intersecIdToIndex);
-                chemin.addAll(recreateChemin(predList, previousDelivery, request.getPickup(), intersections, intersecIdToIndex));
-            }
+        ArrayList<Segment> predList;
+        for (Request request : planning.getRequestList()) {
+            ptsInteret = new LinkedList<Intersection>();
+            ptsInteret.add(request.getPickup());
+            predList = dijkstra(map, previousDelivery, ptsInteret, intersecIdToIndex);
+            chemin.addAll(recreateChemin(predList, previousDelivery, request.getPickup(), intersections, intersecIdToIndex));
+
             ptsInteret = new LinkedList<Intersection>();
             ptsInteret.add(request.getDelivery());
-            ArrayList<Segment> predList = dijkstra(map, request.getPickup(), ptsInteret, intersecIdToIndex);
+            predList = dijkstra(map, request.getPickup(), ptsInteret, intersecIdToIndex);
             chemin.addAll(recreateChemin(predList, request.getPickup(), request.getDelivery(), intersections, intersecIdToIndex));
             previousDelivery = request.getDelivery();
         }
 
-        return new Tournee(chemin, requestList);
+        // retour au depot
+        ptsInteret = new LinkedList<Intersection>();
+        ptsInteret.add(planning.getDepot().getAdresse());
+        predList = dijkstra(map, previousDelivery, ptsInteret, intersecIdToIndex);
+        chemin.addAll(recreateChemin(predList, previousDelivery, planning.getDepot().getAdresse(), intersections, intersecIdToIndex));
+
+        return new Tournee(chemin, planning.getRequestList());
     }
 
     private static Tournee geneticATSP() {
