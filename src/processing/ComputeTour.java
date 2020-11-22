@@ -59,8 +59,8 @@ public class ComputeTour {
      * @param intersecIdToIndex Dictionnaire faisant la correspondance entre ID d'une Intersection et son indice/index
      *                          dans les différentes structures de données indexées par Intersection
      * @return La liste d'adjacence, indexée par indices (obtenus à partir des ID des intersections avec la HashMap
-     * passée en paramètre) et contenant pour chaque Intersection la liste des sommets directement accessibles depuis
-     * cette Intersection en passant par un seul Segment.
+     * passée en paramètre) et contenant pour chaque Intersection la liste des segments ayant pour origine cette
+     * Intersection.
      */
     private static ArrayList<ArrayList<Segment>> getListeAdj(Map map, HashMap<Integer, Integer> intersecIdToIndex) {
 
@@ -73,10 +73,10 @@ public class ComputeTour {
 
         for (Segment segment : map.getSegmentList()) {
             int departId = intersecIdToIndex.get(segment.getOrigin());
-            int arriveeId = intersecIdToIndex.get(segment.getDestination());
+            listeAdj.get(departId).add(segment);
         }
 
-        return null;
+        return listeAdj;
     }
 
     // ----------------------------- Heuristiques
