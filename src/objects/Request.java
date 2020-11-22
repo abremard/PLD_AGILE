@@ -10,16 +10,6 @@ public class Request {
     double deliveryDur;
     LocalTime startTime;
 
-    @Override
-    public String toString() {
-        return "Request{" +
-                "pickup=" + pickup +
-                ", delivery=" + delivery +
-                ", pickupDur=" + pickupDur +
-                ", deliveryDur=" + deliveryDur +
-                ", startTime=" + startTime +
-                '}';
-    }
 
     public Request(Intersection pickup, Intersection delivery, double pickupDur, double deliveryDur) {
         this.pickup = pickup;
