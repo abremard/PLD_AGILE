@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+<?import com.sothawo.mapjfx.MapView?>
+<StackPane minHeight="800.0" minWidth="1500.0" prefHeight="800.0" prefWidth="1500.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
+   <children>
+
+       <MapView fx:id="mapView"/>
+            
+       <SplitPane dividerPositions="0.15162907268170425, 0.8308270676691729" maxWidth="320.0" minWidth="370.0" orientation="VERTICAL" prefHeight="800.0" prefWidth="370.0" style="-fx-background-image: url(&quot;/sample/transparent.png&quot;); -fx-background-color: transparent;" stylesheets="@/sample/style.css" StackPane.alignment="CENTER_LEFT">
+        <items>
+          <AnchorPane maxHeight="100.0" minHeight="100.0" minWidth="370.0" prefHeight="100.0" prefWidth="370.0" style="-fx-background-color: transparent;">
+               <children>
+                  <ImageView fitHeight="81.0" fitWidth="193.0" layoutX="8.0" layoutY="22.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@/sample/title.png" />
+                     </image>
+                  </ImageView>
+               </children></AnchorPane>
+          <AnchorPane fx:id="list" maxHeight="1.7976931348623157E308" maxWidth="350.0" minHeight="0.0" minWidth="370.0" prefHeight="100.0" prefWidth="370.0" style="-fx-background-color: transparent;">
+               <children>
+                  <TextField fx:id="mapField" layoutX="14.0" layoutY="45.0" prefHeight="40.0" prefWidth="278.0" style="-fx-background-color: #d0cece; -fx-background-radius: 12 12 12 12;" />
+                  <Button fx:id="mapButton" layoutX="298.0" layoutY="45.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="38.0" style="-fx-background-color: #d0cece; -fx-background-radius: 12 12 12 12;" text="..." />
+                  <Text fx:id="mapText" fill="#5d5d5c" layoutX="14.0" layoutY="35.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Import Map File">
+                     <font>
+                        <Font name="Arial" size="13.0" />
+                     </font>
+                  </Text>
+                  <Text fx:id="requestText" fill="#5d5d5c" layoutX="14.0" layoutY="119.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Import Requests File">
+                     <font>
+                        <Font name="Arial" size="13.0" />
+                     </font>
+                  </Text>
+                  <TextField fx:id="requestField" layoutX="14.0" layoutY="132.0" prefHeight="40.0" prefWidth="278.0" style="-fx-background-color: #d0cece; -fx-background-radius: 12 12 12 12;" />
+                  <Button fx:id="requestButton" layoutX="298.0" layoutY="132.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="38.0" style="-fx-background-color: #d0cece; -fx-background-radius: 12 12 12 12;" text="..." />
+               </children>
+            </AnchorPane>
+            <AnchorPane maxHeight="100.0" minHeight="100.0" minWidth="370.0" prefHeight="100.0" prefWidth="370.0" style="-fx-background-color: transparent;">
+               <children>
+                  <Button fx:id="mainButton" layoutX="16.0" layoutY="28.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="312.0" style="-fx-background-color: #f2f2f2; -fx-background-radius: 12 12 12 12;" text="Calculate Tour" textFill="#717171">
+                     <font>
+                        <Font name="Arial Bold" size="14.0" />
+                     </font></Button>
+               </children>
+            </AnchorPane>
+        </items>
+      </SplitPane>
+   </children>
+</StackPane>

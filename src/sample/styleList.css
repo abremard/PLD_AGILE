@@ -1,0 +1,16 @@
+.list-view {
+    -fx-padding: 3px ;
+    -fx-background-color: rgba(250, 250, 250, 0.71);
+}
+
+.list-cell {
+    -fx-padding: 25px 23px ;
+    -fx-background-radius: 22px;
+    -fx-background-color: transparent, rgba(250, 250, 250, 0.51) ;
+    -fx-background-insets: 0px, 5px ;
+}
+
+.list-view .list-cell:empty {
+    -fx-background-color: transparent ;
+    -fx-background-insets: 0 ;
+}
