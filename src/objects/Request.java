@@ -10,6 +10,7 @@ public class Request {
     double deliveryDur;
     LocalTime startTime;
 
+
     public Request(Intersection pickup, Intersection delivery, double pickupDur, double deliveryDur) {
         this.pickup = pickup;
         this.delivery = delivery;
