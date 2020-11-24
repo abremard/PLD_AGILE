@@ -5,6 +5,7 @@ import com.sothawo.mapjfx.offline.OfflineCache;
 import command.ComputeTourCommand;
 import command.LoadMapCommand;
 import command.LoadRequestPlanCommand;
+import command.NewTourCommand;
 import controller.MVCController;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -203,6 +204,9 @@ public class Controller {
                     requestText.setVisible(true);
                     mapText.setVisible(true);
 
+                    // reset MVC State
+                    mvcController.Reset();
+
                     //clear everything from map
                     tourLines.clear();
 
@@ -249,8 +253,8 @@ public class Controller {
 
         ArrayList<Segment> listSegments = map.getSegmentList();
         ArrayList<Intersection> listIntersection = map.getIntersectionList();
-        logger.info(listSegments.toString());
-        logger.info(listIntersection.toString());
+        // logger.info(listSegments.toString());
+        // logger.info(listIntersection.toString());
         for (Segment segment: listSegments) {
             long idOrigin = segment.getOrigin();
             long idDestination = segment.getDestination();
