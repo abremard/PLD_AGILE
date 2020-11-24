@@ -2,6 +2,8 @@ package command;
 
 import objects.Map;
 import objects.PlanningRequest;
+import objects.Tournee;
+import processing.ComputeTour;
 
 public class ComputeTourCommand implements Command {
 
@@ -23,6 +25,7 @@ public class ComputeTourCommand implements Command {
 
     private Map map;
     private PlanningRequest planningRequest;
+    private Tournee tournee;
 
     public ComputeTourCommand(Map m, PlanningRequest p) {
         this.map = m;
@@ -31,7 +34,7 @@ public class ComputeTourCommand implements Command {
 
     @Override
     public void doCommand() {
-        // compute here...
+        tournee = ComputeTour.planTour(map, planningRequest);
     }
 
     @Override
