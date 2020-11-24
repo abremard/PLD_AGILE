@@ -2,6 +2,7 @@ package sample;
 
 import com.sothawo.mapjfx.*;
 import com.sothawo.mapjfx.offline.OfflineCache;
+import command.ComputeTourCommand;
 import command.LoadMapCommand;
 import command.LoadRequestPlanCommand;
 import controller.MVCController;
@@ -75,9 +76,12 @@ public class Controller {
     private Text requestText;
 
     private ArrayList<CoordinateLine> coordLines;
+    private ArrayList<CoordinateLine> tourLines;
     private ArrayList<Marker> markers;
 
     private Map map = null;
+    private PlanningRequest planningRequest;
+    private Tournee tour;
 
     private boolean isTimeline = false;
 
@@ -102,6 +106,7 @@ public class Controller {
     {
         mvcController = new MVCController();
         coordLines = new ArrayList<CoordinateLine>();
+        tourLines = new ArrayList<CoordinateLine>();
         markers = new ArrayList<Marker>();
     }
 
@@ -168,9 +173,9 @@ public class Controller {
 
                 mvcController.LoadRequestPlan(file.getAbsolutePath());
                 LoadRequestPlanCommand requestCommand = (LoadRequestPlanCommand) mvcController.getL().getL().get(mvcController.getL().getI());
-                PlanningRequest planningRequest = requestCommand.getPlanningRequest();
+                planningRequest = requestCommand.getPlanningRequest();
                 markers.clear();
-                displayRequests(planningRequest);
+                displayRequests();
                 //ADD METHOD TO DISPLAY ON MAP - PLACE POINTS OF REQUESTS AND DELIVERY POINTS
                 //MAKE SURE TO CHANGE POSITION AND SCALE OF MAP TO DISPLAY AREA WHERE POINTS ARE PLACED
                 // use Coordinate to store all points of intersection where location is - possibly add this to the model
@@ -199,6 +204,7 @@ public class Controller {
                     mapText.setVisible(true);
 
                     //clear everything from map
+                    tourLines.clear();
 
                     //change text of button
                     mainButton.setText("Calculate Tour");
@@ -220,7 +226,10 @@ public class Controller {
                     //get files, pass them to the algo, calculate path, get results
 
                     //call method that places results on the map
-
+                    mvcController.ComputeTour(map, planningRequest);
+                    ComputeTourCommand tourCommand = (ComputeTourCommand) mvcController.getL().getL().get(mvcController.getL().getI());
+                    tour = tourCommand.getTournee();
+                    displayTour();
                     //call method that places results on timeline
                     initCardContent();
 
@@ -269,7 +278,39 @@ public class Controller {
         }
     }
 
-    public void displayRequests( PlanningRequest pr){
+    public void displayTour() {
+        ArrayList<Segment> listSegments = tour.getSegmentList();
+        ArrayList<Intersection> listIntersection = map.getIntersectionList();
+        logger.info(listSegments.toString());
+        logger.info(listIntersection.toString());
+        for (Segment segment : listSegments) {
+            long idOrigin = segment.getOrigin();
+            long idDestination = segment.getDestination();
+            Intersection ptOrigin = null;
+            Intersection ptDestination = null;
+            for (Intersection intersection : listIntersection) {
+                long idIntersection = intersection.getId();
+                if (idIntersection == idOrigin) {
+                    ptOrigin = intersection;
+                }
+            }
+            for (Intersection intersection : listIntersection) {
+                long idIntersection = intersection.getId();
+                if (idIntersection == idDestination) {
+                    ptDestination = intersection;
+                }
+            }
+            Coordinate coordOrigin = new Coordinate(ptOrigin.getLatitude(), ptOrigin.getLongitude());
+            Coordinate coordDestination = new Coordinate(ptDestination.getLatitude(), ptDestination.getLongitude());
+            // Extent extent = Extent.forCoordinates();
+            CoordinateLine cl = new CoordinateLine(coordOrigin, coordDestination);
+            cl.setVisible(true).setColor(Color.RED).setWidth(2);
+            tourLines.add(cl);
+            mapView.addCoordinateLine(cl);
+        }
+    }
+
+    public void displayRequests(){
 
         ArrayList<Intersection> listIntersection = map.getIntersectionList();
 
@@ -277,9 +318,9 @@ public class Controller {
         Intersection pickup = null;
         Intersection depot = null;
 
-        long idDepot = pr.getDepot().getAdresse().getId();
+        long idDepot = planningRequest.getDepot().getAdresse().getId();
 
-        for( Request request : pr.getRequestList()  ){
+        for( Request request : planningRequest.getRequestList()  ){
             long idPickup = request.getPickup().getId();
             long idDelivery = request.getDelivery().getId();
 
@@ -305,8 +346,8 @@ public class Controller {
                 }
 
                 if (idIntersection == idDepot) {
-                    pr.getDepot().setAdresse(intersection);
-                    depot = pr.getDepot().getAdresse();
+                    planningRequest.getDepot().setAdresse(intersection);
+                    depot = planningRequest.getDepot().getAdresse();
                     foundDepot = true;
                 }
 

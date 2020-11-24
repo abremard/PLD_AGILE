@@ -15,13 +15,15 @@ public class ComputeTourCommand implements Command {
         return map;
     }
 
-    public void setMap(Map map) {
-        this.map = map;
-    }
-
     public PlanningRequest getPlanningRequest() {
         return planningRequest;
     }
+
+    public Tournee getTournee() {
+        return tournee;
+    }
+
+
 
     public void setPlanningRequest(PlanningRequest planningRequest) {
         this.planningRequest = planningRequest;
