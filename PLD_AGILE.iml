@@ -19,5 +19,9 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="library" name="unfolding.0.9.6" level="project" />
+    <orderEntry type="library" name="com.sothawo:mapjfx:2.15.2" level="project" />
+    <orderEntry type="library" name="org.slf4j:slf4j-api:1.6.1" level="project" />
+    <orderEntry type="library" name="Simple Logging Facade for Java:1.6.1" level="project" />
   </component>
 </module>

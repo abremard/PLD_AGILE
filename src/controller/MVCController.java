@@ -8,7 +8,25 @@ import objects.Map;
 import objects.PlanningRequest;
 import state.*;
 
-public class Controller {
+public class MVCController {
+
+    private ListOfCommands l;
+    private Window window;
+    private State currentState;
+    private InitialState initialState;
+    private MapState mapState;
+    private RequestState requestState;
+    private TourState tourState;
+
+    public MVCController(Window window) {
+        this.l = new ListOfCommands();
+        this.window = window;
+        this.initialState = new InitialState();
+        this.currentState = this.initialState;
+        this.mapState = new MapState();
+        this.requestState = new RequestState();
+        this.tourState = new TourState();
+    }
 
     public ListOfCommands getL() {
         return l;
@@ -61,14 +79,6 @@ public class Controller {
     public void setTourState(TourState tourState) {
         this.tourState = tourState;
     }
-
-    private ListOfCommands l;
-    private Window window;
-    private State currentState;
-    private InitialState initialState;
-    private MapState mapState;
-    private RequestState requestState;
-    private TourState tourState;
 
     public void setCurrentState(State state) {
         this.currentState = state;

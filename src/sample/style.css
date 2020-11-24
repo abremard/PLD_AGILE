@@ -1,0 +1,8 @@
+.split-pane:horizontal > .split-pane-divider {
+   -fx-background-color: transparent;
+   -fx-padding: 0 ;
+}
+.split-pane:vertical > .split-pane-divider {
+   -fx-background-color: transparent;
+   -fx-padding: 0 ;
+}

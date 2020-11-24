@@ -8,8 +8,13 @@ import java.io.IOException;
 
 public class PlanningRequestTest extends TestCase {
 
-    public void testParseRequest() throws IOException, SAXException, ParserConfigurationException {
+    public static void main() throws ParserConfigurationException, SAXException, IOException {
+        testParseRequest();
+    }
+
+
+    public static void testParseRequest() throws IOException, SAXException, ParserConfigurationException {
         PlanningRequest planningRequestParse = new PlanningRequest();
-        planningRequestParse.parseRequest("requestsMedium3.xml");
+        planningRequestParse.parseRequest("temp/fichiersXML2020/requestsMedium3.xml");
     }
 }
