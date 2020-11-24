@@ -11,6 +11,7 @@ import state.*;
 public class MVCController {
 
     private ListOfCommands l;
+
     private Window window;
     private State currentState;
     private InitialState initialState;
@@ -18,9 +19,9 @@ public class MVCController {
     private RequestState requestState;
     private TourState tourState;
 
-    public MVCController(Window window) {
+    public MVCController() {
         this.l = new ListOfCommands();
-        this.window = window;
+        //this.window = window;
         this.initialState = new InitialState();
         this.currentState = this.initialState;
         this.mapState = new MapState();
@@ -36,13 +37,13 @@ public class MVCController {
         this.l = l;
     }
 
-    public Window getWindow() {
+    /*public Window getWindow() {
         return window;
     }
 
     public void setWindow(Window window) {
         this.window = window;
-    }
+    }*/
 
     public State getCurrentState() {
         return currentState;
