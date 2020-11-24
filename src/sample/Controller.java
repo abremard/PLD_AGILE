@@ -69,6 +69,10 @@ public class Controller {
     @FXML
     private Text requestText;
 
+    private ArrayList<CoordinateLine> coordLines;
+
+    private Map map = null;
+
     private boolean isTimeline = false;
 
     private static final Coordinate coordKarlsruheHarbour = new Coordinate(45.77087932755228, 4.863621380475198);
@@ -91,6 +95,7 @@ public class Controller {
     public Controller()
     {
         mvcController = new MVCController();
+        coordLines = new ArrayList<CoordinateLine>();
     }
 
     public void initMapAndControls(Projection projection) {
@@ -130,10 +135,13 @@ public class Controller {
                 File file = fileChooser.showOpenDialog(new Stage());
                 mapField.setText(file.getAbsolutePath());
 
+
                 mvcController.LoadMap(file.getAbsolutePath());
                 LoadMapCommand mapCommand = (LoadMapCommand) mvcController.getL().getL().get(mvcController.getL().getI());
-                Map myMap = mapCommand.getMap();
-                displayMap(myMap);
+                map = mapCommand.getMap();
+                coordLines.clear();
+                displayMap();
+
                 //ADD METHOD TO DISPLAY ON MAP - DRAW LINES OF SEGMENTS
                 //MAKE SURE TO CHANGE POSITION OF MAP TO DISPLAY AREA WHERE SEGMENTS WERE PLACED
                 //use Coordinate to store all points of intersection - possibly add this to the model
@@ -209,11 +217,14 @@ public class Controller {
             }
         });
 
+
+
         logger.info("initialization finished");
 
     }
 
-    private void displayMap(Map map) {
+    private void displayMap() {
+
         ArrayList<Segment> listSegments = map.getSegmentList();
         ArrayList<Intersection> listIntersection = map.getIntersectionList();
         logger.info(listSegments.toString());
@@ -238,9 +249,10 @@ public class Controller {
             Coordinate coordOrigin = new Coordinate(ptOrigin.getLatitude(), ptOrigin.getLongitude());
             Coordinate coordDestination = new Coordinate(ptDestination.getLatitude(), ptDestination.getLongitude());
             // Extent extent = Extent.forCoordinates();
-            CoordinateLine coordLine = new CoordinateLine(coordOrigin, coordDestination);
-            coordLine.setVisible(true).setColor(Color.BLACK).setWidth(1);
-            mapView.addCoordinateLine(coordLine);
+            CoordinateLine cl = new CoordinateLine(coordOrigin,coordDestination);
+            cl.setVisible(true).setColor(Color.BLACK).setWidth(1);
+            coordLines.add(cl);
+            mapView.addCoordinateLine(cl);
         }
     }
 
