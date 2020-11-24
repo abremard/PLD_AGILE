@@ -8,6 +8,8 @@ public class Intersection {
     long id;
 
     public Intersection(double latitude, double longitude, long id) {
+        this.latitude = latitude;
+        this.longitude = longitude;
         this.id = id;
     }
 
