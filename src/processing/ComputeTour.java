@@ -25,7 +25,9 @@ public class ComputeTour {
         // constructeur : Segment(int origin, int destination, Float length, String name)
         // constructeur : Tournee(LinkedList<Segment> segmentList, LinkedList<Request> requestList)
         HashMap<Long, Integer> intersecIdToIndex = indexationIntersections(map);
-        return tourneeTriviale(map, planning, intersecIdToIndex);
+
+        // calcul en fonction de la méthode choisie
+        return tourneeRandom(map, planning, intersecIdToIndex);
     }
 
     public static SuperArete[][] testFullGraph(Map map, PlanningRequest planning) {
@@ -264,7 +266,9 @@ public class ComputeTour {
     private static Tournee cheminVersTournee(PlanningRequest planningRequest, ArrayList<SuperArete> chemin) {
         ArrayList<Segment> segmentList = new ArrayList<>();
         for (SuperArete sa : chemin) {
-            segmentList.addAll(sa.chemin);
+            if (sa.chemin != null) {
+                segmentList.addAll(sa.chemin);
+            }
         }
         return new Tournee(segmentList, planningRequest.getRequestList());
     }
