@@ -415,17 +415,18 @@ public class ComputeTour {
                     curArriveeInd = i;
                 }
             }
-            System.out.println("On va aller de " + curDepartInd + " à " + curArriveeInd);
             // parcourir pool, pour chaque requete où il faut actuellement aller à minNode :
             //      si c'est un départ : transformer en arrivee
             //      si c'est une arrivee : virer du pool
-            long currIDarrivee = curChemin.arrivee.getId();
+            long curIDarrivee = curChemin.arrivee.getId();
+            System.out.println("On va aller de " + curChemin.depart.getId() + " à " + curIDarrivee);
+
             LinkedList<TupleRequete> aDelete = new LinkedList<TupleRequete>();
             for (TupleRequete dest : pool) {
-                if(dest.isDepart && dest.requete.getPickup().getId() == currIDarrivee) {
+                if(dest.isDepart && dest.requete.getPickup().getId() == curIDarrivee) {
                     dest.isDepart = false;
                 }
-                if(!dest.isDepart && dest.requete.getDelivery().getId() == currIDarrivee) {
+                if(!dest.isDepart && dest.requete.getDelivery().getId() == curIDarrivee) {
                     aDelete.add(dest);
                 }
             }
