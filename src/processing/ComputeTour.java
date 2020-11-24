@@ -1,12 +1,10 @@
 
 package processing;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.PriorityQueue;
+import java.util.*;
 
 import objects.*;
+import objects.Map;
 
 /*
 * TODO
@@ -14,6 +12,9 @@ import objects.*;
 *  - ajouter dépot dans la matrice d'adj
 *  - ajouter les heures de récupération & de dépôt de livraison ?
 *  - algo pour le TSP (génétique ?)
+*
+* NB : temps total de parcours != longueur * vitesse !!!
+* NE PAS OUBLIER LES TEMPS DE PICKUP/DELIVERY
 * */
 
 public class ComputeTour {
@@ -24,6 +25,9 @@ public class ComputeTour {
 
         // version triviale
         //return tourneeTriviale(map, planning, intersecIdToIndex);
+		
+        // version random
+        //return tourneeRandom(map, planning, intersecIdToIndex);
 
         // version greedy
         SuperArete[][] matAdj = getOptimalFullGraph(map, planning.getRequestList(), intersecIdToIndex);
@@ -224,24 +228,118 @@ public class ComputeTour {
         return longueur;
     }
 
-    private static ArrayList<SuperArete> cheminAleatoire(SuperArete[][] matAdj, PlanningRequest planning, HashMap<Long, Integer> intersecIdToIndex) {
+    /**
+     * Choisit un élément aléatoire dans une ArrayList de type quelconque
+     * @param arrayList La liste dans laquelle l'élément est choisi
+     * @return L'élément de la liste choisi
+     */
+    private static <T> T pickRandom(ArrayList<T> arrayList) {
+        int rnd = new Random().nextInt(arrayList.size());
+        return arrayList.get(rnd);
+    }
 
-        /* Principe :
-         * Initialiser le pool d'intersections à tous les départs des requêtes
-         * Choisir un départ de requête au hasard dans le pool et le retirer
-         * Initialiser le chemin à la SuperArete [dépôt -> départ choisi]
-         * Ajouter l'arrivée de la requête asssociée départ choisi au pool
-         * Tant que le pool n'est pas vide :
-         *  - Prendre un élément au hasard dans le pool
-         *  - Si cet élément est un départ de requête, ajouter son arrivée dans le pool
-         *  - Ajouter au chemin la SuperArete [dernière Intersection du chemin -> élément choisi]
-         *
-         * -> comment représenter le pool ?
-         * */
-        return null;
+    /**
+     * Indexe les points de départ, d'arrivée de chaque requête + le dépôt de la façon suivante :
+     *      * indice 0 : dépot
+     *      * indices 1 à nb de pts d'intérêt : chaque point d'intérêt hors dépôt, indexé selon ptsIdToIndex
+     * FIXME pas sûr que ça marche avec les points confondus
+     * */
+    private static HashMap<Long, Integer> indexerPtsInteret(PlanningRequest planningRequest) {
+        HashMap<Long, Integer> ptsIdToIndex = new HashMap<>();
+
+        ptsIdToIndex.put(planningRequest.getDepot().getAdresse().getId(), 0);
+
+        int index = 1;
+        for (Request req: planningRequest.getRequestList()) {
+            if (!ptsIdToIndex.containsKey(req.getPickup().getId())) {     // pas sûr que c'est nécessaire
+                ptsIdToIndex.put(req.getPickup().getId(), index);
+                ++index;
+            }
+            if (!ptsIdToIndex.containsKey(req.getDelivery().getId())) {     // pas sûr que c'est nécessaire
+                ptsIdToIndex.put(req.getDelivery().getId(), index);
+                ++index;
+            }
+        }
+
+        return ptsIdToIndex;
+    }
+
+    /**
+     * Reconstruit un objet Tournee à partir d'un chemin entier et des requêtes demandées
+     * @param chemin Le chemin à utiliser pour la tournée
+     * @return La tournée qui en résulte
+     */
+    private static Tournee cheminVersTournee(PlanningRequest planningRequest, ArrayList<SuperArete> chemin) {
+        ArrayList<Segment> segmentList = new ArrayList<>();
+        for (SuperArete sa : chemin) {
+            if (sa.chemin != null) {
+                segmentList.addAll(sa.chemin);
+            }
+        }
+        return new Tournee(segmentList, planningRequest.getRequestList());
     }
 
     // ----------------------------- Heuristiques
+
+    /**
+     * Contrat : matAdj est indexé de la façon suivante :
+     * indice 0 : dépot
+     * indices 1 à nb de pts d'intérêt : chaque point d'intérêt hors dépôt, indexé selon ptsIdToIndex
+     */
+    private static ArrayList<SuperArete> cheminAleatoire(SuperArete[][] matAdj, PlanningRequest planning, HashMap<Long, Integer> ptsIdToIndex) {
+
+        /* --- Principe :
+         * Initialiser le pool d'intersections à tous les départs des requêtes
+         * Choisir un départ de requête au hasard dans le pool et le retirer
+         * Initialiser le chemin à la SuperArete [dépôt -> départ choisi]
+         * Ajouter l'arrivée de la requête associée départ choisi au pool
+         * Tant que le pool n'est pas vide :
+         *  - Prendre un élément au hasard dans le pool
+         *  - Ajouter au chemin la SuperArete [dernière Intersection du chemin -> élément choisi]
+         *  - Si cet élément est un départ de requête, ajouter son arrivée dans le pool
+         * Ajouter la SuperArete [dernier point -> dépôt]
+         *
+         * -> dans l'implémentation actuelle, les départs & les arrivées sont stockées dans un même objet TupleRequete
+         * (on ne supprime pas un point de départ du pool, on met juste à jour isDepart de son objet TupleRequete)
+         * */
+
+        // initialisation du pool
+        ArrayList<TupleRequete> pool = new ArrayList<>(planning.getRequestList().size());
+//        Set<TupleRequete> poolset = new HashSet<>();      // todo tester avec le set pour optimiser les suppressions
+        for (Request req: planning.getRequestList()) {
+            pool.add(new TupleRequete(req, true));
+        }
+
+        TupleRequete pick = pickRandom(pool);
+
+        // initialisation du chemin
+        ArrayList<SuperArete> chemin = new ArrayList<>();
+        int indexDernierPt = 0;
+        int indexActuel = ptsIdToIndex.get(pick.requete.getPickup().getId());
+        chemin.add(matAdj[indexDernierPt][indexActuel]);  // dépôt -> premier départ
+        pick.isDepart = false;
+
+        while (pool.size() > 0) {
+            // choix d'un chemin & update des indices
+            pick = pickRandom(pool);
+            indexDernierPt = indexActuel;
+            indexActuel = ptsIdToIndex.get(pick.requete.getPickup().getId());
+            // ajout de la nouvelle portion de cheminn
+            chemin.add(matAdj[indexDernierPt][indexActuel]);
+            if (pick.isDepart) {
+                pick.isDepart = false;
+            } else {
+                pool.remove(pick);
+            }
+        }
+
+        // ajout du retour au dépôt
+        indexDernierPt = indexActuel;
+        indexActuel = 0;
+        chemin.add(matAdj[indexDernierPt][indexActuel]);
+
+        return chemin;
+    }
 
     private static Tournee tourneeTriviale(Map map, PlanningRequest planning, HashMap<Long, Integer> intersecIdToIndex) {
         ArrayList<Segment> chemin = new ArrayList<Segment>();
@@ -272,8 +370,8 @@ public class ComputeTour {
         return new Tournee(chemin, planning.getRequestList());
     }
 
-    private static Tournee geneticATSP(SuperArete[][] matAdj, PlanningRequest planning, HashMap<Long, Integer> intersecIdToIndex) {
-
+    private static Tournee geneticATSP(SuperArete[][] matAdj, PlanningRequest planning) {
+        HashMap<Long, Integer> ptIdToIndex = new HashMap<>();       // !! pas les mêmes index qu'avant
         return null;
     }
 
@@ -352,6 +450,26 @@ public class ComputeTour {
         }
 
         return new Tournee(chemin, requests);
+    }
+
+    /**
+     * Génère une tournée aléatoire respectant les contraintes d'ordre pickup -> delivery avec les requêtes et la map*
+     * passées en paramètre
+     */
+    private static Tournee tourneeRandom(Map map, PlanningRequest planning, HashMap<Long, Integer> intersecIdToIndex) {
+
+        // dijkstra pour le graphe complet des plus courts chemins entre les points d'intérêt
+        SuperArete[][] matAdj = getOptimalFullGraph(map, planning.getRequestList(), intersecIdToIndex);
+        // indexation de ces points d'intérêt
+        HashMap<Long, Integer> ptsIdToIndex = indexerPtsInteret(planning);
+
+        // ligne à changer en fonction de la méthode choisie si copié-collé
+        // ici, chemin aléatoire qui respecte les contraintes de précédence départ -> arrivée
+        ArrayList<SuperArete> chemin = cheminAleatoire(matAdj, planning, ptsIdToIndex);
+
+        // construction de l'objet Tournee à partir du résultat obtenu
+        return cheminVersTournee(planning, chemin);
+
     }
 
 }

@@ -93,8 +93,8 @@ public class MVCController {
         currentState.loadRequestPlan(l, this, window, path);
     }
 
-    public void ComputeTour(Map m, PlanningRequest p) {
-        currentState.calculateTour(l, this, window, p, m);
-    }
+    public void ComputeTour(Map m, PlanningRequest p) { currentState.calculateTour(l, this, window, p, m); }
+
+    public void Reset() { currentState.newTour(l, this, window); }
 
 }
