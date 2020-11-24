@@ -8,6 +8,13 @@ import java.util.PriorityQueue;
 
 import objects.*;
 
+/*
+* TODO
+*  - arrêter Dijsktra quand on a traité tous les points d'intérêt
+*  - ajouter les heures de récupération & de dépôt de livraison ?
+*  - algo pour le TSP (génétique ?)
+* */
+
 public class ComputeTour {
 
     public static Tournee planTour(Map map, PlanningRequest planning) {
@@ -203,6 +210,31 @@ public class ComputeTour {
         return chemin;
     }
 
+    private static float longueurChemin(ArrayList<Segment> chemin) {
+        float longueur = 0;
+        for (Segment seg: chemin) {
+            longueur += seg.getLength();
+        }
+        return longueur;
+    }
+
+    private static ArrayList<SuperArete> cheminAleatoire(SuperArete[][] matAdj, PlanningRequest planning, HashMap<Long, Integer> intersecIdToIndex) {
+
+        /* Principe :
+         * Initialiser le pool d'intersections à tous les départs des SuperAretes
+         * Choisir un départ de requête au hasard dans le pool et le retirer
+         * Initialiser le chemin à la SuperArete [dépôt -> départ choisi]
+         * Ajouter l'arrivée du départ choisi au pool
+         * Tant que le pool n'est pas vide :
+         *  - Prendre un élément au hasard dans le pool
+         *  - Si cet élément est un départ de SuperArete, ajouter son arrivée dans le pool
+         *  - Ajouter au chemin la SuperArete [dernière Intersection du chemin -> élément choisi]
+         *
+         * -> comment représenter le pool ?
+         * */
+        return null;
+    }
+
     // ----------------------------- Heuristiques
 
     private static Tournee tourneeTriviale(Map map, PlanningRequest planning, HashMap<Long, Integer> intersecIdToIndex) {
@@ -234,7 +266,7 @@ public class ComputeTour {
         return new Tournee(chemin, planning.getRequestList());
     }
 
-    private static Tournee geneticATSP() {
+    private static Tournee geneticATSP(SuperArete[][] matAdj, PlanningRequest planning, HashMap<Long, Integer> intersecIdToIndex) {
 
         return null;
     }
