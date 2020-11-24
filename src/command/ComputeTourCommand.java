@@ -7,6 +7,10 @@ import processing.ComputeTour;
 
 public class ComputeTourCommand implements Command {
 
+    private Map map;
+    private PlanningRequest planningRequest;
+    private Tournee tournee;
+
     public Map getMap() {
         return map;
     }
@@ -22,10 +26,6 @@ public class ComputeTourCommand implements Command {
     public void setPlanningRequest(PlanningRequest planningRequest) {
         this.planningRequest = planningRequest;
     }
-
-    private Map map;
-    private PlanningRequest planningRequest;
-    private Tournee tournee;
 
     public ComputeTourCommand(Map m, PlanningRequest p) {
         this.map = m;

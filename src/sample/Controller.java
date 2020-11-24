@@ -2,6 +2,7 @@ package sample;
 
 import com.sothawo.mapjfx.*;
 import com.sothawo.mapjfx.offline.OfflineCache;
+import command.LoadMapCommand;
 import controller.MVCController;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -10,6 +11,8 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -18,12 +21,18 @@ import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import javafx.stage.FileChooser;
+import objects.Intersection;
 import objects.Map;
+import objects.Segment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
+// import java.awt.*;
 import java.io.File;
+import java.util.ArrayList;
+import javafx.scene.paint.Color;
+import java.util.LinkedList;
 
 public class Controller {
 
@@ -62,7 +71,7 @@ public class Controller {
 
     private boolean isTimeline = false;
 
-    private static final Coordinate coordKarlsruheHarbour = new Coordinate(49.015511, 8.323497);
+    private static final Coordinate coordKarlsruheHarbour = new Coordinate(45.77087932755228, 4.863621380475198);
 
     /** default zoom value. */
     private static final int ZOOM_DEFAULT = 14;
@@ -122,7 +131,9 @@ public class Controller {
                 mapField.setText(file.getAbsolutePath());
 
                 mvcController.LoadMap(file.getAbsolutePath());
-                Map map = mvcController.getL().getL().get(mvcController.getL().getI()).getMap();
+                LoadMapCommand mapCommand = (LoadMapCommand) mvcController.getL().getL().get(mvcController.getL().getI());
+                Map myMap = mapCommand.getMap();
+                displayMap(myMap);
                 //ADD METHOD TO DISPLAY ON MAP - DRAW LINES OF SEGMENTS
                 //MAKE SURE TO CHANGE POSITION OF MAP TO DISPLAY AREA WHERE SEGMENTS WERE PLACED
                 //use Coordinate to store all points of intersection - possibly add this to the model
@@ -200,6 +211,37 @@ public class Controller {
 
         logger.info("initialization finished");
 
+    }
+
+    private void displayMap(Map map) {
+        ArrayList<Segment> listSegments = map.getSegmentList();
+        ArrayList<Intersection> listIntersection = map.getIntersectionList();
+        logger.info(listSegments.toString());
+        logger.info(listIntersection.toString());
+        for (Segment segment: listSegments) {
+            long idOrigin = segment.getOrigin();
+            long idDestination = segment.getDestination();
+            Intersection ptOrigin = null;
+            Intersection ptDestination = null;
+            for (Intersection intersection: listIntersection) {
+                long idIntersection = intersection.getId();
+                if (idIntersection == idOrigin) {
+                    ptOrigin = intersection;
+                }
+            }
+            for (Intersection intersection: listIntersection) {
+                long idIntersection = intersection.getId();
+                if (idIntersection == idDestination) {
+                    ptDestination = intersection;
+                }
+            }
+            Coordinate coordOrigin = new Coordinate(ptOrigin.getLatitude(), ptOrigin.getLongitude());
+            Coordinate coordDestination = new Coordinate(ptDestination.getLatitude(), ptDestination.getLongitude());
+            // Extent extent = Extent.forCoordinates();
+            CoordinateLine coordLine = new CoordinateLine(coordOrigin, coordDestination);
+            coordLine.setVisible(true).setColor(Color.BLACK).setWidth(1);
+            mapView.addCoordinateLine(coordLine);
+        }
     }
 
     //CLASS THAT MODELS CONTENT OF CARDS TO SHOW IN TIMELINE
