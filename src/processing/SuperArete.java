@@ -23,4 +23,12 @@ public class SuperArete {
         }
     }
 
+    @Override
+    public String toString() {
+        return "SuperArete{" +
+                "depart=" + depart +
+                "arrivee=" + arrivee +
+                '}';
+    }
+
 }
