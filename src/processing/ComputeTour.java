@@ -20,11 +20,16 @@ public class ComputeTour {
 
     public static Tournee planTour(Map map, PlanningRequest planning) {
 
-        // constructeur : Request(Intersection pickup, Intersection delivery, double pickupDur, double deliveryDur, [LocalTime startTime])
-        // constructeur : Segment(int origin, int destination, Float length, String name)
-        // constructeur : Tournee(LinkedList<Segment> segmentList, LinkedList<Request> requestList)
         HashMap<Long, Integer> intersecIdToIndex = indexationIntersections(map);
-        return tourneeTriviale(map, planning, intersecIdToIndex);
+
+        // version triviale
+        //return tourneeTriviale(map, planning, intersecIdToIndex);
+
+        // version greedy
+        SuperArete[][] matAdj = getOptimalFullGraph(map, planning.getRequestList(), intersecIdToIndex);
+        return greedy(matAdj, planning, intersecIdToIndex);
+
+        // version genetique
     }
 
     public static SuperArete[][] testFullGraph(Map map, PlanningRequest planning) {
@@ -282,7 +287,71 @@ public class ComputeTour {
         *    - prendre le point du pool le plus proche du dernier point choisi
         *    - si c'est un départ, ajouter son arrivée au pool
         */
-        return null;
+
+        ArrayList<Segment> chemin = new ArrayList<Segment>();
+        ArrayList<Request> requests = planning.getRequestList();
+
+        LinkedList<TupleRequete> pool = new LinkedList<TupleRequete>();
+        for (Request req : requests) {
+            pool.add(new TupleRequete(req, true));
+        }
+
+        // todo : recup le point le plus proche du depot
+        int curDepartInd = 0;
+        for(TupleRequete req : pool) {
+            if(req.requete.getPickup().getId() == matAdj[curDepartInd][1].depart.getId()) {
+                req.isDepart = false;
+            }
+        }
+
+        while(!pool.isEmpty()) {
+            // trouver le plus proche
+            //     choper l'indice de curDepartInd dans matAdj
+            //     parcourir matAdj[index] et chercher le min -> minNode
+            SuperArete curChemin;
+            int curArriveeInd = 0;
+            curChemin = matAdj[curDepartInd][0]; // point le plus proche de curDepartInd
+            for (int i = 0; i < matAdj.length; i++) {
+                if(curChemin == null || (matAdj[curDepartInd][i] != null && matAdj[curDepartInd][i].longueur < curChemin.longueur)) {
+                    curChemin = matAdj[curDepartInd][i];
+                    curArriveeInd = i;
+                }
+            }
+            System.out.println("On va aller de " + curDepartInd + " à " + curArriveeInd);
+            // parcourir pool, pour chaque requete où il faut actuellement aller à minNode :
+            //      si c'est un départ : transformer en arrivee
+            //      si c'est une arrivee : virer du pool
+            long currIDarrivee = curChemin.arrivee.getId();
+            LinkedList<TupleRequete> aDelete = new LinkedList<TupleRequete>();
+            for (TupleRequete dest : pool) {
+                if(dest.isDepart && dest.requete.getPickup().getId() == currIDarrivee) {
+                    dest.isDepart = false;
+                }
+                if(!dest.isDepart && dest.requete.getDelivery().getId() == currIDarrivee) {
+                    aDelete.add(dest);
+                }
+            }
+            pool.removeAll(aDelete);
+
+            boolean stillUsed = false;
+            for (TupleRequete dest : pool) {
+                if (dest.isDepart && dest.requete.getPickup().getId() == curChemin.depart.getId()) {
+                    stillUsed = true;
+                    break;
+                }
+            }
+            if(!stillUsed) {
+                for (int i = 0; i < matAdj.length; i++) {
+                    matAdj[i][curDepartInd] = null;
+                }
+            }
+            // ajouter au chemin
+            chemin.addAll(curChemin.chemin);
+            // curDepartInd = minNode
+            curDepartInd = curArriveeInd;
+        }
+
+        return new Tournee(chemin, requests);
     }
 
 }
