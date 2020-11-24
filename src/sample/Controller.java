@@ -2,6 +2,7 @@ package sample;
 
 import com.sothawo.mapjfx.*;
 import com.sothawo.mapjfx.offline.OfflineCache;
+import controller.MVCController;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -17,6 +18,7 @@ import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import javafx.stage.FileChooser;
+import objects.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,9 +77,11 @@ public class Controller {
             .withAttributions(
                     "'Tiles &copy; <a href=\"https://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer\">ArcGIS</a>'");
 
+    private MVCController mvcController;
+
     public Controller()
     {
-
+        mvcController = new MVCController();
     }
 
     public void initMapAndControls(Projection projection) {
@@ -117,6 +121,8 @@ public class Controller {
                 File file = fileChooser.showOpenDialog(new Stage());
                 mapField.setText(file.getAbsolutePath());
 
+                mvcController.LoadMap(file.getAbsolutePath());
+                Map map = mvcController.getL().getL().get(mvcController.getL().getI()).getMap();
                 //ADD METHOD TO DISPLAY ON MAP - DRAW LINES OF SEGMENTS
                 //MAKE SURE TO CHANGE POSITION OF MAP TO DISPLAY AREA WHERE SEGMENTS WERE PLACED
                 //use Coordinate to store all points of intersection - possibly add this to the model
