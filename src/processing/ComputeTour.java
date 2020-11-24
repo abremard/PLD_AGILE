@@ -11,6 +11,7 @@ import objects.*;
 /*
 * TODO
 *  - arrêter Dijsktra quand on a traité tous les points d'intérêt
+*  - ajouter dépot dans la matrice d'adj
 *  - ajouter les heures de récupération & de dépôt de livraison ?
 *  - algo pour le TSP (génétique ?)
 * */
@@ -221,13 +222,13 @@ public class ComputeTour {
     private static ArrayList<SuperArete> cheminAleatoire(SuperArete[][] matAdj, PlanningRequest planning, HashMap<Long, Integer> intersecIdToIndex) {
 
         /* Principe :
-         * Initialiser le pool d'intersections à tous les départs des SuperAretes
+         * Initialiser le pool d'intersections à tous les départs des requêtes
          * Choisir un départ de requête au hasard dans le pool et le retirer
          * Initialiser le chemin à la SuperArete [dépôt -> départ choisi]
-         * Ajouter l'arrivée du départ choisi au pool
+         * Ajouter l'arrivée de la requête asssociée départ choisi au pool
          * Tant que le pool n'est pas vide :
          *  - Prendre un élément au hasard dans le pool
-         *  - Si cet élément est un départ de SuperArete, ajouter son arrivée dans le pool
+         *  - Si cet élément est un départ de requête, ajouter son arrivée dans le pool
          *  - Ajouter au chemin la SuperArete [dernière Intersection du chemin -> élément choisi]
          *
          * -> comment représenter le pool ?
@@ -270,4 +271,18 @@ public class ComputeTour {
 
         return null;
     }
+
+    private static Tournee greedy(SuperArete[][] matAdj, PlanningRequest planning, HashMap<Long, Integer> intersecIdToIndex) {
+
+        /* Principe :
+        *  - initialiser un pool à la liste des départs
+        *  - prendre le départ le plus proche du dépot du pool
+        *  - ajouter son arrivée au pool
+        *  - tant qu'on a pas fini le chemin (= tant que le pool n'est pas vide)
+        *    - prendre le point du pool le plus proche du dernier point choisi
+        *    - si c'est un départ, ajouter son arrivée au pool
+        */
+        return null;
+    }
+
 }
