@@ -36,6 +36,11 @@ import java.util.LinkedList;
 
 public class Controller {
 
+    /** custom images*/
+    String pickupImageFile = "/images/pickupMarker.png";
+    String deliveryImageFile = "/images/deliveryMarker.png";
+    String depotImageFile = "/images/depotMarker.png";
+
     /** logger for the class. */
     private static final Logger logger = LoggerFactory.getLogger(Controller.class);
 
@@ -164,6 +169,7 @@ public class Controller {
                 mvcController.LoadRequestPlan(file.getAbsolutePath());
                 LoadRequestPlanCommand requestCommand = (LoadRequestPlanCommand) mvcController.getL().getL().get(mvcController.getL().getI());
                 PlanningRequest planningRequest = requestCommand.getPlanningRequest();
+                markers.clear();
                 displayRequests(planningRequest);
                 //ADD METHOD TO DISPLAY ON MAP - PLACE POINTS OF REQUESTS AND DELIVERY POINTS
                 //MAKE SURE TO CHANGE POSITION AND SCALE OF MAP TO DISPLAY AREA WHERE POINTS ARE PLACED
@@ -269,6 +275,9 @@ public class Controller {
 
         Intersection delivery = null;
         Intersection pickup = null;
+        Intersection depot = null;
+
+        long idDepot = pr.getDepot().getAdresse().getId();
 
         for( Request request : pr.getRequestList()  ){
             long idPickup = request.getPickup().getId();
@@ -276,6 +285,7 @@ public class Controller {
 
             boolean foundDel = false;
             boolean foundPick = false;
+            boolean foundDepot = false;
 
             for (Intersection intersection: listIntersection) {
                 long idIntersection = intersection.getId();
@@ -294,11 +304,17 @@ public class Controller {
                     foundDel = true;
                 }
 
-                if( foundDel && foundPick){
+                if (idIntersection == idDepot) {
+                    pr.getDepot().setAdresse(intersection);
+                    depot = pr.getDepot().getAdresse();
+                    foundDepot = true;
+                }
+
+                if( foundDel && foundPick && foundDepot){
                     Coordinate coordPickup = new Coordinate(pickup.getLatitude(), pickup.getLongitude());
-                    Marker markerPickup = Marker.createProvided(Marker.Provided.RED).setPosition(coordPickup).setVisible(true);
+                    Marker markerPickup = new Marker( getClass().getResource(pickupImageFile),-12,-12).setPosition(coordPickup).setVisible(true);
                     Coordinate coordDelivery = new Coordinate(delivery.getLatitude(),delivery.getLongitude());
-                    Marker markerDelivery = Marker.createProvided(Marker.Provided.BLUE).setPosition(coordDelivery).setVisible(true);
+                    Marker markerDelivery = new Marker( getClass().getResource(deliveryImageFile),-11,-25).setPosition(coordDelivery).setVisible(true);
                     markers.add(markerPickup);
                     markers.add(markerDelivery);
                     mapView.addMarker(markerPickup);
@@ -307,8 +323,13 @@ public class Controller {
                 }
             }
 
-
         }
+
+        Coordinate coordDepot = new Coordinate(depot.getLatitude(), depot.getLongitude());
+        Marker markerDepot = new Marker( getClass().getResource(depotImageFile),-12,-12).setPosition(coordDepot).setVisible(true);
+        markers.add(markerDepot);
+        mapView.addMarker(markerDepot);
+
     }
 
     //CLASS THAT MODELS CONTENT OF CARDS TO SHOW IN TIMELINE
