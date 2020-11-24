@@ -28,6 +28,7 @@ public class LoadRequestPlanCommand implements Command {
 
     public LoadRequestPlanCommand(String pa) {
         this.path = pa;
+        planningRequest = new PlanningRequest();
     }
 
     @Override

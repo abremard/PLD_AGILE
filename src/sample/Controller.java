@@ -3,6 +3,7 @@ package sample;
 import com.sothawo.mapjfx.*;
 import com.sothawo.mapjfx.offline.OfflineCache;
 import command.LoadMapCommand;
+import command.LoadRequestPlanCommand;
 import controller.MVCController;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -21,15 +22,14 @@ import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import javafx.stage.FileChooser;
-import objects.Intersection;
-import objects.Map;
-import objects.Segment;
+import objects.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 // import java.awt.*;
 import java.io.File;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import javafx.scene.paint.Color;
 import java.util.LinkedList;
@@ -70,6 +70,7 @@ public class Controller {
     private Text requestText;
 
     private ArrayList<CoordinateLine> coordLines;
+    private ArrayList<Marker> markers;
 
     private Map map = null;
 
@@ -96,6 +97,7 @@ public class Controller {
     {
         mvcController = new MVCController();
         coordLines = new ArrayList<CoordinateLine>();
+        markers = new ArrayList<Marker>();
     }
 
     public void initMapAndControls(Projection projection) {
@@ -135,7 +137,6 @@ public class Controller {
                 File file = fileChooser.showOpenDialog(new Stage());
                 mapField.setText(file.getAbsolutePath());
 
-
                 mvcController.LoadMap(file.getAbsolutePath());
                 LoadMapCommand mapCommand = (LoadMapCommand) mvcController.getL().getL().get(mvcController.getL().getI());
                 map = mapCommand.getMap();
@@ -157,7 +158,13 @@ public class Controller {
             public void handle(ActionEvent event) {
                 File file = fileChooser.showOpenDialog(new Stage());
                 requestField.setText(file.getAbsolutePath());
+                logger.info(file.getAbsolutePath());
+                System.out.println(file.getAbsolutePath());
 
+                mvcController.LoadRequestPlan(file.getAbsolutePath());
+                LoadRequestPlanCommand requestCommand = (LoadRequestPlanCommand) mvcController.getL().getL().get(mvcController.getL().getI());
+                PlanningRequest planningRequest = requestCommand.getPlanningRequest();
+                displayRequests(planningRequest);
                 //ADD METHOD TO DISPLAY ON MAP - PLACE POINTS OF REQUESTS AND DELIVERY POINTS
                 //MAKE SURE TO CHANGE POSITION AND SCALE OF MAP TO DISPLAY AREA WHERE POINTS ARE PLACED
                 // use Coordinate to store all points of intersection where location is - possibly add this to the model
@@ -253,6 +260,54 @@ public class Controller {
             cl.setVisible(true).setColor(Color.BLACK).setWidth(1);
             coordLines.add(cl);
             mapView.addCoordinateLine(cl);
+        }
+    }
+
+    public void displayRequests( PlanningRequest pr){
+
+        ArrayList<Intersection> listIntersection = map.getIntersectionList();
+
+        Intersection delivery = null;
+        Intersection pickup = null;
+
+        for( Request request : pr.getRequestList()  ){
+            long idPickup = request.getPickup().getId();
+            long idDelivery = request.getDelivery().getId();
+
+            boolean foundDel = false;
+            boolean foundPick = false;
+
+            for (Intersection intersection: listIntersection) {
+                long idIntersection = intersection.getId();
+
+                if (idIntersection == idPickup) {
+                    pickup = request.getPickup();
+                    request.getPickup().setLatitude( intersection.getLatitude());
+                    request.getPickup().setLongitude( intersection.getLongitude());
+                    foundPick = true;
+                }
+
+                if (idIntersection == idDelivery) {
+                    delivery = request.getDelivery();
+                    request.getDelivery().setLatitude( intersection.getLatitude());
+                    request.getDelivery().setLongitude( intersection.getLongitude());
+                    foundDel = true;
+                }
+
+                if( foundDel && foundPick){
+                    Coordinate coordPickup = new Coordinate(pickup.getLatitude(), pickup.getLongitude());
+                    Marker markerPickup = Marker.createProvided(Marker.Provided.RED).setPosition(coordPickup).setVisible(true);
+                    Coordinate coordDelivery = new Coordinate(delivery.getLatitude(),delivery.getLongitude());
+                    Marker markerDelivery = Marker.createProvided(Marker.Provided.BLUE).setPosition(coordDelivery).setVisible(true);
+                    markers.add(markerPickup);
+                    markers.add(markerDelivery);
+                    mapView.addMarker(markerPickup);
+                    mapView.addMarker(markerDelivery);
+                    break;
+                }
+            }
+
+
         }
     }
 
