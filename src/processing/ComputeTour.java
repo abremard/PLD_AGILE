@@ -257,6 +257,21 @@ public class ComputeTour {
     }
 
     /**
+     * Reconstruit un objet Tournee à partir d'un chemin entier et des requêtes demandées
+     * @param chemin Le chemin à utiliser pour la tournée
+     * @return La tournée qui en résulte
+     */
+    private static Tournee cheminVersTournee(PlanningRequest planningRequest, ArrayList<SuperArete> chemin) {
+        ArrayList<Segment> segmentList = new ArrayList<>();
+        for (SuperArete sa : chemin) {
+            segmentList.addAll(sa.chemin);
+        }
+        return new Tournee(segmentList, planningRequest.getRequestList());
+    }
+
+    // ----------------------------- Heuristiques
+
+    /**
      * Contrat : matAdj est indexé de la façon suivante :
      * indice 0 : dépot
      * indices 1 à nb de pts d'intérêt : chaque point d'intérêt hors dépôt, indexé selon ptsIdToIndex
@@ -316,8 +331,6 @@ public class ComputeTour {
         return chemin;
     }
 
-    // ----------------------------- Heuristiques
-
     private static Tournee tourneeTriviale(Map map, PlanningRequest planning, HashMap<Long, Integer> intersecIdToIndex) {
         ArrayList<Segment> chemin = new ArrayList<Segment>();
         ArrayList<Intersection> intersections = map.getIntersectionList();
@@ -363,6 +376,26 @@ public class ComputeTour {
         *    - si c'est un départ, ajouter son arrivée au pool
         */
         return null;
+    }
+
+    /**
+     * Génère une tournée aléatoire respectant les contraintes d'ordre pickup -> delivery avec les requêtes et la map*
+     * passées en paramètre
+     */
+    private static Tournee tourneeRandom(Map map, PlanningRequest planning, HashMap<Long, Integer> intersecIdToIndex) {
+
+        // dijkstra pour le graphe complet des plus courts chemins entre les points d'intérêt
+        SuperArete[][] matAdj = getOptimalFullGraph(map, planning.getRequestList(), intersecIdToIndex);
+        // indexation de ces points d'intérêt
+        HashMap<Long, Integer> ptsIdToIndex = indexerPtsInteret(planning);
+
+        // ligne à changer en fonction de la méthode choisie si copié-collé
+        // ici, chemin aléatoire qui respecte les contraintes de précédence départ -> arrivée
+        ArrayList<SuperArete> chemin = cheminAleatoire(matAdj, planning, ptsIdToIndex);
+
+        // construction de l'objet Tournee à partir du résultat obtenu
+        return cheminVersTournee(planning, chemin);
+
     }
 
 }
