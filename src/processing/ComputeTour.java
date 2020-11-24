@@ -19,6 +19,11 @@ public class ComputeTour {
         return tourneeTriviale(map, planning, intersecIdToIndex);
     }
 
+    public static SuperArete[][] testFullGraph(Map map, PlanningRequest planning) {
+        HashMap<Long, Integer> intersecIdToIndex = indexationIntersections(map);
+        return getOptimalFullGraph(map, planning.getRequestList(), intersecIdToIndex);
+    }
+
     // ----------------------------- Fonctions utilitaires
 
     /**
@@ -89,6 +94,59 @@ public class ComputeTour {
         }
 
         return pred;
+    }
+
+    // SuperArete[depart][arrivee]
+    private static SuperArete[][] getOptimalFullGraph(Map map, ArrayList<Request> requests, HashMap<Long, Integer> intersecIdToIndex) {
+        ArrayList<Intersection> intersections = map.getIntersectionList();
+
+        LinkedList<Intersection> ptsInteret = new LinkedList<Intersection>();
+        boolean found;
+        for (Request req : requests) {
+            found = false;
+            for (Intersection node : ptsInteret) {
+                if(req.getPickup().getId() == node.getId()){
+                    found = true;
+                    break;
+                }
+            }
+            if(!found) {
+                ptsInteret.add(req.getPickup());
+            }
+
+            found = false;
+            for (Intersection node : ptsInteret) {
+                if(req.getDelivery().getId() == node.getId()){
+                    found = true;
+                    break;
+                }
+            }
+            if(!found) {
+                ptsInteret.add(req.getDelivery());
+            }
+
+//            if(!ptsInteret.contains(req.getPickup())){
+//                ptsInteret.add(req.getPickup());
+//            }
+//            if(!ptsInteret.contains(req.getDelivery())){
+//                ptsInteret.add(req.getDelivery());
+//            }
+        }
+
+        int nInodes = ptsInteret.size();
+        SuperArete[][] adjMatrix = new SuperArete[nInodes][nInodes];
+
+        for(int i=0; i<nInodes; i++) {
+            ArrayList<Segment> predList = dijkstra(map, ptsInteret.get(i), ptsInteret, intersecIdToIndex);
+            for(int j=0; j<nInodes; j++) {
+                if(i != j) {
+                    ArrayList<Segment> chemin = recreateChemin(predList, ptsInteret.get(i), ptsInteret.get(j), intersections, intersecIdToIndex);
+                    adjMatrix[i][j] = new SuperArete(chemin, intersections, intersecIdToIndex);
+                }
+            }
+        }
+
+        return adjMatrix;
     }
 
     /**
