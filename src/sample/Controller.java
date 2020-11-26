@@ -209,6 +209,8 @@ public class Controller {
 
                     //clear everything from map
                     tourLines.clear();
+                    markers.clear();
+                    coordLines.clear();
 
                     //change text of button
                     mainButton.setText("Calculate Tour");
