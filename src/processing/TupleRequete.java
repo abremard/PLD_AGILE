@@ -16,6 +16,12 @@ public class TupleRequete {
         this.isDepart = isDepart;
     }
 
+    public TupleRequete(Request requete, boolean isDepart, LocalTime time) {
+        this.requete = requete;
+        this.isDepart = isDepart;
+        this.time = time;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

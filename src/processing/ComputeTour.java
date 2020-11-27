@@ -1,6 +1,7 @@
 
 package processing;
 
+import java.time.LocalTime;
 import java.util.*;
 
 import objects.*;
@@ -348,6 +349,8 @@ public class ComputeTour {
     }
 
     private static Tournee tourneeTriviale(Map map, PlanningRequest planning, HashMap<Long, Integer> intersecIdToIndex) {
+        LocalTime startTime = LocalTime.now();
+        ArrayList<TupleRequete> ptsPassage = new ArrayList<TupleRequete>();
         ArrayList<Segment> chemin = new ArrayList<Segment>();
         ArrayList<Intersection> intersections = map.getIntersectionList();
 
@@ -359,11 +362,13 @@ public class ComputeTour {
             ptsInteret.add(request.getPickup());
             predList = dijkstra(map, previousDelivery, ptsInteret, intersecIdToIndex);
             chemin.addAll(recreateChemin(predList, previousDelivery, request.getPickup(), intersections, intersecIdToIndex));
+            ptsPassage.add(new TupleRequete(request, true, startTime));
 
             ptsInteret = new LinkedList<Intersection>();
             ptsInteret.add(request.getDelivery());
             predList = dijkstra(map, request.getPickup(), ptsInteret, intersecIdToIndex);
             chemin.addAll(recreateChemin(predList, request.getPickup(), request.getDelivery(), intersections, intersecIdToIndex));
+            ptsPassage.add(new TupleRequete(request, false, startTime));
             previousDelivery = request.getDelivery();
         }
 
@@ -373,7 +378,7 @@ public class ComputeTour {
         predList = dijkstra(map, previousDelivery, ptsInteret, intersecIdToIndex);
         chemin.addAll(recreateChemin(predList, previousDelivery, planning.getDepot().getAdresse(), intersections, intersecIdToIndex));
 
-        return new Tournee(chemin, planning.getRequestList());
+        return new Tournee(chemin, planning.getRequestList(), ptsPassage);
     }
 
     private static Tournee geneticATSP(SuperArete[][] matAdj, PlanningRequest planning) {
@@ -392,7 +397,9 @@ public class ComputeTour {
         *    - si c'est un départ, ajouter son arrivée au pool
         */
 
+        LocalTime startTime = LocalTime.now();
         ArrayList<Segment> chemin = new ArrayList<Segment>();
+        ArrayList<TupleRequete> ptsPassage = new ArrayList<TupleRequete>();
         ArrayList<Request> requests = planning.getRequestList();
 
         LinkedList<TupleRequete> pool = new LinkedList<TupleRequete>();
@@ -430,9 +437,11 @@ public class ComputeTour {
             LinkedList<TupleRequete> aDelete = new LinkedList<TupleRequete>();
             for (TupleRequete dest : pool) {
                 if(dest.isDepart && dest.requete.getPickup().getId() == curIDarrivee) {
+                    ptsPassage.add(new TupleRequete(dest.requete, true, startTime));
                     dest.isDepart = false;
                 }
                 if(!dest.isDepart && dest.requete.getDelivery().getId() == curIDarrivee) {
+                    ptsPassage.add(new TupleRequete(dest.requete, false, startTime));
                     aDelete.add(dest);
                 }
             }
@@ -456,7 +465,7 @@ public class ComputeTour {
             curDepartInd = curArriveeInd;
         }
 
-        return new Tournee(chemin, requests);
+        return new Tournee(chemin, requests, ptsPassage);
     }
 
     /**
