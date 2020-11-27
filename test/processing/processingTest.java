@@ -33,7 +33,13 @@ public class processingTest {
 //            }
 //            System.out.println();
 //        }
-
+        for (TupleRequete req : tournee.getPtsPassage()) {
+            if(req.isDepart) {
+                System.out.println(req.requete.getPickup().getId() + " " + req.time);
+            } else {
+                System.out.println(req.requete.getDelivery().getId() + " " + req.time);
+            }
+        }
 
     }
 
