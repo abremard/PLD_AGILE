@@ -18,6 +18,11 @@ import objects.Map;
 * NE PAS OUBLIER LES TEMPS DE PICKUP/DELIVERY
 * */
 
+/*
+* FIXME:
+*  - largeMap + requestsLarge9 + heuristique random -> bug
+* */
+
 public class ComputeTour {
 
     public static Tournee planTour(Map map, PlanningRequest planning, Heuristique heuristique) {
@@ -323,16 +328,41 @@ public class ComputeTour {
         ArrayList<SuperArete> chemin = new ArrayList<>();
         int indexDernierPt = 0;
         int indexActuel = ptsIdToIndex.get(pick.requete.getPickup().getId());
-        chemin.add(matAdj[indexDernierPt][indexActuel]);  // dépôt -> premier départ
+        // ajout de la nouvelle portion de chemin
+        if (indexActuel != indexDernierPt) {
+            if (matAdj[indexDernierPt][indexActuel] != null){
+                chemin.add(matAdj[indexDernierPt][indexActuel]);  // dépôt -> premier départ
+            } else {
+                System.err.println("null found where it should not be ! (" + indexDernierPt + " -> " + indexActuel + ")");
+            }
+        } else {
+            System.err.println("Path with identical pickup & delivery ignored");
+        }
         pick.isDepart = false;
+
+        // debug
+        if (matAdj[indexDernierPt][indexActuel] == null){
+            if (indexActuel == indexDernierPt)
+            System.err.println("null added to chemin at " + indexDernierPt + ", " +indexActuel);
+        }
 
         while (pool.size() > 0) {
             // choix d'un chemin & update des indices
             pick = pickRandom(pool);
             indexDernierPt = indexActuel;
             indexActuel = ptsIdToIndex.get(pick.requete.getPickup().getId());
-            // ajout de la nouvelle portion de cheminn
-            chemin.add(matAdj[indexDernierPt][indexActuel]);
+
+            // ajout de la nouvelle portion de chemin
+            if (indexActuel != indexDernierPt) {
+                if (matAdj[indexDernierPt][indexActuel] != null){
+                    chemin.add(matAdj[indexDernierPt][indexActuel]);  // dépôt -> premier départ
+                } else {
+                    System.err.println("null found where it should not be ! (" + indexDernierPt + " -> " + indexActuel + ")");
+                }
+            } else {
+                System.err.println("Path with identical pickup & delivery ignored");
+            }
+
             if (pick.isDepart) {
                 pick.isDepart = false;
             } else {
@@ -343,7 +373,16 @@ public class ComputeTour {
         // ajout du retour au dépôt
         indexDernierPt = indexActuel;
         indexActuel = 0;
-        chemin.add(matAdj[indexDernierPt][indexActuel]);
+        // ajout de la nouvelle portion de chemin
+        if (indexActuel != indexDernierPt) {
+            if (matAdj[indexDernierPt][indexActuel] != null){
+                chemin.add(matAdj[indexDernierPt][indexActuel]);  // dépôt -> premier départ
+            } else {
+                System.err.println("null found where it should not be ! (" + indexDernierPt + " -> " + indexActuel + ")");
+            }
+        } else {
+            System.err.println("Path with identical pickup & delivery ignored");
+        }
 
         return chemin;
     }

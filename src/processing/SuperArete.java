@@ -28,6 +28,7 @@ public class SuperArete {
         return "SuperArete{" +
                 "depart=" + depart +
                 "arrivee=" + arrivee +
+                "longueur=" + longueur +
                 '}';
     }
 
