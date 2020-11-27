@@ -292,8 +292,6 @@ public class ComputeTour {
         return new Tournee(segmentList, planningRequest.getRequestList());
     }
 
-    // ----------------------------- Heuristiques
-
     /**
      * Contrat : matAdj est indexé de la façon suivante :
      * indice 0 : dépot
@@ -343,8 +341,9 @@ public class ComputeTour {
 
         // debug
         if (matAdj[indexDernierPt][indexActuel] == null){
-            if (indexActuel == indexDernierPt)
-            System.err.println("null added to chemin at " + indexDernierPt + ", " +indexActuel);
+            if (indexActuel == indexDernierPt) {
+                System.err.println("null added to chemin at " + indexDernierPt + ", " + indexActuel);
+            }
         }
 
         while (pool.size() > 0) {
@@ -387,6 +386,8 @@ public class ComputeTour {
 
         return chemin;
     }
+
+    // ----------------------------- Heuristiques
 
     private static Tournee tourneeTriviale(Map map, PlanningRequest planning, HashMap<Long, Integer> intersecIdToIndex) {
         LocalTime startTime = LocalTime.now();
