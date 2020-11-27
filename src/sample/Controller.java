@@ -32,8 +32,12 @@ import javax.swing.*;
 // import java.awt.*;
 import java.io.File;
 import java.lang.reflect.Array;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import javafx.scene.paint.Color;
+import processing.TupleRequete;
+
 import java.util.LinkedList;
 
 public class Controller {
@@ -425,11 +429,37 @@ public class Controller {
 
     //METHOD THAT CREATES CARDS
     public void initCardContent() {
+        int nbPickup = 1;
+        int nbDelivery = 1;
+        ArrayList<TupleRequete> points = tour.getPtsPassage();
+        for (TupleRequete pt: points) {
+            String name = "";
+            String street1 = "";
+            String street2 = "";
+            if (pt.isDepart())
+            {
+                name = "Pickup "+nbPickup;
+                nbPickup++;
+                street1 = Double.toString(pt.getRequete().getPickup().getLatitude()) ;
+                street2 = Double.toString(pt.getRequete().getPickup().getLongitude());
+            } else
+            {
+                name = "Delivery "+nbDelivery;
+                nbDelivery++;
+                street1 = Double.toString(pt.getRequete().getDelivery().getLatitude());
+                street2 = Double.toString(pt.getRequete().getDelivery().getLongitude());
+            }
 
+            LocalTime time  = pt.getTime();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+
+            LocationTagContent item = new LocationTagContent(name, street1, street2, time.format(formatter));
+            cards.add(item);
+        }
 
         logger.info("creating data");
         ObservableList<LocationTagContent> data = FXCollections.observableArrayList();
-        data.addAll(new LocationTagContent("Pickup 1", "Rue Philomène Magnin", "Avenue Lacassagne", "8:12"),new LocationTagContent("Pickup 1", "Rue Philomène Magnin", "Avenue Lacassagne", "8:12"), new LocationTagContent("Pickup 1", "Rue Philomène Magnin", "Avenue Lacassagne", "8:12"), new LocationTagContent("Pickup 1", "Rue Philomène Magnin", "Avenue Lacassagne", "8:12"), new LocationTagContent("Pickup 1", "Rue Philomène Magnin", "Avenue Lacassagne", "8:12"), new LocationTagContent("Pickup 1", "Rue Philomène Magnin", "Avenue Lacassagne", "8:12"), new LocationTagContent("Pickup 1", "Rue Philomène Magnin", "Avenue Lacassagne", "8:12"), new LocationTagContent("Pickup 1", "Rue Philomène Magnin", "Avenue Lacassagne", "8:12"));
+        data.addAll(cards);
         logger.info("data added");
         final ListView<LocationTagContent> l= new ListView<LocationTagContent>(data);
 

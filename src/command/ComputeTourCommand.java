@@ -5,6 +5,9 @@ import objects.PlanningRequest;
 import objects.Tournee;
 import processing.ComputeTour;
 import processing.Heuristique;
+import processing.SuperArete;
+
+import java.util.ArrayList;
 
 public class ComputeTourCommand implements Command {
 
@@ -32,7 +35,11 @@ public class ComputeTourCommand implements Command {
 
     @Override
     public void doCommand() {
-        tournee = ComputeTour.planTour(map, planningRequest, Heuristique.TRIVIALE);
+        // mesure du temps d'exécution de la fonction de calcul du chemin
+        long startTime = System.nanoTime();
+        tournee = ComputeTour.planTour(map, planningRequest, Heuristique.RANDOM);
+        long stopTime = System.nanoTime();
+        System.err.println("--- Executed method 'planTour' in " + (double)(stopTime - startTime)/1000.0 + " μs");
     }
 
     @Override

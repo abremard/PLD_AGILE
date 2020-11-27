@@ -2,6 +2,7 @@
 package processing;
 
 import java.time.LocalTime;
+import java.time.temporal.TemporalAmount;
 import java.util.*;
 
 import objects.*;
@@ -10,12 +11,15 @@ import objects.Map;
 /*
 * TODO
 *  - arrêter Dijsktra quand on a traité tous les points d'intérêt
-*  - ajouter dépot dans la matrice d'adj
-*  - ajouter les heures de récupération & de dépôt de livraison ?
 *  - algo pour le TSP (génétique ?)
 *
-* NB : temps total de parcours != longueur * vitesse !!!
-* NE PAS OUBLIER LES TEMPS DE PICKUP/DELIVERY
+* FIXME
+*  - greedy fait des bails chelous avec les requêtes médium
+* */
+
+/*
+* FIXME:
+*  - largeMap + requestsLarge9 + heuristique random -> bug
 * */
 
 public class ComputeTour {
@@ -33,7 +37,7 @@ public class ComputeTour {
                 return tourneeRandom(map, planning, intersecIdToIndex);
             case GREEDY :
                 // version greedy
-                SuperArete[][] matAdj = getOptimalFullGraph(map, planning.getRequestList(), intersecIdToIndex);
+                SuperArete[][] matAdj = getOptimalFullGraph(map, planning, intersecIdToIndex);
                 return greedy(matAdj, planning, intersecIdToIndex);
             case GENETIQUE :
                 // version genetique
@@ -45,7 +49,7 @@ public class ComputeTour {
 
     public static SuperArete[][] testFullGraph(Map map, PlanningRequest planning) {
         HashMap<Long, Integer> intersecIdToIndex = indexationIntersections(map);
-        return getOptimalFullGraph(map, planning.getRequestList(), intersecIdToIndex);
+        return getOptimalFullGraph(map, planning, intersecIdToIndex);
     }
 
     // ----------------------------- Fonctions utilitaires
@@ -121,10 +125,12 @@ public class ComputeTour {
     }
 
     // SuperArete[depart][arrivee]
-    private static SuperArete[][] getOptimalFullGraph(Map map, ArrayList<Request> requests, HashMap<Long, Integer> intersecIdToIndex) {
+    private static SuperArete[][] getOptimalFullGraph(Map map, PlanningRequest planning, HashMap<Long, Integer> intersecIdToIndex) {
+        ArrayList<Request> requests = planning.getRequestList();
         ArrayList<Intersection> intersections = map.getIntersectionList();
 
         LinkedList<Intersection> ptsInteret = new LinkedList<Intersection>();
+        ptsInteret.add(planning.getDepot().getAdresse());
         boolean found;
         for (Request req : requests) {
             found = false;
@@ -323,16 +329,41 @@ public class ComputeTour {
         ArrayList<SuperArete> chemin = new ArrayList<>();
         int indexDernierPt = 0;
         int indexActuel = ptsIdToIndex.get(pick.requete.getPickup().getId());
-        chemin.add(matAdj[indexDernierPt][indexActuel]);  // dépôt -> premier départ
+        // ajout de la nouvelle portion de chemin
+        if (indexActuel != indexDernierPt) {
+            if (matAdj[indexDernierPt][indexActuel] != null){
+                chemin.add(matAdj[indexDernierPt][indexActuel]);  // dépôt -> premier départ
+            } else {
+                System.err.println("null found where it should not be ! (" + indexDernierPt + " -> " + indexActuel + ")");
+            }
+        } else {
+            System.err.println("Path with identical pickup & delivery ignored");
+        }
         pick.isDepart = false;
+
+        // debug
+        if (matAdj[indexDernierPt][indexActuel] == null){
+            if (indexActuel == indexDernierPt)
+            System.err.println("null added to chemin at " + indexDernierPt + ", " +indexActuel);
+        }
 
         while (pool.size() > 0) {
             // choix d'un chemin & update des indices
             pick = pickRandom(pool);
             indexDernierPt = indexActuel;
             indexActuel = ptsIdToIndex.get(pick.requete.getPickup().getId());
-            // ajout de la nouvelle portion de cheminn
-            chemin.add(matAdj[indexDernierPt][indexActuel]);
+
+            // ajout de la nouvelle portion de chemin
+            if (indexActuel != indexDernierPt) {
+                if (matAdj[indexDernierPt][indexActuel] != null){
+                    chemin.add(matAdj[indexDernierPt][indexActuel]);  // dépôt -> premier départ
+                } else {
+                    System.err.println("null found where it should not be ! (" + indexDernierPt + " -> " + indexActuel + ")");
+                }
+            } else {
+                System.err.println("Path with identical pickup & delivery ignored");
+            }
+
             if (pick.isDepart) {
                 pick.isDepart = false;
             } else {
@@ -343,7 +374,16 @@ public class ComputeTour {
         // ajout du retour au dépôt
         indexDernierPt = indexActuel;
         indexActuel = 0;
-        chemin.add(matAdj[indexDernierPt][indexActuel]);
+        // ajout de la nouvelle portion de chemin
+        if (indexActuel != indexDernierPt) {
+            if (matAdj[indexDernierPt][indexActuel] != null){
+                chemin.add(matAdj[indexDernierPt][indexActuel]);  // dépôt -> premier départ
+            } else {
+                System.err.println("null found where it should not be ! (" + indexDernierPt + " -> " + indexActuel + ")");
+            }
+        } else {
+            System.err.println("Path with identical pickup & delivery ignored");
+        }
 
         return chemin;
     }
@@ -397,7 +437,7 @@ public class ComputeTour {
         *    - si c'est un départ, ajouter son arrivée au pool
         */
 
-        LocalTime startTime = LocalTime.now();
+        LocalTime curTime = LocalTime.now();
         ArrayList<Segment> chemin = new ArrayList<Segment>();
         ArrayList<TupleRequete> ptsPassage = new ArrayList<TupleRequete>();
         ArrayList<Request> requests = planning.getRequestList();
@@ -411,6 +451,8 @@ public class ComputeTour {
         int curDepartInd = 0;
         for(TupleRequete req : pool) {
             if(req.requete.getPickup().getId() == matAdj[curDepartInd][1].depart.getId()) {
+                System.out.println("Pickup, attente de " + req.requete.getPickupDur() + " s");
+                curTime = curTime.plusSeconds((long)req.requete.getPickupDur());
                 req.isDepart = false;
             }
         }
@@ -432,16 +474,26 @@ public class ComputeTour {
             //      si c'est un départ : transformer en arrivee
             //      si c'est une arrivee : virer du pool
             long curIDarrivee = curChemin.arrivee.getId();
-            System.out.println("On va aller de " + curChemin.depart.getId() + " à " + curIDarrivee);
+            float travelDur = 0;
+            for (Segment seg : curChemin.chemin) {
+                travelDur += seg.getLength();
+            }
+            travelDur *= 3600.0/1500.0; // conversion de metres vers secondes
+            System.out.println("On va aller de " + curChemin.depart.getId() + " à " + curIDarrivee + " en " + travelDur + " s");
+            curTime = curTime.plusSeconds((long)travelDur);
 
             LinkedList<TupleRequete> aDelete = new LinkedList<TupleRequete>();
             for (TupleRequete dest : pool) {
                 if(dest.isDepart && dest.requete.getPickup().getId() == curIDarrivee) {
-                    ptsPassage.add(new TupleRequete(dest.requete, true, startTime));
+                    ptsPassage.add(new TupleRequete(dest.requete, true, curTime));
+                    System.out.println("Pickup, attente de " + dest.requete.getPickupDur() + " s");
+                    curTime = curTime.plusSeconds((long)dest.requete.getPickupDur());
                     dest.isDepart = false;
                 }
                 if(!dest.isDepart && dest.requete.getDelivery().getId() == curIDarrivee) {
-                    ptsPassage.add(new TupleRequete(dest.requete, false, startTime));
+                    ptsPassage.add(new TupleRequete(dest.requete, false, curTime));
+                    System.out.println("Delivery, attente de " + dest.requete.getDeliveryDur() + " s");
+                    curTime = curTime.plusSeconds((long)dest.requete.getDeliveryDur());
                     aDelete.add(dest);
                 }
             }
@@ -475,7 +527,7 @@ public class ComputeTour {
     private static Tournee tourneeRandom(Map map, PlanningRequest planning, HashMap<Long, Integer> intersecIdToIndex) {
 
         // dijkstra pour le graphe complet des plus courts chemins entre les points d'intérêt
-        SuperArete[][] matAdj = getOptimalFullGraph(map, planning.getRequestList(), intersecIdToIndex);
+        SuperArete[][] matAdj = getOptimalFullGraph(map, planning, intersecIdToIndex);
         // indexation de ces points d'intérêt
         HashMap<Long, Integer> ptsIdToIndex = indexerPtsInteret(planning);
 
