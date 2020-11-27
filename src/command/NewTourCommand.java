@@ -1,7 +1,5 @@
 package command;
 
-import objects.PlanningRequest;
-
 public class NewTourCommand implements Command {
     public NewTourCommand() {}
 
