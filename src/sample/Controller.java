@@ -79,6 +79,7 @@ public class Controller {
     private ArrayList<CoordinateLine> coordLines;
     private ArrayList<CoordinateLine> tourLines;
     private ArrayList<Marker> markers;
+    private ArrayList<LocationTagContent> cards;
 
     private Map map = null;
     private PlanningRequest planningRequest;
@@ -109,6 +110,7 @@ public class Controller {
         coordLines = new ArrayList<CoordinateLine>();
         tourLines = new ArrayList<CoordinateLine>();
         markers = new ArrayList<Marker>();
+        cards = new ArrayList<LocationTagContent>();
     }
 
     public void initMapAndControls(Projection projection) {
@@ -141,6 +143,11 @@ public class Controller {
                 .showZoomControls(false)
                 .build());
 
+        //disable buttons for request as map is not loaded yet and main button as well
+        requestButton.setDisable(true);
+        requestField.setDisable(true);
+        mainButton.setDisable(true);
+
         //Initialise the File chooser buttons with their handlers
         mapButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -153,6 +160,9 @@ public class Controller {
                 map = mapCommand.getMap();
                 coordLines.clear();
                 displayMap();
+
+                requestButton.setDisable(false);
+                requestField.setDisable(false);
 
                 //ADD METHOD TO DISPLAY ON MAP - DRAW LINES OF SEGMENTS
                 //MAKE SURE TO CHANGE POSITION OF MAP TO DISPLAY AREA WHERE SEGMENTS WERE PLACED
@@ -177,6 +187,8 @@ public class Controller {
                 planningRequest = requestCommand.getPlanningRequest();
                 markers.clear();
                 displayRequests();
+
+                mainButton.setDisable(false);
                 //ADD METHOD TO DISPLAY ON MAP - PLACE POINTS OF REQUESTS AND DELIVERY POINTS
                 //MAKE SURE TO CHANGE POSITION AND SCALE OF MAP TO DISPLAY AREA WHERE POINTS ARE PLACED
                 // use Coordinate to store all points of intersection where location is - possibly add this to the model
@@ -230,7 +242,8 @@ public class Controller {
                     mainButton.setText("Change Files");
 
                     //get files, pass them to the algo, calculate path, get results
-
+                    logger.info(map.toString());
+                    logger.info(planningRequest.toString());
                     //call method that places results on the map
                     mvcController.ComputeTour(map, planningRequest);
                     ComputeTourCommand tourCommand = (ComputeTourCommand) mvcController.getL().getL().get(mvcController.getL().getI());
@@ -419,17 +432,17 @@ public class Controller {
             super();
             name = new Text();
             name.setStyle("-fx-fill: #595959");
-            name.setFont(Font.font("Arial", 20.0));
+            name.setFont(Font.font("SF Pro Display", 20.0));
             address = new Text();
             address.setStyle("-fx-fill: #595959");
-            address.setFont(Font.font("Arial", 12.0));
+            address.setFont(Font.font("SF Pro Display", 12.0));
             arrivalText = new Text("arrive by");
             arrivalText.setStyle("-fx-fill: #595959");
-            arrivalText.setFont(Font.font("Arial", 12.0));
+            arrivalText.setFont(Font.font("SF Pro Display", 12.0));
             arrivalText.setTextAlignment(TextAlignment.RIGHT);
             arrivalTime = new Text();
             arrivalTime.setStyle("-fx-fill: #595959");
-            arrivalTime.setFont(Font.font("Arial Black", 25.0));
+            arrivalTime.setFont(Font.font("SF Pro Display", 25.0));
             arrivalTime.setTextAlignment(TextAlignment.RIGHT);
             VBox vBox = new VBox(name, address);
             Region region = new Region();
@@ -456,6 +469,8 @@ public class Controller {
 
     //METHOD THAT CREATES CARDS
     public void initCardContent() {
+
+
         logger.info("creating data");
         ObservableList<LocationTagContent> data = FXCollections.observableArrayList();
         data.addAll(new LocationTagContent("Pickup 1", "Rue Philomène Magnin", "Avenue Lacassagne", "8:12"),new LocationTagContent("Pickup 1", "Rue Philomène Magnin", "Avenue Lacassagne", "8:12"), new LocationTagContent("Pickup 1", "Rue Philomène Magnin", "Avenue Lacassagne", "8:12"), new LocationTagContent("Pickup 1", "Rue Philomène Magnin", "Avenue Lacassagne", "8:12"), new LocationTagContent("Pickup 1", "Rue Philomène Magnin", "Avenue Lacassagne", "8:12"), new LocationTagContent("Pickup 1", "Rue Philomène Magnin", "Avenue Lacassagne", "8:12"), new LocationTagContent("Pickup 1", "Rue Philomène Magnin", "Avenue Lacassagne", "8:12"), new LocationTagContent("Pickup 1", "Rue Philomène Magnin", "Avenue Lacassagne", "8:12"));
