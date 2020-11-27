@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement>command</OriginalElement>
+  <nodes>
+    <node x="130.23806584362143" y="549.451171875">controller</node>
+    <node x="143.9843621399177" y="9.451171875">objects</node>
+    <node x="445.9380658436214" y="0.0">observable</node>
+    <node x="72.14999999999998" y="179.451171875">processing</node>
+    <node x="63.40473251028811" y="439.451171875">state</node>
+    <node x="226.93806584362147" y="629.451171875">sample</node>
+    <node x="169.2102880658436" y="299.451171875">command</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="command" target="objects">
+      <point x="-19.0" y="-15.0" />
+      <point x="226.2102880658436" y="279.451171875" />
+      <point x="258.65" y="279.451171875" />
+      <point x="258.65" y="159.451171875" />
+      <point x="250.38436213991767" y="159.451171875" />
+      <point x="30.399999999999977" y="15.0" />
+    </edge>
+    <edge source="state" target="objects">
+      <point x="-45.33333333333337" y="-15.0" />
+      <point x="86.07139917695474" y="419.451171875" />
+      <point x="21.649999999999977" y="419.451171875" />
+      <point x="21.649999999999977" y="119.451171875" />
+      <point x="199.71769547325104" y="119.451171875" />
+      <point x="-20.26666666666665" y="15.0" />
+    </edge>
+    <edge source="processing" target="processing">
+      <point x="-66.0" y="15.0" />
+      <point x="94.14999999999998" y="229.451171875" />
+      <point x="52.14999999999998" y="229.451171875" />
+      <point x="52.14999999999998" y="204.451171875" />
+      <point x="-88.0" y="10.0" />
+    </edge>
+    <edge source="state" target="controller">
+      <point x="51.0" y="15.0" />
+      <point x="182.4047325102881" y="489.451171875" />
+      <point x="229.23806584362143" y="489.451171875" />
+      <point x="11.0" y="-15.0" />
+    </edge>
+    <edge source="command" target="processing">
+      <point x="-57.0" y="-15.0" />
+      <point x="188.2102880658436" y="269.451171875" />
+      <point x="226.14999999999998" y="269.451171875" />
+      <point x="66.0" y="15.0" />
+    </edge>
+    <edge source="state" target="command">
+      <point x="45.33333333333326" y="-15.0" />
+      <point x="176.73806584362137" y="419.451171875" />
+      <point x="245.2102880658436" y="419.451171875" />
+      <point x="0.0" y="15.0" />
+    </edge>
+    <edge source="sample" target="command">
+      <point x="0.0" y="-15.0" />
+      <point x="298.9380658436215" y="599.451171875" />
+      <point x="330.19547325102883" y="599.451171875" />
+      <point x="330.19547325102883" y="389.451171875" />
+      <point x="312.76584362139926" y="389.451171875" />
+      <point x="67.55555555555566" y="15.0" />
+    </edge>
+    <edge source="controller" target="state">
+      <point x="-11.0" y="-15.0" />
+      <point x="207.23806584362143" y="499.451171875" />
+      <point x="148.4047325102881" y="499.451171875" />
+      <point x="17.0" y="15.0" />
+    </edge>
+    <edge source="sample" target="sample">
+      <point x="-36.0" y="15.0" />
+      <point x="262.9380658436215" y="679.451171875" />
+      <point x="206.93806584362147" y="679.451171875" />
+      <point x="206.93806584362147" y="651.951171875" />
+      <point x="-72.0" y="7.5" />
+    </edge>
+    <edge source="processing" target="objects">
+      <point x="66.0" y="-15.0" />
+      <point x="226.14999999999998" y="159.451171875" />
+      <point x="240.25102880658434" y="159.451171875" />
+      <point x="20.26666666666665" y="15.0" />
+    </edge>
+    <edge source="sample" target="objects">
+      <point x="28.799999999999955" y="-15.0" />
+      <point x="327.7380658436214" y="609.451171875" />
+      <point x="348.30905349794233" y="609.451171875" />
+      <point x="348.30905349794233" y="129.451171875" />
+      <point x="280.7843621399178" y="129.451171875" />
+      <point x="60.80000000000007" y="15.0" />
+    </edge>
+    <edge source="sample" target="controller">
+      <point x="-28.799999999999955" y="-15.0" />
+      <point x="270.1380658436215" y="609.451171875" />
+      <point x="262.2380658436214" y="609.451171875" />
+      <point x="44.0" y="15.0" />
+    </edge>
+    <edge source="objects" target="objects">
+      <point x="-70.93333333333334" y="15.0" />
+      <point x="149.05102880658436" y="59.451171875" />
+      <point x="123.98436213991769" y="59.451171875" />
+      <point x="123.98436213991769" y="35.701171875" />
+      <point x="-76.0" y="11.25" />
+    </edge>
+    <edge source="controller" target="objects">
+      <point x="-77.0" y="-15.0" />
+      <point x="141.23806584362143" y="529.451171875" />
+      <point x="0.0" y="529.451171875" />
+      <point x="0.0" y="109.451171875" />
+      <point x="189.58436213991772" y="109.451171875" />
+      <point x="-30.399999999999977" y="15.0" />
+    </edge>
+    <edge source="command" target="command">
+      <point x="-67.55555555555556" y="15.0" />
+      <point x="177.65473251028806" y="349.451171875" />
+      <point x="149.2102880658436" y="349.451171875" />
+      <point x="149.2102880658436" y="324.451171875" />
+      <point x="-76.0" y="10.0" />
+    </edge>
+    <edge source="controller" target="command">
+      <point x="33.0" y="-15.0" />
+      <point x="251.23806584362143" y="509.451171875" />
+      <point x="292.23580246913576" y="509.451171875" />
+      <point x="292.23580246913576" y="419.451171875" />
+      <point x="262.0991769547325" y="419.451171875" />
+      <point x="16.888888888888914" y="15.0" />
+    </edge>
+    <edge source="observable" target="observable">
+      <point x="-44.0" y="15.0" />
+      <point x="489.9380658436214" y="50.0" />
+      <point x="425.9380658436214" y="50.0" />
+      <point x="425.9380658436214" y="22.5" />
+      <point x="-88.0" y="7.5" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Group" zoom="1.1" x="491.272727272727" y="373.9090909090909" />
+  <SelectedNodes />
+  <Categories />
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>private</VISIBILITY>
+</Diagram>
+
