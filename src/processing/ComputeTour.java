@@ -11,12 +11,10 @@ import objects.Map;
 /*
 * TODO
 *  - arrêter Dijsktra quand on a traité tous les points d'intérêt
-*  - ajouter dépot dans la matrice d'adj
-*  - ajouter les heures de récupération & de dépôt de livraison ?
 *  - algo pour le TSP (génétique ?)
 *
-* NB : temps total de parcours != longueur * vitesse !!!
-* NE PAS OUBLIER LES TEMPS DE PICKUP/DELIVERY
+* FIXME
+*  - greedy fait des bails chelous avec les requêtes médium
 * */
 
 /*
