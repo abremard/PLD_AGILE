@@ -10,27 +10,36 @@ import objects.PlanningRequest;
 
 public class RequestState implements State {
 
-    @Override
     public void loadMap(ListOfCommands l, MVCController c, String p) {
         if (p != null) {
             l.Add(new LoadMapCommand(p));
             c.setCurrentState(c.getMapState());
+            if (debug) {
+                System.out.print("Adding Load Map Command from RequestState to index ");
+                System.out.println(l.getI());
+            }
         }
     }
 
-    @Override
     public void loadRequestPlan(ListOfCommands l, MVCController c, String p) {
         if (p != null) {
             l.Add(new LoadRequestPlanCommand(p));
-            // c.setCurrentState(c.getRequestState());
+            c.setCurrentState(c.getRequestState());
+            if (debug) {
+                System.out.print("Adding Load Request Command from RequestState to index ");
+                System.out.println(l.getI());
+            }
         }
     }
 
-    @Override
     public void calculateTour(ListOfCommands l, MVCController c, PlanningRequest p, Map m) {
         if (p != null && m != null) {
             l.Add(new ComputeTourCommand(m, p));
             c.setCurrentState(c.getTourState());
+            if (debug) {
+                System.out.print("Adding Calculate Tour Command from RequestState to index ");
+                System.out.println(l.getI());
+            }
         }
     }
 }
