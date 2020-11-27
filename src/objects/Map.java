@@ -94,4 +94,16 @@ public class Map {
         return noOfSegments;
     }
 
+    public Intersection matchIdToIntersection(long id) {
+        Intersection matchedIntersection = null;
+        for (Intersection intersection : intersectionList) {
+            long idIntersection = intersection.getId();
+            if (idIntersection == id) {
+                matchedIntersection = intersection;
+                break;
+            }
+        }
+        return matchedIntersection;
+    }
+
 }

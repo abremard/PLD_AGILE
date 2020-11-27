@@ -273,20 +273,9 @@ public class Controller {
         for (Segment segment: listSegments) {
             long idOrigin = segment.getOrigin();
             long idDestination = segment.getDestination();
-            Intersection ptOrigin = null;
-            Intersection ptDestination = null;
-            for (Intersection intersection: listIntersection) {
-                long idIntersection = intersection.getId();
-                if (idIntersection == idOrigin) {
-                    ptOrigin = intersection;
-                }
-            }
-            for (Intersection intersection: listIntersection) {
-                long idIntersection = intersection.getId();
-                if (idIntersection == idDestination) {
-                    ptDestination = intersection;
-                }
-            }
+            Intersection ptOrigin = map.matchIdToIntersection(idOrigin);
+            Intersection ptDestination = map.matchIdToIntersection(idDestination);
+
             Coordinate coordOrigin = new Coordinate(ptOrigin.getLatitude(), ptOrigin.getLongitude());
             Coordinate coordDestination = new Coordinate(ptDestination.getLatitude(), ptDestination.getLongitude());
             // Extent extent = Extent.forCoordinates();
@@ -305,20 +294,8 @@ public class Controller {
         for (Segment segment : listSegments) {
             long idOrigin = segment.getOrigin();
             long idDestination = segment.getDestination();
-            Intersection ptOrigin = null;
-            Intersection ptDestination = null;
-            for (Intersection intersection : listIntersection) {
-                long idIntersection = intersection.getId();
-                if (idIntersection == idOrigin) {
-                    ptOrigin = intersection;
-                }
-            }
-            for (Intersection intersection : listIntersection) {
-                long idIntersection = intersection.getId();
-                if (idIntersection == idDestination) {
-                    ptDestination = intersection;
-                }
-            }
+            Intersection ptOrigin = map.matchIdToIntersection(idOrigin);
+            Intersection ptDestination = map.matchIdToIntersection(idDestination);
             Coordinate coordOrigin = new Coordinate(ptOrigin.getLatitude(), ptOrigin.getLongitude());
             Coordinate coordDestination = new Coordinate(ptDestination.getLatitude(), ptDestination.getLongitude());
             // Extent extent = Extent.forCoordinates();
@@ -338,6 +315,9 @@ public class Controller {
         Intersection depot = null;
 
         long idDepot = planningRequest.getDepot().getAdresse().getId();
+        depot = map.matchIdToIntersection(idDepot);
+        planningRequest.getDepot().setAdresse(depot);
+
 
         for( Request request : planningRequest.getRequestList()  ){
             long idPickup = request.getPickup().getId();
@@ -347,42 +327,18 @@ public class Controller {
             boolean foundPick = false;
             boolean foundDepot = false;
 
-            for (Intersection intersection: listIntersection) {
-                long idIntersection = intersection.getId();
-
-                if (idIntersection == idPickup) {
-                    pickup = request.getPickup();
-                    request.getPickup().setLatitude( intersection.getLatitude());
-                    request.getPickup().setLongitude( intersection.getLongitude());
-                    foundPick = true;
-                }
-
-                if (idIntersection == idDelivery) {
-                    delivery = request.getDelivery();
-                    request.getDelivery().setLatitude( intersection.getLatitude());
-                    request.getDelivery().setLongitude( intersection.getLongitude());
-                    foundDel = true;
-                }
-
-                if (idIntersection == idDepot) {
-                    planningRequest.getDepot().setAdresse(intersection);
-                    depot = planningRequest.getDepot().getAdresse();
-                    foundDepot = true;
-                }
-
-                if( foundDel && foundPick && foundDepot){
-                    Coordinate coordPickup = new Coordinate(pickup.getLatitude(), pickup.getLongitude());
-                    Marker markerPickup = new Marker( getClass().getResource(pickupImageFile),-12,-12).setPosition(coordPickup).setVisible(true);
-                    Coordinate coordDelivery = new Coordinate(delivery.getLatitude(),delivery.getLongitude());
-                    Marker markerDelivery = new Marker( getClass().getResource(deliveryImageFile),-11,-25).setPosition(coordDelivery).setVisible(true);
-                    markers.add(markerPickup);
-                    markers.add(markerDelivery);
-                    mapView.addMarker(markerPickup);
-                    mapView.addMarker(markerDelivery);
-                    break;
-                }
-            }
-
+            pickup = map.matchIdToIntersection(idPickup);
+            request.setPickup(pickup);
+            delivery = map.matchIdToIntersection(idDelivery);
+            request.setDelivery(delivery);
+            Coordinate coordPickup = new Coordinate(pickup.getLatitude(), pickup.getLongitude());
+            Marker markerPickup = new Marker( getClass().getResource(pickupImageFile),-12,-12).setPosition(coordPickup).setVisible(true);
+            Coordinate coordDelivery = new Coordinate(delivery.getLatitude(),delivery.getLongitude());
+            Marker markerDelivery = new Marker( getClass().getResource(deliveryImageFile),-11,-25).setPosition(coordDelivery).setVisible(true);
+            markers.add(markerPickup);
+            markers.add(markerDelivery);
+            mapView.addMarker(markerPickup);
+            mapView.addMarker(markerDelivery);
         }
 
         Coordinate coordDepot = new Coordinate(depot.getLatitude(), depot.getLongitude());
