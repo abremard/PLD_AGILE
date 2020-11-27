@@ -2,6 +2,7 @@
 package processing;
 
 import java.time.LocalTime;
+import java.time.temporal.TemporalAmount;
 import java.util.*;
 
 import objects.*;
@@ -397,7 +398,7 @@ public class ComputeTour {
         *    - si c'est un départ, ajouter son arrivée au pool
         */
 
-        LocalTime startTime = LocalTime.now();
+        LocalTime curTime = LocalTime.now();
         ArrayList<Segment> chemin = new ArrayList<Segment>();
         ArrayList<TupleRequete> ptsPassage = new ArrayList<TupleRequete>();
         ArrayList<Request> requests = planning.getRequestList();
@@ -411,6 +412,8 @@ public class ComputeTour {
         int curDepartInd = 0;
         for(TupleRequete req : pool) {
             if(req.requete.getPickup().getId() == matAdj[curDepartInd][1].depart.getId()) {
+                System.out.println("Pickup, attente de " + req.requete.getPickupDur() + " s");
+                curTime = curTime.plusSeconds((long)req.requete.getPickupDur());
                 req.isDepart = false;
             }
         }
@@ -432,16 +435,26 @@ public class ComputeTour {
             //      si c'est un départ : transformer en arrivee
             //      si c'est une arrivee : virer du pool
             long curIDarrivee = curChemin.arrivee.getId();
-            System.out.println("On va aller de " + curChemin.depart.getId() + " à " + curIDarrivee);
+            float travelDur = 0;
+            for (Segment seg : curChemin.chemin) {
+                travelDur += seg.getLength();
+            }
+            travelDur *= 3600.0/1500.0; // conversion de metres vers secondes
+            System.out.println("On va aller de " + curChemin.depart.getId() + " à " + curIDarrivee + " en " + travelDur + " s");
+            curTime = curTime.plusSeconds((long)travelDur);
 
             LinkedList<TupleRequete> aDelete = new LinkedList<TupleRequete>();
             for (TupleRequete dest : pool) {
                 if(dest.isDepart && dest.requete.getPickup().getId() == curIDarrivee) {
-                    ptsPassage.add(new TupleRequete(dest.requete, true, startTime));
+                    ptsPassage.add(new TupleRequete(dest.requete, true, curTime));
+                    System.out.println("Pickup, attente de " + dest.requete.getPickupDur() + " s");
+                    curTime = curTime.plusSeconds((long)dest.requete.getPickupDur());
                     dest.isDepart = false;
                 }
                 if(!dest.isDepart && dest.requete.getDelivery().getId() == curIDarrivee) {
-                    ptsPassage.add(new TupleRequete(dest.requete, false, startTime));
+                    ptsPassage.add(new TupleRequete(dest.requete, false, curTime));
+                    System.out.println("Delivery, attente de " + dest.requete.getDeliveryDur() + " s");
+                    curTime = curTime.plusSeconds((long)dest.requete.getDeliveryDur());
                     aDelete.add(dest);
                 }
             }
