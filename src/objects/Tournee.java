@@ -3,8 +3,10 @@ package objects;
 import java.util.ArrayList;
 
 public class Tournee {
+
     ArrayList<Segment> segmentList;
     ArrayList<Request> requestList;
+    // todo List<LocationTagContent>
 
     public Tournee(ArrayList<Segment> segmentList, ArrayList<Request> requestList) {
         this.segmentList = segmentList;

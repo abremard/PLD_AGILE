@@ -36,6 +36,9 @@ public class ListOfCommands {
         if (i>=0) {
             l.get(i).undoCommand();
             i--;
+            if (i>=0) {
+                l.get(i).doCommand();
+            }
         }
     }
     public void Redo() {

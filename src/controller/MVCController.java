@@ -1,9 +1,6 @@
 package controller;
 
 import command.ListOfCommands;
-import command.LoadMapCommand;
-import command.LoadRequestPlanCommand;
-import javafx.stage.Window;
 import objects.Map;
 import objects.PlanningRequest;
 import state.*;
@@ -12,7 +9,6 @@ public class MVCController {
 
     private ListOfCommands l;
 
-    private Window window;
     private State currentState;
     private InitialState initialState;
     private MapState mapState;
@@ -21,7 +17,6 @@ public class MVCController {
 
     public MVCController() {
         this.l = new ListOfCommands();
-        //this.window = window;
         this.initialState = new InitialState();
         this.currentState = this.initialState;
         this.mapState = new MapState();
@@ -36,14 +31,6 @@ public class MVCController {
     public void setL(ListOfCommands l) {
         this.l = l;
     }
-
-    /*public Window getWindow() {
-        return window;
-    }
-
-    public void setWindow(Window window) {
-        this.window = window;
-    }*/
 
     public State getCurrentState() {
         return currentState;
@@ -86,15 +73,18 @@ public class MVCController {
     }
 
     public void LoadMap(String path) {
-        currentState.loadMap(l,this, window, path);
+        currentState.loadMap(l,this, path);
     }
 
     public void LoadRequestPlan(String path) {
-        currentState.loadRequestPlan(l, this, window, path);
+        currentState.loadRequestPlan(l, this, path);
     }
 
-    public void ComputeTour(Map m, PlanningRequest p) { currentState.calculateTour(l, this, window, p, m); }
+    public void ComputeTour(Map m, PlanningRequest p) { currentState.calculateTour(l, this, p, m); }
 
-    public void Reset() { currentState.newTour(l, this, window); }
+    public void Reset() { currentState.newTour(l, this); }
 
+    public void Undo() { currentState.undo(l); }
+
+    public void Redo() { currentState.redo(l); }
 }
