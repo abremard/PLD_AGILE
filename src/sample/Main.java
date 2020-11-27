@@ -49,5 +49,6 @@ public class Main extends Application {
         logger.info("begin main");
         launch(args);
         logger.info("end main");
+        System.exit(0);
     }
 }
