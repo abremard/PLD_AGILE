@@ -19,21 +19,27 @@ import objects.Map;
 
 public class ComputeTour {
 
-    public static Tournee planTour(Map map, PlanningRequest planning) {
+    public static Tournee planTour(Map map, PlanningRequest planning, Heuristique heuristique) {
 
         HashMap<Long, Integer> intersecIdToIndex = indexationIntersections(map);
 
-        // version triviale
-        //return tourneeTriviale(map, planning, intersecIdToIndex);
-		
-        // version random
-        //return tourneeRandom(map, planning, intersecIdToIndex);
+        switch (heuristique) {
+            case TRIVIALE :
+                // version triviale
+                return tourneeTriviale(map, planning, intersecIdToIndex);
+            case RANDOM :
+                // version random
+                return tourneeRandom(map, planning, intersecIdToIndex);
+            case GREEDY :
+                // version greedy
+                SuperArete[][] matAdj = getOptimalFullGraph(map, planning.getRequestList(), intersecIdToIndex);
+                return greedy(matAdj, planning, intersecIdToIndex);
+            case GENETIQUE :
+                // version genetique
+                return null;
+        }
 
-        // version greedy
-        SuperArete[][] matAdj = getOptimalFullGraph(map, planning.getRequestList(), intersecIdToIndex);
-        return greedy(matAdj, planning, intersecIdToIndex);
-
-        // version genetique
+        return null;
     }
 
     public static SuperArete[][] testFullGraph(Map map, PlanningRequest planning) {

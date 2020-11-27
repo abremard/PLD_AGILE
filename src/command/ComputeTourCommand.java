@@ -4,6 +4,7 @@ import objects.Map;
 import objects.PlanningRequest;
 import objects.Tournee;
 import processing.ComputeTour;
+import processing.Heuristique;
 
 public class ComputeTourCommand implements Command {
 
@@ -36,7 +37,7 @@ public class ComputeTourCommand implements Command {
 
     @Override
     public void doCommand() {
-        tournee = ComputeTour.planTour(map, planningRequest);
+        tournee = ComputeTour.planTour(map, planningRequest, Heuristique.TRIVIALE);
     }
 
     @Override
