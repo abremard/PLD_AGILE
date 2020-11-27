@@ -34,7 +34,7 @@ public class ComputeTour {
                 return tourneeRandom(map, planning, intersecIdToIndex);
             case GREEDY :
                 // version greedy
-                SuperArete[][] matAdj = getOptimalFullGraph(map, planning.getRequestList(), intersecIdToIndex);
+                SuperArete[][] matAdj = getOptimalFullGraph(map, planning, intersecIdToIndex);
                 return greedy(matAdj, planning, intersecIdToIndex);
             case GENETIQUE :
                 // version genetique
@@ -46,7 +46,7 @@ public class ComputeTour {
 
     public static SuperArete[][] testFullGraph(Map map, PlanningRequest planning) {
         HashMap<Long, Integer> intersecIdToIndex = indexationIntersections(map);
-        return getOptimalFullGraph(map, planning.getRequestList(), intersecIdToIndex);
+        return getOptimalFullGraph(map, planning, intersecIdToIndex);
     }
 
     // ----------------------------- Fonctions utilitaires
@@ -122,10 +122,12 @@ public class ComputeTour {
     }
 
     // SuperArete[depart][arrivee]
-    private static SuperArete[][] getOptimalFullGraph(Map map, ArrayList<Request> requests, HashMap<Long, Integer> intersecIdToIndex) {
+    private static SuperArete[][] getOptimalFullGraph(Map map, PlanningRequest planning, HashMap<Long, Integer> intersecIdToIndex) {
+        ArrayList<Request> requests = planning.getRequestList();
         ArrayList<Intersection> intersections = map.getIntersectionList();
 
         LinkedList<Intersection> ptsInteret = new LinkedList<Intersection>();
+        ptsInteret.add(planning.getDepot().getAdresse());
         boolean found;
         for (Request req : requests) {
             found = false;
@@ -488,7 +490,7 @@ public class ComputeTour {
     private static Tournee tourneeRandom(Map map, PlanningRequest planning, HashMap<Long, Integer> intersecIdToIndex) {
 
         // dijkstra pour le graphe complet des plus courts chemins entre les points d'intérêt
-        SuperArete[][] matAdj = getOptimalFullGraph(map, planning.getRequestList(), intersecIdToIndex);
+        SuperArete[][] matAdj = getOptimalFullGraph(map, planning, intersecIdToIndex);
         // indexation de ces points d'intérêt
         HashMap<Long, Integer> ptsIdToIndex = indexerPtsInteret(planning);
 
