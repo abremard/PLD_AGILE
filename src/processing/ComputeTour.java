@@ -447,7 +447,6 @@ public class ComputeTour {
             pool.add(new TupleRequete(req, true));
         }
 
-        // todo : recup le point le plus proche du depot
         int curDepartInd = 0;
         for(TupleRequete req : pool) {
             if(req.requete.getPickup().getId() == matAdj[curDepartInd][1].depart.getId()) {
@@ -466,8 +465,25 @@ public class ComputeTour {
             curChemin = matAdj[curDepartInd][0]; // point le plus proche de curDepartInd
             for (int i = 0; i < matAdj.length; i++) {
                 if(curChemin == null || (matAdj[curDepartInd][i] != null && matAdj[curDepartInd][i].longueur < curChemin.longueur)) {
-                    curChemin = matAdj[curDepartInd][i];
-                    curArriveeInd = i;
+
+                    boolean found = true;
+                    if(curChemin != null) { // on scroll le pool de requetes pour verifier si on a une requete a faire la-bas
+                        found = false;
+                        for (TupleRequete req : pool) {
+                            if(req.isDepart && req.getRequete().getPickup().getId() == matAdj[curDepartInd][i].arrivee.getId()) {
+                                found = true;
+                                break;
+                            }
+                            if(!req.isDepart && req.getRequete().getDelivery().getId() == matAdj[curDepartInd][i].arrivee.getId()) {
+                                found = true;
+                                break;
+                            }
+                        }
+                    }
+                    if(found) {
+                        curChemin = matAdj[curDepartInd][i];
+                        curArriveeInd = i;
+                    }
                 }
             }
             // parcourir pool, pour chaque requete où il faut actuellement aller à minNode :

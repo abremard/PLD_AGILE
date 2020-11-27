@@ -9,12 +9,18 @@ public class processingTest {
 
     public static void main(String[] args) {
 
-        Map map = new Map("data/map_test.xml");
+//        String mapPath = "data/map_test.xml";
+//        String reqPath = "data/requests_test.xml";
+
+        String mapPath = "data/largeMap.xml";
+        String reqPath = "data/requestsLarge9.xml";
+
+        Map map = new Map(mapPath);
         System.out.println("Map chargee, nombre d'intersections : " + map.getNoOfIntersections() + ",   nombre de segments : " + map.getNoOfSegments());
 
         PlanningRequest planning = new PlanningRequest();
         try {
-            planning.parseRequest("data/requests_test.xml");
+            planning.parseRequest(reqPath);
         } catch (Exception e) {
             e.printStackTrace();
         }
