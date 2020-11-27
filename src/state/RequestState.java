@@ -13,7 +13,7 @@ public class RequestState implements State {
     public void loadMap(ListOfCommands l, MVCController c, String p) {
         if (p != null) {
             l.Add(new LoadMapCommand(p));
-            c.setCurrentState(c.getMapState());
+            c.setCurrentState(c.getRequestState());
             if (debug) {
                 System.out.print("Adding Load Map Command from RequestState to index ");
                 System.out.println(l.getI());
