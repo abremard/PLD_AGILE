@@ -3,25 +3,16 @@ import objects.Map;
 
 public class LoadMapCommand implements Command {
 
+    /** classe attributes **/
     private Map map;
     private String path;
 
+    /** getters & setters **/
     public Map getMap() {
         return map;
     }
 
-    public void setMap(Map map) {
-        this.map = map;
-    }
-
-    public String getPath() {
-        return path;
-    }
-
-    public void setPath(String path) {
-        this.path = path;
-    }
-
+    /** constructor **/
     public LoadMapCommand(String p) {
         this.path = p;
     }

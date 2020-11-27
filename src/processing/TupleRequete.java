@@ -11,6 +11,30 @@ public class TupleRequete {
     boolean isDepart;       // vrai si l'objet TupleRequete correspond au départ de sa Request
     LocalTime time;     // pickup or delivery starting time according to isDepart
 
+    public Request getRequete() {
+        return requete;
+    }
+
+    public void setRequete(Request requete) {
+        this.requete = requete;
+    }
+
+    public boolean isDepart() {
+        return isDepart;
+    }
+
+    public void setDepart(boolean depart) {
+        isDepart = depart;
+    }
+
+    public LocalTime getTime() {
+        return time;
+    }
+
+    public void setTime(LocalTime time) {
+        this.time = time;
+    }
+
     public TupleRequete(Request requete, boolean isDepart) {
         this.requete = requete;
         this.isDepart = isDepart;

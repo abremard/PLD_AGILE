@@ -7,25 +7,17 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 
 public class LoadRequestPlanCommand implements Command {
+
+    /** classe attributes **/
+    private PlanningRequest planningRequest;
+    private String path;
+
+    /** getters & setters **/
     public PlanningRequest getPlanningRequest() {
         return planningRequest;
     }
 
-    public void setPlanningRequest(PlanningRequest planningRequest) {
-        this.planningRequest = planningRequest;
-    }
-
-    public String getPath() {
-        return path;
-    }
-
-    public void setPath(String path) {
-        this.path = path;
-    }
-
-    private PlanningRequest planningRequest;
-    private String path;
-
+    /** constructor **/
     public LoadRequestPlanCommand(String pa) {
         this.path = pa;
         planningRequest = new PlanningRequest();
