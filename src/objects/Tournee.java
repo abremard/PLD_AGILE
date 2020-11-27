@@ -10,6 +10,10 @@ public class Tournee {
     ArrayList<Request> requestList;
     ArrayList<TupleRequete> ptsPassage;
 
+    public ArrayList<TupleRequete> getPtsPassage() { return ptsPassage; }
+
+    public void setPtsPassage(ArrayList<TupleRequete> ptsPassage) { this.ptsPassage = ptsPassage; }
+
     @Deprecated
     public Tournee(ArrayList<Segment> segmentList, ArrayList<Request> requestList) {
         this.segmentList = segmentList;
