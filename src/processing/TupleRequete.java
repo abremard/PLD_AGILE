@@ -2,12 +2,14 @@ package processing;
 
 import objects.Request;
 
+import java.time.LocalTime;
 import java.util.Objects;
 
 public class TupleRequete {
 
     Request requete;
-    boolean isDepart;
+    boolean isDepart;       // vrai si l'objet TupleRequete correspond au départ de sa Request
+    LocalTime time;     // pickup or delivery starting time according to isDepart
 
     public TupleRequete(Request requete, boolean isDepart) {
         this.requete = requete;
