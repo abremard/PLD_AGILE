@@ -234,6 +234,41 @@ public class ComputeTour {
         return chemin;
     }
 
+    private static void recreateTimesTournee(Tournee tournee, PlanningRequest planning) {
+        LocalTime curTime = LocalTime.now();
+        ArrayList<Segment> curChemin = new ArrayList<Segment>();
+        // pool
+        LinkedList<TupleRequete> pool = new LinkedList<TupleRequete>();
+        for (Request req : planning.getRequestList()) {
+            pool.add(new TupleRequete(req, true));
+        }
+        pool.add(new TupleRequete(new Request(planning.getDepot().getAdresse(), planning.getDepot().getAdresse(), 0, 0), true));
+
+        ArrayList<TupleRequete> ptsPassage = new ArrayList<TupleRequete>();
+
+        for (Segment seg : tournee.getSegmentList()) {
+            curTime = curTime.plusSeconds((long)(seg.getLength()*3600/1500.0));
+            curChemin.add(seg);
+
+            LinkedList<TupleRequete> aDelete = new LinkedList<TupleRequete>();
+            for (TupleRequete req : pool) {
+                if(req.isDepart && req.requete.getPickup().getId() == seg.getDestination()) {
+                    req.isDepart = false;
+                    ptsPassage.add(new TupleRequete(req.getRequete(), true, curTime, curChemin));
+                    curChemin = new ArrayList<Segment>();
+                }
+                if(!req.isDepart && req.requete.getDelivery().getId() == seg.getDestination()) {
+                    aDelete.add(req);
+                    ptsPassage.add(new TupleRequete(req.getRequete(), false, curTime, curChemin));
+                    curChemin = new ArrayList<Segment>();
+                }
+            }
+            pool.removeAll(aDelete);
+        }
+
+        tournee.setPtsPassage(ptsPassage);
+    }
+
     private static float longueurChemin(ArrayList<Segment> chemin) {
         float longueur = 0;
         for (Segment seg: chemin) {
@@ -591,8 +626,9 @@ public class ComputeTour {
         ArrayList<SuperArete> chemin = cheminAleatoire(matAdj, planning, ptsIdToIndex);
 
         // construction de l'objet Tournee à partir du résultat obtenu
-        return cheminVersTournee(planning, chemin);
-
+        Tournee tournee = cheminVersTournee(planning, chemin);
+        recreateTimesTournee(tournee, planning);
+        return tournee;
     }
 
 }
