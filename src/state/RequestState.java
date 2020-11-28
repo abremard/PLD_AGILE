@@ -4,7 +4,7 @@ import command.ComputeTourCommand;
 import command.ListOfCommands;
 import command.LoadMapCommand;
 import command.LoadRequestPlanCommand;
-import controller.*;
+import controller.MVCController;
 import objects.Map;
 import objects.PlanningRequest;
 

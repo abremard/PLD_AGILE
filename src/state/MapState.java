@@ -1,9 +1,9 @@
 package state;
 
-import controller.MVCController;
 import command.ListOfCommands;
 import command.LoadMapCommand;
 import command.LoadRequestPlanCommand;
+import controller.MVCController;
 
 public class MapState implements State {
     public void loadMap(ListOfCommands l, MVCController c, String p) {

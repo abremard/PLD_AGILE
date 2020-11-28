@@ -1,14 +1,14 @@
 package objects;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.io.File;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.DocumentBuilder;
 import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.Node;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.File;
+import java.util.ArrayList;
 
 public class Map {
 
@@ -53,9 +53,24 @@ public class Map {
                 if (nNode.getNodeType() == Node.ELEMENT_NODE) {
                     Element eElement = (Element) nNode;
 
+                    long idOrigin = Long.parseLong(eElement.getAttribute("origin"));
+                    long idDestination = Long.parseLong(eElement.getAttribute("destination"));
+
+                    Intersection intersectionOrigin = null;
+                    Intersection intersectionDestination = null;
+
+                    for (int i=0; i<intersectionList.size(); i++){
+                        if (intersectionList.get(i).getId() == idOrigin){
+                            intersectionOrigin = intersectionList.get(i);
+                        }
+                        else if (intersectionList.get(i).getId() == idDestination){
+                            intersectionDestination = intersectionList.get(i);
+                        }
+                    }
+
                     Segment newSegment = new Segment(
-                            Long.parseLong(eElement.getAttribute("origin")),
-                            Long.parseLong(eElement.getAttribute("destination")),
+                            intersectionOrigin,
+                            intersectionDestination,
                             Float.parseFloat(eElement.getAttribute("length")), eElement.getAttribute("name"));
 
                     segmentList.add(newSegment);
@@ -104,6 +119,16 @@ public class Map {
             }
         }
         return matchedIntersection;
+    }
+
+    public ArrayList<String> getSegmentNameFromIntersectionId(long id){
+        ArrayList<String> segmentNameList = null;
+        for (int i=0; i<segmentList.size(); i++){
+            if (segmentList.get(i).getDestination().getId() == id || segmentList.get(i).getOrigin().getId() == id){
+                segmentNameList.add(segmentList.get(i).getName());
+            }
+        }
+        return segmentNameList;
     }
 
 }
