@@ -1,6 +1,7 @@
 
 package processing;
 
+import java.lang.reflect.Array;
 import java.time.LocalTime;
 import java.time.temporal.TemporalAmount;
 import java.util.*;
@@ -441,7 +442,15 @@ public class ComputeTour {
         ptsInteret = new LinkedList<Intersection>();
         ptsInteret.add(planning.getDepot().getAdresse());
         predList = dijkstra(map, previousDelivery, ptsInteret, intersecIdToIndex);
-        chemin.addAll(recreateChemin(predList, previousDelivery, planning.getDepot().getAdresse(), intersections, intersecIdToIndex));
+        ArrayList<Segment> lastChemin = recreateChemin(predList, previousDelivery, planning.getDepot().getAdresse(), intersections, intersecIdToIndex);
+        float travelDur = 0;
+        for (Segment seg : lastChemin) {
+            travelDur += seg.getLength();
+        }
+        travelDur *= 3600.0/1500.0; // conversion de metres vers secondes
+        curTime = curTime.plusSeconds((long)travelDur);
+        chemin.addAll(lastChemin);
+        ptsPassage.add(new TupleRequete(new Request(previousDelivery, planning.getDepot().getAdresse(), 0, 0), false, curTime, lastChemin));
 
         return new Tournee(chemin, planning.getRequestList(), ptsPassage);
     }
@@ -471,6 +480,7 @@ public class ComputeTour {
         for (Request req : requests) {
             pool.add(new TupleRequete(req, true));
         }
+        pool.add(new TupleRequete(new Request(planning.getDepot().getAdresse(), planning.getDepot().getAdresse(), 0, 0), true));
 
         int curDepartInd = 0;
         for(TupleRequete req : pool) {
@@ -543,6 +553,10 @@ public class ComputeTour {
             boolean stillUsed = false;
             for (TupleRequete dest : pool) {
                 if (dest.isDepart && dest.requete.getPickup().getId() == curChemin.depart.getId()) {
+                    stillUsed = true;
+                    break;
+                }
+                if (!dest.isDepart && dest.requete.getDelivery().getId() == curChemin.depart.getId()) {
                     stillUsed = true;
                     break;
                 }
