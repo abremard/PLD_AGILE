@@ -106,4 +106,14 @@ public class Map {
         return matchedIntersection;
     }
 
+    public ArrayList<String> getSegmentNameFromIntersectionId(long id){
+        ArrayList<String> segmentNameList = null;
+        for (int i=0; i<segmentList.size(); i++){
+            if (segmentList.get(i).getDestination() == id || segmentList.get(i).getOrigin() == id){
+                segmentNameList.add(segmentList.get(i).getName());
+            }
+        }
+        return segmentNameList;
+    }
+
 }
