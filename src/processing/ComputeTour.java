@@ -390,7 +390,7 @@ public class ComputeTour {
     // ----------------------------- Heuristiques
 
     private static Tournee tourneeTriviale(Map map, PlanningRequest planning, HashMap<Long, Integer> intersecIdToIndex) {
-        LocalTime startTime = LocalTime.now();
+        LocalTime curTime = LocalTime.now();
         ArrayList<TupleRequete> ptsPassage = new ArrayList<TupleRequete>();
         ArrayList<Segment> chemin = new ArrayList<Segment>();
         ArrayList<Intersection> intersections = map.getIntersectionList();
@@ -402,14 +402,38 @@ public class ComputeTour {
             ptsInteret = new LinkedList<Intersection>();
             ptsInteret.add(request.getPickup());
             predList = dijkstra(map, previousDelivery, ptsInteret, intersecIdToIndex);
-            chemin.addAll(recreateChemin(predList, previousDelivery, request.getPickup(), intersections, intersecIdToIndex));
-            ptsPassage.add(new TupleRequete(request, true, startTime));
+            ArrayList<Segment> curChemin = recreateChemin(predList, previousDelivery, request.getPickup(), intersections, intersecIdToIndex);
+            chemin.addAll(curChemin);
+
+            float travelDur = 0;
+            for (Segment seg : curChemin) {
+                travelDur += seg.getLength();
+            }
+            travelDur *= 3600.0/1500.0; // conversion de metres vers secondes
+            curTime = curTime.plusSeconds((long)travelDur);
+
+            ptsPassage.add(new TupleRequete(request, true, curTime, curChemin));
+
+            curTime = curTime.plusSeconds((long)request.getPickupDur());
+
 
             ptsInteret = new LinkedList<Intersection>();
             ptsInteret.add(request.getDelivery());
             predList = dijkstra(map, request.getPickup(), ptsInteret, intersecIdToIndex);
-            chemin.addAll(recreateChemin(predList, request.getPickup(), request.getDelivery(), intersections, intersecIdToIndex));
-            ptsPassage.add(new TupleRequete(request, false, startTime));
+            curChemin = recreateChemin(predList, request.getPickup(), request.getDelivery(), intersections, intersecIdToIndex);
+            chemin.addAll(curChemin);
+
+            travelDur = 0;
+            for (Segment seg : curChemin) {
+                travelDur += seg.getLength();
+            }
+            travelDur *= 3600.0/1500.0; // conversion de metres vers secondes
+            curTime = curTime.plusSeconds((long)travelDur);
+
+            ptsPassage.add(new TupleRequete(request, false, curTime, curChemin));
+
+            curTime = curTime.plusSeconds((long)request.getPickupDur());
+
             previousDelivery = request.getDelivery();
         }
 
@@ -502,13 +526,13 @@ public class ComputeTour {
             LinkedList<TupleRequete> aDelete = new LinkedList<TupleRequete>();
             for (TupleRequete dest : pool) {
                 if(dest.isDepart && dest.requete.getPickup().getId() == curIDarrivee) {
-                    ptsPassage.add(new TupleRequete(dest.requete, true, curTime));
+                    ptsPassage.add(new TupleRequete(dest.requete, true, curTime, curChemin.chemin));
                     System.out.println("Pickup, attente de " + dest.requete.getPickupDur() + " s");
                     curTime = curTime.plusSeconds((long)dest.requete.getPickupDur());
                     dest.isDepart = false;
                 }
                 if(!dest.isDepart && dest.requete.getDelivery().getId() == curIDarrivee) {
-                    ptsPassage.add(new TupleRequete(dest.requete, false, curTime));
+                    ptsPassage.add(new TupleRequete(dest.requete, false, curTime, curChemin.chemin));
                     System.out.println("Delivery, attente de " + dest.requete.getDeliveryDur() + " s");
                     curTime = curTime.plusSeconds((long)dest.requete.getDeliveryDur());
                     aDelete.add(dest);

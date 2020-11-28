@@ -9,11 +9,11 @@ public class processingTest {
 
     public static void main(String[] args) {
 
-//        String mapPath = "data/map_test.xml";
-//        String reqPath = "data/requests_test.xml";
+        String mapPath = "data/map_test.xml";
+        String reqPath = "data/requests_test.xml";
 
-        String mapPath = "data/largeMap.xml";
-        String reqPath = "data/requestsLarge9.xml";
+//        String mapPath = "data/largeMap.xml";
+//        String reqPath = "data/requestsLarge9.xml";
 
         Map map = new Map(mapPath);
         System.out.println("Map chargee, nombre d'intersections : " + map.getNoOfIntersections() + ",   nombre de segments : " + map.getNoOfSegments());
@@ -41,9 +41,9 @@ public class processingTest {
 //        }
         for (TupleRequete req : tournee.getPtsPassage()) {
             if(req.isDepart) {
-                System.out.println(req.requete.getPickup().getId() + " " + req.time);
+                System.out.println(req.requete.getPickup().getId() + " " + req.time + " " + req.chemin);
             } else {
-                System.out.println(req.requete.getDelivery().getId() + " " + req.time);
+                System.out.println(req.requete.getDelivery().getId() + " " + req.time + " " + req.chemin);
             }
         }
 

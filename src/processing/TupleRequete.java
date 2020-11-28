@@ -1,8 +1,10 @@
 package processing;
 
 import objects.Request;
+import objects.Segment;
 
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.Objects;
 
 public class TupleRequete {
@@ -10,6 +12,7 @@ public class TupleRequete {
     Request requete;
     boolean isDepart;       // vrai si l'objet TupleRequete correspond au départ de sa Request
     LocalTime time;     // pickup or delivery starting time according to isDepart
+    ArrayList<Segment> chemin;      // chemin pour aller du point de pickup/delivery precedent a ce point
 
     public Request getRequete() {
         return requete;
@@ -40,10 +43,11 @@ public class TupleRequete {
         this.isDepart = isDepart;
     }
 
-    public TupleRequete(Request requete, boolean isDepart, LocalTime time) {
+    public TupleRequete(Request requete, boolean isDepart, LocalTime time, ArrayList<Segment> chemin) {
         this.requete = requete;
         this.isDepart = isDepart;
         this.time = time;
+        this.chemin = chemin;
     }
 
     @Override
