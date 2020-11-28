@@ -14,6 +14,14 @@ public class TupleRequete {
     LocalTime time;     // pickup or delivery starting time according to isDepart
     ArrayList<Segment> chemin;      // chemin pour aller du point de pickup/delivery precedent a ce point
 
+    public ArrayList<Segment> getChemin() {
+        return chemin;
+    }
+
+    public void setChemin(ArrayList<Segment> chemin) {
+        this.chemin = chemin;
+    }
+
     public Request getRequete() {
         return requete;
     }

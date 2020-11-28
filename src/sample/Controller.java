@@ -16,6 +16,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -82,6 +83,7 @@ public class Controller {
 
     private ArrayList<CoordinateLine> coordLines;
     private ArrayList<CoordinateLine> tourLines;
+    private ArrayList<CoordinateLine> selectedLines;
     private ArrayList<Marker> markers;
     private ArrayList<LocationTagContent> cards;
 
@@ -115,6 +117,7 @@ public class Controller {
         tourLines = new ArrayList<CoordinateLine>();
         markers = new ArrayList<Marker>();
         cards = new ArrayList<LocationTagContent>();
+        selectedLines = new ArrayList<CoordinateLine>();
     }
 
     public void initMapAndControls(Projection projection) {
@@ -310,6 +313,27 @@ public class Controller {
         }
     }
 
+    public void displaySegmentTour(ArrayList<Segment> path)
+    {
+        selectedLines.clear();
+        ArrayList<Intersection> listIntersection = map.getIntersectionList();
+        //logger.info(listSegments.toString());
+        //logger.info(listIntersection.toString());
+        for (Segment segment : path) {
+            long idOrigin = segment.getOrigin();
+            long idDestination = segment.getDestination();
+            Intersection ptOrigin = map.matchIdToIntersection(idOrigin);
+            Intersection ptDestination = map.matchIdToIntersection(idDestination);
+            Coordinate coordOrigin = new Coordinate(ptOrigin.getLatitude(), ptOrigin.getLongitude());
+            Coordinate coordDestination = new Coordinate(ptDestination.getLatitude(), ptDestination.getLongitude());
+            // Extent extent = Extent.forCoordinates();
+            CoordinateLine cl = new CoordinateLine(coordOrigin, coordDestination);
+            cl.setVisible(true).setColor(Color.BLUE).setWidth(2);
+            selectedLines.add(cl);
+            mapView.addCoordinateLine(cl);
+        }
+    }
+
     public void displayRequests(){
 
         ArrayList<Intersection> listIntersection = map.getIntersectionList();
@@ -361,6 +385,9 @@ public class Controller {
         private String streetTwo;
         //arrival time
         private String arrivalTime;
+        //coordinates of location
+        private Coordinate coordLocation;
+        private ArrayList<Segment> chemin;
 
         public String getName() {
             return name;
@@ -371,12 +398,14 @@ public class Controller {
         public String getArrivalTime() {
             return arrivalTime;
         }
-        public LocationTagContent(String name, String streetOne, String streetTwo, String arrivalTime) {
+        public LocationTagContent(String name, String streetOne, String streetTwo, String arrivalTime, Coordinate coordLocation, ArrayList<Segment> chemin) {
             super();
             this.name = name;
             this.streetOne = streetOne;
             this.streetTwo = streetTwo;
             this.arrivalTime = arrivalTime;
+            this.coordLocation = coordLocation;
+            this.chemin = chemin;
         }
     }
 
@@ -427,6 +456,7 @@ public class Controller {
         }
     }
 
+
     //METHOD THAT CREATES CARDS
     public void initCardContent() {
         cards.clear();
@@ -438,24 +468,32 @@ public class Controller {
             String name = "";
             String street1 = "";
             String street2 = "";
+            double latitude = 0.0;
+            double longitude = 0.0;
             if (pt.isDepart())
             {
                 name = "Pickup "+nbPickup;
                 nbPickup++;
                 street1 = Double.toString(pt.getRequete().getPickup().getLatitude()) ;
+                latitude = pt.getRequete().getPickup().getLatitude();
                 street2 = Double.toString(pt.getRequete().getPickup().getLongitude());
+                longitude = pt.getRequete().getPickup().getLatitude();
             } else
             {
                 name = "Delivery "+nbDelivery;
                 nbDelivery++;
                 street1 = Double.toString(pt.getRequete().getDelivery().getLatitude());
+                latitude = pt.getRequete().getDelivery().getLatitude();
                 street2 = Double.toString(pt.getRequete().getDelivery().getLongitude());
+                longitude = pt.getRequete().getDelivery().getLongitude();
             }
 
             LocalTime time  = pt.getTime();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
 
-            LocationTagContent item = new LocationTagContent(name, street1, street2, time.format(formatter));
+            Coordinate location = new Coordinate(latitude, longitude);
+
+            LocationTagContent item = new LocationTagContent(name, street1, street2, time.format(formatter), location, pt.getChemin());
             cards.add(item);
         }
 
@@ -483,6 +521,15 @@ public class Controller {
         list.setTopAnchor(l, 0.0);
         list.setBottomAnchor(l, 0.0);
         list.getChildren().add(l);
+
+        l.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+               LocationTagContent lt = l.getSelectionModel().getSelectedItem();
+               mapView.setCenter(lt.coordLocation);
+               displaySegmentTour(lt.chemin);
+            }
+        });
     }
 
 
