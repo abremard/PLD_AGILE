@@ -109,8 +109,10 @@ public class Map {
     public ArrayList<String> getSegmentNameFromIntersectionId(long id){
         ArrayList<String> segmentNameList = new ArrayList<String>();
         for (int i=0; i<segmentList.size(); i++){
-            if (segmentList.get(i).getDestination() == id || segmentList.get(i).getOrigin() == id || segmentList.get(i).getName() != null){
-                segmentNameList.add(segmentList.get(i).getName());
+            if (segmentList.get(i).getDestination() == id || segmentList.get(i).getOrigin() == id ){
+                if (segmentList.get(i).getName() != null && !segmentNameList.contains(segmentList.get(i).getName())) {
+                    segmentNameList.add(segmentList.get(i).getName());
+                }
             }
         }
         return segmentNameList;

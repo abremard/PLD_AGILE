@@ -477,7 +477,9 @@ public class Controller {
                 ArrayList<String> street = map.getSegmentNameFromIntersectionId(pt.getRequete().getPickup().getId());
                 logger.info(street.toString());
                 street1 = street.get(0);
-                street2 = street.get(1);
+                if (street.size() >= 2) {
+                    street2 = street.get(1);
+                }
                 latitude = pt.getRequete().getPickup().getLatitude();
                 longitude = pt.getRequete().getPickup().getLongitude();
             } else
@@ -487,7 +489,9 @@ public class Controller {
                 ArrayList<String> street = map.getSegmentNameFromIntersectionId(pt.getRequete().getDelivery().getId());
                 logger.info(street.toString());
                 street1 = street.get(0);
-                street2 = street.get(1);
+                if (street.size() >= 2) {
+                    street2 = street.get(1);
+                }
                 latitude = pt.getRequete().getDelivery().getLatitude();
                 longitude = pt.getRequete().getDelivery().getLongitude();
             }
