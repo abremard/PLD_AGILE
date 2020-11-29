@@ -474,17 +474,21 @@ public class Controller {
             {
                 name = "Pickup "+nbPickup;
                 nbPickup++;
-                street1 = Double.toString(pt.getRequete().getPickup().getLatitude()) ;
+                ArrayList<String> street = map.getSegmentNameFromIntersectionId(pt.getRequete().getPickup().getId());
+                logger.info(street.toString());
+                street1 = street.get(0);
+                street2 = street.get(1);
                 latitude = pt.getRequete().getPickup().getLatitude();
-                street2 = Double.toString(pt.getRequete().getPickup().getLongitude());
-                longitude = pt.getRequete().getPickup().getLatitude();
+                longitude = pt.getRequete().getPickup().getLongitude();
             } else
             {
                 name = "Delivery "+nbDelivery;
                 nbDelivery++;
-                street1 = Double.toString(pt.getRequete().getDelivery().getLatitude());
+                ArrayList<String> street = map.getSegmentNameFromIntersectionId(pt.getRequete().getDelivery().getId());
+                logger.info(street.toString());
+                street1 = street.get(0);
+                street2 = street.get(1);
                 latitude = pt.getRequete().getDelivery().getLatitude();
-                street2 = Double.toString(pt.getRequete().getDelivery().getLongitude());
                 longitude = pt.getRequete().getDelivery().getLongitude();
             }
 
