@@ -16,12 +16,13 @@ import objects.Map;
 *
 * FIXME
 *  - greedy fait des bails chelous avec les requêtes médium
+*  - random passe pas par tous les points :'(
 * */
 
 /*
-* FIXME:
-*  - largeMap + requestsLarge9 + heuristique random -> bug
-* */
+ * FIXME:
+ *  - largeMap + requestsLarge9 + heuristique random -> bug
+ * */
 
 public class ComputeTour {
 
@@ -247,7 +248,7 @@ public class ComputeTour {
         ArrayList<TupleRequete> ptsPassage = new ArrayList<TupleRequete>();
 
         for (Segment seg : tournee.getSegmentList()) {
-            curTime = curTime.plusSeconds((long)(seg.getLength()*3600/1500.0));
+            curTime = curTime.plusSeconds((long)(seg.getLength()*3600/15000.0));
             curChemin.add(seg);
 
             LinkedList<TupleRequete> aDelete = new LinkedList<TupleRequete>();
@@ -445,7 +446,7 @@ public class ComputeTour {
             for (Segment seg : curChemin) {
                 travelDur += seg.getLength();
             }
-            travelDur *= 3600.0/1500.0; // conversion de metres vers secondes
+            travelDur *= 3600.0/15000.0; // conversion de metres vers secondes
             curTime = curTime.plusSeconds((long)travelDur);
 
             ptsPassage.add(new TupleRequete(request, true, curTime, curChemin));
@@ -463,7 +464,7 @@ public class ComputeTour {
             for (Segment seg : curChemin) {
                 travelDur += seg.getLength();
             }
-            travelDur *= 3600.0/1500.0; // conversion de metres vers secondes
+            travelDur *= 3600.0/15000.0; // conversion de metres vers secondes
             curTime = curTime.plusSeconds((long)travelDur);
 
             ptsPassage.add(new TupleRequete(request, false, curTime, curChemin));
@@ -482,7 +483,7 @@ public class ComputeTour {
         for (Segment seg : lastChemin) {
             travelDur += seg.getLength();
         }
-        travelDur *= 3600.0/1500.0; // conversion de metres vers secondes
+        travelDur *= 3600.0/15000.0; // conversion de metres vers secondes
         curTime = curTime.plusSeconds((long)travelDur);
         chemin.addAll(lastChemin);
         ptsPassage.add(new TupleRequete(new Request(previousDelivery, planning.getDepot().getAdresse(), 0, 0), false, curTime, lastChemin));
@@ -498,13 +499,13 @@ public class ComputeTour {
     private static Tournee greedy(SuperArete[][] matAdj, PlanningRequest planning, HashMap<Long, Integer> intersecIdToIndex) {
 
         /* Principe :
-        *  - initialiser un pool à la liste des départs
-        *  - prendre le départ le plus proche du dépot du pool
-        *  - ajouter son arrivée au pool
-        *  - tant qu'on a pas fini le chemin (= tant que le pool n'est pas vide)
-        *    - prendre le point du pool le plus proche du dernier point choisi
-        *    - si c'est un départ, ajouter son arrivée au pool
-        */
+         *  - initialiser un pool à la liste des départs
+         *  - prendre le départ le plus proche du dépot du pool
+         *  - ajouter son arrivée au pool
+         *  - tant qu'on a pas fini le chemin (= tant que le pool n'est pas vide)
+         *    - prendre le point du pool le plus proche du dernier point choisi
+         *    - si c'est un départ, ajouter son arrivée au pool
+         */
 
         LocalTime curTime = LocalTime.now();
         ArrayList<Segment> chemin = new ArrayList<Segment>();
@@ -575,7 +576,7 @@ public class ComputeTour {
             for (Segment seg : curChemin.chemin) {
                 travelDur += seg.getLength();
             }
-            travelDur *= 3600.0/1500.0; // conversion de metres vers secondes
+            travelDur *= 3600.0/15000.0; // conversion de metres vers secondes
             System.out.println("On va aller de " + curChemin.depart.getId() + " à " + curIDarrivee + " en " + travelDur + " s");
             curTime = curTime.plusSeconds((long)travelDur);
 
@@ -629,7 +630,7 @@ public class ComputeTour {
         for (Segment seg : curChemin.chemin) {
             travelDur += seg.getLength();
         }
-        travelDur *= 3600.0/1500.0; // conversion de metres vers secondes
+        travelDur *= 3600.0/15000.0; // conversion de metres vers secondes
         System.out.println("On va aller de " + curChemin.depart.getId() + " au depot " + curIDarrivee + " en " + travelDur + " s");
         curTime = curTime.plusSeconds((long)travelDur);
 
