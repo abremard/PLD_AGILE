@@ -16,6 +16,7 @@ import objects.Map;
 *
 * FIXME
 *  - greedy fait des bails chelous avec les requêtes médium
+*  - random passe pas par tous les points :'(
 * */
 
 /*
