@@ -9,8 +9,11 @@ public class processingTest {
 
     public static void main(String[] args) {
 
-        String mapPath = "data/map_test.xml";
-        String reqPath = "data/requests_test.xml";
+//        String mapPath = "data/map_test.xml";
+//        String reqPath = "data/requests_test.xml";
+
+        String mapPath = "data/smallMap.xml";
+        String reqPath = "data/requestsSmall1.xml";
 
 //        String mapPath = "data/largeMap.xml";
 //        String reqPath = "data/requestsLarge9.xml";
@@ -26,7 +29,7 @@ public class processingTest {
         }
         System.out.println("Liste de requetes chargee, nombre de requetes : " + planning.getRequestList().size() + "\n");
 
-        Tournee tournee = ComputeTour.planTour(map, planning, Heuristique.RANDOM);
+        Tournee tournee = ComputeTour.planTour(map, planning, Heuristique.GREEDY);
         System.out.println("Tournee calculee :"); // pour map_test.xml, requests_test.xml, tourneeTriviale : S01, S12, S25, S51, S23, S30
         for (Segment seg : tournee.getSegmentList()) {
             System.out.println(seg);

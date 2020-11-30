@@ -515,7 +515,7 @@ public class ComputeTour {
         for (Request req : requests) {
             pool.add(new TupleRequete(req, true));
         }
-        pool.add(new TupleRequete(new Request(planning.getDepot().getAdresse(), planning.getDepot().getAdresse(), 0, 0), true));
+        //pool.add(new TupleRequete(new Request(planning.getDepot().getAdresse(), planning.getDepot().getAdresse(), 0, 0), true));
 
         int curDepartInd = 0;
         for(TupleRequete req : pool) {
@@ -525,40 +525,51 @@ public class ComputeTour {
                 req.isDepart = false;
             }
         }
+        SuperArete curChemin;
+        int curArriveeInd = 0;
 
         while(!pool.isEmpty()) {
             // trouver le plus proche
             //     choper l'indice de curDepartInd dans matAdj
             //     parcourir matAdj[index] et chercher le min -> minNode
-            SuperArete curChemin;
-            int curArriveeInd = 0;
-            curChemin = matAdj[curDepartInd][0]; // point le plus proche de curDepartInd
-            for (int i = 0; i < matAdj.length; i++) {
-                if(curChemin == null || (matAdj[curDepartInd][i] != null && matAdj[curDepartInd][i].longueur < curChemin.longueur)) {
 
-                    boolean found = true;
-                    if(curChemin != null) { // on scroll le pool de requetes pour verifier si on a une requete a faire la-bas
-                        found = false;
-                        for (TupleRequete req : pool) {
-                            if(req.isDepart && req.getRequete().getPickup().getId() == matAdj[curDepartInd][i].arrivee.getId()) {
-                                found = true;
-                                break;
-                            }
-                            if(!req.isDepart && req.getRequete().getDelivery().getId() == matAdj[curDepartInd][i].arrivee.getId()) {
-                                found = true;
-                                break;
-                            }
+//            for (SuperArete[] line : matAdj) {
+//                for (SuperArete arete : line) {
+//                    if(arete == null) {
+//                        System.out.print("nul ");
+//                    } else {
+//                        System.out.print("okk ");
+//                    }
+//                }
+//                System.out.println();
+//            }
+
+            // on trouve le point le plus proche de curDepartInd ou on a une requete a traiter (-> curIdArrivee)
+            curChemin = null;
+            curArriveeInd = 0;
+            for (int i = 0; i < matAdj.length; i++) {
+                if(matAdj[curDepartInd][i] != null && (curChemin == null || matAdj[curDepartInd][i].longueur < curChemin.longueur)) {
+
+                    boolean found = false;
+                    for (TupleRequete req : pool) {
+                        if(req.isDepart && req.getRequete().getPickup().getId() == matAdj[curDepartInd][i].arrivee.getId()) {
+                            found = true;
+                            break;
+                        }
+                        if(!req.isDepart && req.getRequete().getDelivery().getId() == matAdj[curDepartInd][i].arrivee.getId()) {
+                            found = true;
+                            break;
                         }
                     }
                     if(found) {
                         curChemin = matAdj[curDepartInd][i];
                         curArriveeInd = i;
                     }
+
                 }
             }
-            // parcourir pool, pour chaque requete où il faut actuellement aller à minNode :
-            //      si c'est un départ : transformer en arrivee
-            //      si c'est une arrivee : virer du pool
+
+            // calcul du temps de trajet
             long curIDarrivee = curChemin.arrivee.getId();
             float travelDur = 0;
             for (Segment seg : curChemin.chemin) {
@@ -568,6 +579,9 @@ public class ComputeTour {
             System.out.println("On va aller de " + curChemin.depart.getId() + " à " + curIDarrivee + " en " + travelDur + " s");
             curTime = curTime.plusSeconds((long)travelDur);
 
+            // parcourir pool, pour chaque requete où il faut actuellement aller à minNode :
+            //      si c'est un départ : transformer en arrivee
+            //      si c'est une arrivee : virer du pool
             LinkedList<TupleRequete> aDelete = new LinkedList<TupleRequete>();
             for (TupleRequete dest : pool) {
                 if(dest.isDepart && dest.requete.getPickup().getId() == curIDarrivee) {
@@ -596,16 +610,31 @@ public class ComputeTour {
                     break;
                 }
             }
-            if(!stillUsed) {
-                for (int i = 0; i < matAdj.length; i++) {
-                    matAdj[i][curDepartInd] = null;
-                }
-            }
+//            if(!stillUsed) {
+//                for (int i = 0; i < matAdj.length; i++) {
+//                    matAdj[i][curDepartInd] = null;
+//                }
+//            }
             // ajouter au chemin
             chemin.addAll(curChemin.chemin);
             // curDepartInd = minNode
             curDepartInd = curArriveeInd;
         }
+
+        // retour au depot
+        curChemin = matAdj[curArriveeInd][0];
+
+        long curIDarrivee = curChemin.arrivee.getId();
+        float travelDur = 0;
+        for (Segment seg : curChemin.chemin) {
+            travelDur += seg.getLength();
+        }
+        travelDur *= 3600.0/1500.0; // conversion de metres vers secondes
+        System.out.println("On va aller de " + curChemin.depart.getId() + " au depot " + curIDarrivee + " en " + travelDur + " s");
+        curTime = curTime.plusSeconds((long)travelDur);
+
+        chemin.addAll(curChemin.chemin);
+        ptsPassage.add(new TupleRequete(new Request(planning.getDepot().getAdresse(), planning.getDepot().getAdresse(), 0, 0), false, curTime, curChemin.chemin));
 
         return new Tournee(chemin, requests, ptsPassage);
     }
