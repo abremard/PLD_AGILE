@@ -169,10 +169,7 @@ public class Controller {
                 mvcController.LoadMap(file.getAbsolutePath());
                 LoadMapCommand mapCommand = (LoadMapCommand) mvcController.getL().getL().get(mvcController.getL().getI());
                 map = mapCommand.getMap();
-                removeFromMap(coordLines);
-                removeFromMap(selectedLines);
-                removeFromMap(tourLines);
-                coordLines.clear();
+
                 displayMap();
 
                 requestButton.setDisable(false);
@@ -189,8 +186,7 @@ public class Controller {
                 requestField.setText(file.getAbsolutePath());
                 logger.info(file.getAbsolutePath());
                 System.out.println(file.getAbsolutePath());
-                removeFromMap(selectedLines);
-                removeFromMap(tourLines);
+
                 mvcController.LoadRequestPlan(file.getAbsolutePath());
                 LoadRequestPlanCommand requestCommand = (LoadRequestPlanCommand) mvcController.getL().getL().get(mvcController.getL().getI());
                 planningRequest = requestCommand.getPlanningRequest();
@@ -224,8 +220,8 @@ public class Controller {
                     mvcController.Reset();
 
                     //clear everything from map
-                    tourLines.clear();
-                    markers.clear();
+                    //tourLines.clear();
+                    //markers.clear();
                     //coordLines.clear();
 
                     //change text of button
@@ -269,6 +265,12 @@ public class Controller {
     }
 
     private void displayMap() {
+        removeFromMap(coordLines);
+        removeFromMap(selectedLines);
+        removeFromMap(tourLines);
+        coordLines.clear();
+        selectedLines.clear();
+        tourLines.clear();
 
         ArrayList<Segment> listSegments = map.getSegmentList();
         ArrayList<Intersection> listIntersection = map.getIntersectionList();
@@ -340,6 +342,11 @@ public class Controller {
     }
 
     public void displayRequests(){
+
+        removeFromMap(selectedLines);
+        removeFromMap(tourLines);
+        selectedLines.clear();
+        tourLines.clear();
 
         ArrayList<Intersection> listIntersection = map.getIntersectionList();
 
