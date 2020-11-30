@@ -178,12 +178,6 @@ public class Controller {
                 requestButton.setDisable(false);
                 requestField.setDisable(false);
 
-                //ADD METHOD TO DISPLAY ON MAP - DRAW LINES OF SEGMENTS
-                //MAKE SURE TO CHANGE POSITION OF MAP TO DISPLAY AREA WHERE SEGMENTS WERE PLACED
-                //use Coordinate to store all points of intersection - possibly add this to the model
-                //View Aydins code - place line for the list of segments
-                //Create Extent object and use Extent.forCoordinates(List<Coordinate>) to create the extent of coordinates that were placed on map - intersections
-                //On the MapView object use mapView.setExtent(extent) to position the map to display all points
             }
         });
 
@@ -195,7 +189,8 @@ public class Controller {
                 requestField.setText(file.getAbsolutePath());
                 logger.info(file.getAbsolutePath());
                 System.out.println(file.getAbsolutePath());
-
+                removeFromMap(selectedLines);
+                removeFromMap(tourLines);
                 mvcController.LoadRequestPlan(file.getAbsolutePath());
                 LoadRequestPlanCommand requestCommand = (LoadRequestPlanCommand) mvcController.getL().getL().get(mvcController.getL().getI());
                 planningRequest = requestCommand.getPlanningRequest();
@@ -203,12 +198,7 @@ public class Controller {
                 displayRequests();
 
                 mainButton.setDisable(false);
-                //ADD METHOD TO DISPLAY ON MAP - PLACE POINTS OF REQUESTS AND DELIVERY POINTS
-                //MAKE SURE TO CHANGE POSITION AND SCALE OF MAP TO DISPLAY AREA WHERE POINTS ARE PLACED
-                // use Coordinate to store all points of intersection where location is - possibly add this to the model
-                // View Aydins code - place appripriate marker (delivery or pickup point)
-                // Create Extent object and use Extent.forCoordinates(List<Coordinate>) to create the extent of coordinates that were placed on map - intersections
-                // On the MapView object use mapView.setExtent(extent) to position the map to display all points
+
             }
         });
 

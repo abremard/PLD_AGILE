@@ -10,13 +10,14 @@ import objects.*;
 import objects.Map;
 
 /*
- * TODO
- *  - arrêter Dijsktra quand on a traité tous les points d'intérêt
- *  - algo pour le TSP (génétique ?)
- *
- * FIXME
- *  - greedy fait des bails chelous avec les requêtes médium
- * */
+* TODO
+*  - arrêter Dijsktra quand on a traité tous les points d'intérêt
+*  - algo pour le TSP (génétique ?)
+*
+* FIXME
+*  - greedy fait des bails chelous avec les requêtes médium
+*  - random passe pas par tous les points :'(
+* */
 
 /*
  * FIXME:
