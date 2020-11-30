@@ -169,18 +169,15 @@ public class Controller {
                 mvcController.LoadMap(file.getAbsolutePath());
                 LoadMapCommand mapCommand = (LoadMapCommand) mvcController.getL().getL().get(mvcController.getL().getI());
                 map = mapCommand.getMap();
+                removeFromMap(coordLines);
+                removeFromMap(selectedLines);
+                removeFromMap(tourLines);
                 coordLines.clear();
                 displayMap();
 
                 requestButton.setDisable(false);
                 requestField.setDisable(false);
 
-                //ADD METHOD TO DISPLAY ON MAP - DRAW LINES OF SEGMENTS
-                //MAKE SURE TO CHANGE POSITION OF MAP TO DISPLAY AREA WHERE SEGMENTS WERE PLACED
-                //use Coordinate to store all points of intersection - possibly add this to the model
-                //View Aydins code - place line for the list of segments
-                //Create Extent object and use Extent.forCoordinates(List<Coordinate>) to create the extent of coordinates that were placed on map - intersections
-                //On the MapView object use mapView.setExtent(extent) to position the map to display all points
             }
         });
 
@@ -192,7 +189,8 @@ public class Controller {
                 requestField.setText(file.getAbsolutePath());
                 logger.info(file.getAbsolutePath());
                 System.out.println(file.getAbsolutePath());
-
+                removeFromMap(selectedLines);
+                removeFromMap(tourLines);
                 mvcController.LoadRequestPlan(file.getAbsolutePath());
                 LoadRequestPlanCommand requestCommand = (LoadRequestPlanCommand) mvcController.getL().getL().get(mvcController.getL().getI());
                 planningRequest = requestCommand.getPlanningRequest();
@@ -200,12 +198,7 @@ public class Controller {
                 displayRequests();
 
                 mainButton.setDisable(false);
-                //ADD METHOD TO DISPLAY ON MAP - PLACE POINTS OF REQUESTS AND DELIVERY POINTS
-                //MAKE SURE TO CHANGE POSITION AND SCALE OF MAP TO DISPLAY AREA WHERE POINTS ARE PLACED
-                // use Coordinate to store all points of intersection where location is - possibly add this to the model
-                // View Aydins code - place appripriate marker (delivery or pickup point)
-                // Create Extent object and use Extent.forCoordinates(List<Coordinate>) to create the extent of coordinates that were placed on map - intersections
-                // On the MapView object use mapView.setExtent(extent) to position the map to display all points
+
             }
         });
 
@@ -319,9 +312,7 @@ public class Controller {
 
     public void displaySegmentTour(ArrayList<Segment> path)
     {
-        for (CoordinateLine cl: selectedLines ) {
-            mapView.removeCoordinateLine(cl);
-        }
+        removeFromMap(selectedLines);
         selectedLines.clear();
         ArrayList<Intersection> listIntersection = map.getIntersectionList();
         //logger.info(listSegments.toString());
@@ -338,6 +329,13 @@ public class Controller {
             cl.setVisible(true).setColor(selectionColor).setWidth(6);
             selectedLines.add(cl);
             mapView.addCoordinateLine(cl);
+        }
+    }
+
+    public void removeFromMap(ArrayList<CoordinateLine> list)
+    {
+        for (CoordinateLine cl: list) {
+            mapView.removeCoordinateLine(cl);
         }
     }
 
@@ -492,6 +490,7 @@ public class Controller {
             } else
             {
                 name = "Delivery "+nbDelivery;
+                if(nbDelivery == (int)((points.size()+1)/2)) { name = "Back to shop"; }
                 nbDelivery++;
                 ArrayList<String> street = map.getSegmentNameFromIntersectionId(pt.getRequete().getDelivery().getId());
                 logger.info(street.toString());
