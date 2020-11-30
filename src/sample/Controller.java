@@ -169,6 +169,9 @@ public class Controller {
                 mvcController.LoadMap(file.getAbsolutePath());
                 LoadMapCommand mapCommand = (LoadMapCommand) mvcController.getL().getL().get(mvcController.getL().getI());
                 map = mapCommand.getMap();
+                removeFromMap(coordLines);
+                removeFromMap(selectedLines);
+                removeFromMap(tourLines);
                 coordLines.clear();
                 displayMap();
 
@@ -319,9 +322,7 @@ public class Controller {
 
     public void displaySegmentTour(ArrayList<Segment> path)
     {
-        for (CoordinateLine cl: selectedLines ) {
-            mapView.removeCoordinateLine(cl);
-        }
+        removeFromMap(selectedLines);
         selectedLines.clear();
         ArrayList<Intersection> listIntersection = map.getIntersectionList();
         //logger.info(listSegments.toString());
@@ -338,6 +339,13 @@ public class Controller {
             cl.setVisible(true).setColor(selectionColor).setWidth(6);
             selectedLines.add(cl);
             mapView.addCoordinateLine(cl);
+        }
+    }
+
+    public void removeFromMap(ArrayList<CoordinateLine> list)
+    {
+        for (CoordinateLine cl: list) {
+            mapView.removeCoordinateLine(cl);
         }
     }
 
