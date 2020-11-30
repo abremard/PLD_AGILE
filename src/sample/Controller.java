@@ -500,6 +500,7 @@ public class Controller {
             } else
             {
                 name = "Delivery "+nbDelivery;
+                if(nbDelivery == (int)((points.size()+1)/2)) { name = "Back to shop"; }
                 nbDelivery++;
                 ArrayList<String> street = map.getSegmentNameFromIntersectionId(pt.getRequete().getDelivery().getId());
                 logger.info(street.toString());
