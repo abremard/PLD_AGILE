@@ -190,7 +190,7 @@ public class Controller {
                 mvcController.LoadRequestPlan(file.getAbsolutePath());
                 LoadRequestPlanCommand requestCommand = (LoadRequestPlanCommand) mvcController.getL().getL().get(mvcController.getL().getI());
                 planningRequest = requestCommand.getPlanningRequest();
-                markers.clear();
+                //markers.clear();
                 displayRequests();
 
                 mainButton.setDisable(false);
@@ -341,12 +341,21 @@ public class Controller {
         }
     }
 
+    public void removeFromMapMarker(ArrayList<Marker> list)
+    {
+        for (Marker m: list) {
+            mapView.removeMarker(m);
+        }
+    }
+
     public void displayRequests(){
 
         removeFromMap(selectedLines);
         removeFromMap(tourLines);
+        removeFromMapMarker(markers);
         selectedLines.clear();
         tourLines.clear();
+        markers.clear();
 
         ArrayList<Intersection> listIntersection = map.getIntersectionList();
 
