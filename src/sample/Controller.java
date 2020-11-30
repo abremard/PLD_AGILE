@@ -91,6 +91,10 @@ public class Controller {
     private PlanningRequest planningRequest;
     private Tournee tour;
 
+    private Color mapColor = new Color(0.40,0.40,0.40, 1.0);
+    private Color pathColor = new Color(0.2,0.6,1.0, 1.0);
+    private Color selectionColor = new Color(1.0,0.4,0.0, 1.0);
+
     private boolean isTimeline = false;
 
     private static final Coordinate coordKarlsruheHarbour = new Coordinate(45.77087932755228, 4.863621380475198);
@@ -287,7 +291,7 @@ public class Controller {
             Coordinate coordDestination = new Coordinate(ptDestination.getLatitude(), ptDestination.getLongitude());
             // Extent extent = Extent.forCoordinates();
             CoordinateLine cl = new CoordinateLine(coordOrigin,coordDestination);
-            cl.setVisible(true).setColor(Color.BLACK).setWidth(1);
+            cl.setVisible(true).setColor(mapColor).setWidth(1);
             coordLines.add(cl);
             mapView.addCoordinateLine(cl);
         }
@@ -307,7 +311,7 @@ public class Controller {
             Coordinate coordDestination = new Coordinate(ptDestination.getLatitude(), ptDestination.getLongitude());
             // Extent extent = Extent.forCoordinates();
             CoordinateLine cl = new CoordinateLine(coordOrigin, coordDestination);
-            cl.setVisible(true).setColor(Color.RED).setWidth(2);
+            cl.setVisible(true).setColor(pathColor).setWidth(4);
             tourLines.add(cl);
             mapView.addCoordinateLine(cl);
         }
@@ -315,6 +319,9 @@ public class Controller {
 
     public void displaySegmentTour(ArrayList<Segment> path)
     {
+        for (CoordinateLine cl: selectedLines ) {
+            mapView.removeCoordinateLine(cl);
+        }
         selectedLines.clear();
         ArrayList<Intersection> listIntersection = map.getIntersectionList();
         //logger.info(listSegments.toString());
@@ -328,7 +335,7 @@ public class Controller {
             Coordinate coordDestination = new Coordinate(ptDestination.getLatitude(), ptDestination.getLongitude());
             // Extent extent = Extent.forCoordinates();
             CoordinateLine cl = new CoordinateLine(coordOrigin, coordDestination);
-            cl.setVisible(true).setColor(Color.BLUE).setWidth(2);
+            cl.setVisible(true).setColor(selectionColor).setWidth(6);
             selectedLines.add(cl);
             mapView.addCoordinateLine(cl);
         }
