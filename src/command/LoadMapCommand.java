@@ -23,5 +23,5 @@ public class LoadMapCommand implements Command {
     }
 
     @Override
-    public void undoCommand() { map = null; }
+    public void undoCommand() {}
 }

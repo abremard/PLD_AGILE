@@ -1,11 +1,15 @@
 package command;
 
-public class NewTourCommand implements Command {
-    public NewTourCommand() {}
+public class SwapOrderCommand implements Command {
+
+    public SwapOrderCommand() {
+
+    }
 
     @Override
     public void doCommand() {}
 
     @Override
     public void undoCommand() {}
+
 }

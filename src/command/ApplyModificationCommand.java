@@ -1,7 +1,10 @@
 package command;
 
-public class NewTourCommand implements Command {
-    public NewTourCommand() {}
+public class ApplyModificationCommand implements Command {
+
+    public ApplyModificationCommand() {
+
+    }
 
     @Override
     public void doCommand() {}

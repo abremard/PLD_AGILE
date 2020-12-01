@@ -64,6 +64,9 @@ public class Controller {
     private Button mainButton;
 
     @FXML
+    private Button secondButton;
+
+    @FXML
     private Button mapButton;
 
     @FXML
@@ -158,6 +161,7 @@ public class Controller {
         requestButton.setDisable(true);
         requestField.setDisable(true);
         mainButton.setDisable(true);
+        secondButton.setVisible(false);
 
         //Initialise the File chooser buttons with their handlers
         mapButton.setOnAction(new EventHandler<ActionEvent>() {
@@ -226,6 +230,7 @@ public class Controller {
 
                     //change text of button
                     mainButton.setText("Calculate Tour");
+                    secondButton.setVisible(false);
 
                     isTimeline = false;
                 } else
@@ -239,7 +244,9 @@ public class Controller {
                     mapText.setVisible(false);
 
                     //change text of button
-                    mainButton.setText("Change Files");
+                    mainButton.setText("New Tour");
+                    secondButton.setVisible(true);
+                    secondButton.setText("Test");
 
                     //get files, pass them to the algo, calculate path, get results
                     logger.info(map.toString());
@@ -257,8 +264,6 @@ public class Controller {
 
             }
         });
-
-
 
         logger.info("initialization finished");
 

@@ -75,4 +75,8 @@ public class PlanningRequest {
         }
     }
 
+    public void addRequest(Request newRequest){
+        requestList.add(newRequest);
+    }
+
 }
