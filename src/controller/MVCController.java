@@ -15,6 +15,9 @@ public class MVCController {
     private RequestState requestState;
     private TourState tourState;
     private ModifyState modifyState;
+    private AddState addState;
+    private ModifyRequestState modifyRequestState;
+    private RemoveState removeState;
 
     public MVCController() {
         this.l = new ListOfCommands();
@@ -24,6 +27,9 @@ public class MVCController {
         this.requestState = new RequestState();
         this.tourState = new TourState();
         this.modifyState = new ModifyState();
+        this.addState = new AddState();
+        this.modifyRequestState = new ModifyRequestState();
+        this.removeState = new RemoveState();
     }
 
     public ListOfCommands getL() {
@@ -74,19 +80,29 @@ public class MVCController {
 
     public void setModifyState(ModifyState modifyState) {this.modifyState = modifyState;}
 
-    public void setCurrentState(State state) {
-        this.currentState = state;
-    }
+    public AddState getAddState() {return addState;}
 
-    public void LoadMap(String path) {
-        currentState.loadMap(l,this, path);
-    }
+    public void setAddState(AddState addState) {this.addState = addState;    }
 
-    public void LoadRequestPlan(String path) {
-        currentState.loadRequestPlan(l, this, path);
-    }
+    public ModifyRequestState getModifyRequestState() {return modifyRequestState;}
+
+    public void setModifyRequestState(ModifyRequestState modifyRequestState) {this.modifyRequestState = modifyRequestState;}
+
+    public RemoveState getRemoveState() {return removeState;}
+
+    public void setRemoveState(RemoveState removeState) {this.removeState = removeState;}
+
+    public void setCurrentState(State state) {this.currentState = state;}
+
+    public void LoadMap(String path) {currentState.loadMap(l,this, path);}
+
+    public void LoadRequestPlan(String path) {currentState.loadRequestPlan(l, this, path);}
 
     public void ComputeTour(Map m, PlanningRequest p) { currentState.calculateTour(l, this, p, m); }
+
+    public void addRequest(){currentState.addRequest(this);}
+
+    public void done(){currentState.done(l, this);}
 
     public void Reset() { currentState.newTour(l, this); }
 

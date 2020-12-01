@@ -7,6 +7,7 @@ import objects.PlanningRequest;
 
 public interface State {
     boolean debug = false;
+
     /**
      * Appel au parseur de la carte .xml
      *
@@ -15,6 +16,7 @@ public interface State {
      * @param p Le chemin de donnée vers la carte .xml
      */
     default void loadMap(ListOfCommands l, MVCController c, String p) {}
+
     /**
      * Appel au parseur du fichier de requêtes .xml
      *
@@ -23,6 +25,7 @@ public interface State {
      * @param p Le chemin de donnée vers la liste des requetes .xml
      */
     default void loadRequestPlan(ListOfCommands l, MVCController c, String p) {}
+
     /**
      * Appel à l'algorithme de calcul du chemin
      *
@@ -32,6 +35,7 @@ public interface State {
      * @param m Object map qui permet de calculer la tournée
      */
     default void calculateTour(ListOfCommands l, MVCController c, PlanningRequest p, Map m) {}
+
     /**
      * Retour vers l'état précédent, le chargement d'un fichier est à nouveau possible
      *
@@ -39,20 +43,26 @@ public interface State {
      * @param c Controlleur dont on met à jour l'état
      */
     default void newTour(ListOfCommands l, MVCController c) {}
+
     default void edit(ListOfCommands l, MVCController c) {}
-    default void add(ListOfCommands l, MVCController c) {}
+    default void addRequest(MVCController c) {}
+
     /**
      * Undo permet de défaire une commande. Plutôt que de la retirer de la liste, on décrémente le curseur indiquant la position actuelle et on exécute les corrections nécessaires.
      *
      * @param l Liste des commandes, à laquelle on déplace le curseur
      */
     default void undo(ListOfCommands l) { l.Undo(); }
+
     /**
      * Redo permet de re-exécuter une commande qui a été retiré par un undo. On incrémente le curseur et re-exécute la commande.
      *
      * @param l Liste des commandes, à laquelle on déplace le curseur
      */
     default void redo(ListOfCommands l) { l.Redo(); }
+
+    default void done(ListOfCommands l, MVCController c) {}
+
     default void confirmDelete(ListOfCommands l, MVCController c) {}
     default void confirmAdd(ListOfCommands l, MVCController c) {}
     // default void leftClick(ListOfCommands l, Controller c, Point p) {}
