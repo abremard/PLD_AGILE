@@ -265,8 +265,6 @@ public class Controller {
             }
         });
 
-
-
         logger.info("initialization finished");
 
     }
