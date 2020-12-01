@@ -91,6 +91,10 @@ public class Controller {
     private PlanningRequest planningRequest;
     private Tournee tour;
 
+    private Color mapColor = new Color(0.40,0.40,0.40, 1.0);
+    private Color pathColor = new Color(0.2,0.6,1.0, 1.0);
+    private Color selectionColor = new Color(1.0,0.4,0.0, 1.0);
+
     private boolean isTimeline = false;
 
     private static final Coordinate coordKarlsruheHarbour = new Coordinate(45.77087932755228, 4.863621380475198);
@@ -165,18 +169,12 @@ public class Controller {
                 mvcController.LoadMap(file.getAbsolutePath());
                 LoadMapCommand mapCommand = (LoadMapCommand) mvcController.getL().getL().get(mvcController.getL().getI());
                 map = mapCommand.getMap();
-                coordLines.clear();
+
                 displayMap();
 
                 requestButton.setDisable(false);
                 requestField.setDisable(false);
 
-                //ADD METHOD TO DISPLAY ON MAP - DRAW LINES OF SEGMENTS
-                //MAKE SURE TO CHANGE POSITION OF MAP TO DISPLAY AREA WHERE SEGMENTS WERE PLACED
-                //use Coordinate to store all points of intersection - possibly add this to the model
-                //View Aydins code - place line for the list of segments
-                //Create Extent object and use Extent.forCoordinates(List<Coordinate>) to create the extent of coordinates that were placed on map - intersections
-                //On the MapView object use mapView.setExtent(extent) to position the map to display all points
             }
         });
 
@@ -192,16 +190,11 @@ public class Controller {
                 mvcController.LoadRequestPlan(file.getAbsolutePath());
                 LoadRequestPlanCommand requestCommand = (LoadRequestPlanCommand) mvcController.getL().getL().get(mvcController.getL().getI());
                 planningRequest = requestCommand.getPlanningRequest();
-                markers.clear();
+                //markers.clear();
                 displayRequests();
 
                 mainButton.setDisable(false);
-                //ADD METHOD TO DISPLAY ON MAP - PLACE POINTS OF REQUESTS AND DELIVERY POINTS
-                //MAKE SURE TO CHANGE POSITION AND SCALE OF MAP TO DISPLAY AREA WHERE POINTS ARE PLACED
-                // use Coordinate to store all points of intersection where location is - possibly add this to the model
-                // View Aydins code - place appripriate marker (delivery or pickup point)
-                // Create Extent object and use Extent.forCoordinates(List<Coordinate>) to create the extent of coordinates that were placed on map - intersections
-                // On the MapView object use mapView.setExtent(extent) to position the map to display all points
+
             }
         });
 
@@ -227,8 +220,8 @@ public class Controller {
                     mvcController.Reset();
 
                     //clear everything from map
-                    tourLines.clear();
-                    markers.clear();
+                    //tourLines.clear();
+                    //markers.clear();
                     //coordLines.clear();
 
                     //change text of button
@@ -272,6 +265,12 @@ public class Controller {
     }
 
     private void displayMap() {
+        removeFromMap(coordLines);
+        removeFromMap(selectedLines);
+        removeFromMap(tourLines);
+        coordLines.clear();
+        selectedLines.clear();
+        tourLines.clear();
 
         ArrayList<Segment> listSegments = map.getSegmentList();
         ArrayList<Intersection> listIntersection = map.getIntersectionList();
@@ -287,7 +286,7 @@ public class Controller {
             Coordinate coordDestination = new Coordinate(ptDestination.getLatitude(), ptDestination.getLongitude());
             // Extent extent = Extent.forCoordinates();
             CoordinateLine cl = new CoordinateLine(coordOrigin,coordDestination);
-            cl.setVisible(true).setColor(Color.BLACK).setWidth(1);
+            cl.setVisible(true).setColor(mapColor).setWidth(1);
             coordLines.add(cl);
             mapView.addCoordinateLine(cl);
         }
@@ -307,7 +306,7 @@ public class Controller {
             Coordinate coordDestination = new Coordinate(ptDestination.getLatitude(), ptDestination.getLongitude());
             // Extent extent = Extent.forCoordinates();
             CoordinateLine cl = new CoordinateLine(coordOrigin, coordDestination);
-            cl.setVisible(true).setColor(Color.RED).setWidth(2);
+            cl.setVisible(true).setColor(pathColor).setWidth(4);
             tourLines.add(cl);
             mapView.addCoordinateLine(cl);
         }
@@ -315,6 +314,7 @@ public class Controller {
 
     public void displaySegmentTour(ArrayList<Segment> path)
     {
+        removeFromMap(selectedLines);
         selectedLines.clear();
         ArrayList<Intersection> listIntersection = map.getIntersectionList();
         //logger.info(listSegments.toString());
@@ -328,13 +328,34 @@ public class Controller {
             Coordinate coordDestination = new Coordinate(ptDestination.getLatitude(), ptDestination.getLongitude());
             // Extent extent = Extent.forCoordinates();
             CoordinateLine cl = new CoordinateLine(coordOrigin, coordDestination);
-            cl.setVisible(true).setColor(Color.BLUE).setWidth(2);
+            cl.setVisible(true).setColor(selectionColor).setWidth(6);
             selectedLines.add(cl);
             mapView.addCoordinateLine(cl);
         }
     }
 
+    public void removeFromMap(ArrayList<CoordinateLine> list)
+    {
+        for (CoordinateLine cl: list) {
+            mapView.removeCoordinateLine(cl);
+        }
+    }
+
+    public void removeFromMapMarker(ArrayList<Marker> list)
+    {
+        for (Marker m: list) {
+            mapView.removeMarker(m);
+        }
+    }
+
     public void displayRequests(){
+
+        removeFromMap(selectedLines);
+        removeFromMap(tourLines);
+        removeFromMapMarker(markers);
+        selectedLines.clear();
+        tourLines.clear();
+        markers.clear();
 
         ArrayList<Intersection> listIntersection = map.getIntersectionList();
 
@@ -477,17 +498,22 @@ public class Controller {
                 ArrayList<String> street = map.getSegmentNameFromIntersectionId(pt.getRequete().getPickup().getId());
                 logger.info(street.toString());
                 street1 = street.get(0);
-                street2 = street.get(1);
+                if (street.size() >= 2) {
+                    street2 = street.get(1);
+                }
                 latitude = pt.getRequete().getPickup().getLatitude();
                 longitude = pt.getRequete().getPickup().getLongitude();
             } else
             {
                 name = "Delivery "+nbDelivery;
+                if(nbDelivery == (int)((points.size()+1)/2)) { name = "Back to shop"; }
                 nbDelivery++;
                 ArrayList<String> street = map.getSegmentNameFromIntersectionId(pt.getRequete().getDelivery().getId());
                 logger.info(street.toString());
                 street1 = street.get(0);
-                street2 = street.get(1);
+                if (street.size() >= 2) {
+                    street2 = street.get(1);
+                }
                 latitude = pt.getRequete().getDelivery().getLatitude();
                 longitude = pt.getRequete().getDelivery().getLongitude();
             }
