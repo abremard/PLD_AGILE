@@ -14,6 +14,7 @@ public class MVCController {
     private MapState mapState;
     private RequestState requestState;
     private TourState tourState;
+    private ModifyState modifyState;
 
     public MVCController() {
         this.l = new ListOfCommands();
@@ -22,6 +23,7 @@ public class MVCController {
         this.mapState = new MapState();
         this.requestState = new RequestState();
         this.tourState = new TourState();
+        this.modifyState = new ModifyState();
     }
 
     public ListOfCommands getL() {
@@ -67,6 +69,10 @@ public class MVCController {
     public void setTourState(TourState tourState) {
         this.tourState = tourState;
     }
+
+    public ModifyState getModifyState() {return modifyState;}
+
+    public void setModifyState(ModifyState modifyState) {this.modifyState = modifyState;}
 
     public void setCurrentState(State state) {
         this.currentState = state;

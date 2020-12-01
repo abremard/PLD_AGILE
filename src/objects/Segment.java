@@ -1,24 +1,24 @@
 package objects;
 
 public class Segment {
-    Intersection origin;
-    Intersection destination;
+    long origin;
+    long destination;
     Float length;
     Float time;
     String name;
 
-    public Segment(Intersection origin, Intersection destination, Float length, String name) {
+    public Segment(long origin, long destination, Float length, String name) {
         this.origin = origin;
         this.destination = destination;
         this.length = length;
         this.name = name;
     }
 
-    public Intersection getOrigin() {
+    public long getOrigin() {
         return origin;
     }
 
-    public Intersection getDestination() {
+    public long getDestination() {
         return destination;
     }
 
@@ -34,11 +34,11 @@ public class Segment {
         return name;
     }
 
-    public void setOrigin(Intersection origin) {
+    public void setOrigin(long origin) {
         this.origin = origin;
     }
 
-    public void setDestination(Intersection destination) {
+    public void setDestination(long destination) {
         this.destination = destination;
     }
 
