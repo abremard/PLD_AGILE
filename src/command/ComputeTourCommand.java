@@ -36,5 +36,5 @@ public class ComputeTourCommand implements Command {
     }
 
     @Override
-    public void undoCommand() { tournee = null; }
+    public void undoCommand() {}
 }

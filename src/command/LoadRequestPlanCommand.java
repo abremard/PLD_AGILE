@@ -37,5 +37,5 @@ public class LoadRequestPlanCommand implements Command {
     }
 
     @Override
-    public void undoCommand() { planningRequest = new PlanningRequest(); }
+    public void undoCommand() {}
 }
