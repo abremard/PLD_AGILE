@@ -15,15 +15,22 @@ import java.io.IOException;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Locale;
 
 
 public class PlanningRequest {
 
     Depot depot;
-    ArrayList<Request> requestList = new ArrayList<Request>();
+    ArrayList<Request> requestList = new ArrayList<>();
 
     public PlanningRequest() {
+    }
+
+    public PlanningRequest(PlanningRequest copyOfPlanningRequest) {
+        this.depot = copyOfPlanningRequest.depot;
+        this.requestList = copyOfPlanningRequest.requestList;
     }
 
     public Depot getDepot() {
@@ -77,6 +84,14 @@ public class PlanningRequest {
 
     public void addRequest(Request newRequest){
         requestList.add(newRequest);
+    }
+
+    public void removeRequest(int index){
+        requestList.remove(index);
+    }
+
+    public void swapRequest(int a, int b){
+        Collections.swap(requestList, a, b);
     }
 
 }
