@@ -13,6 +13,11 @@ public class Intersection {
         this.id = id;
     }
 
+    public Intersection(double latitude, double longitude) {
+        this.latitude = latitude;
+        this.longitude = longitude;
+    }
+
     public Intersection(long id) {
         this.id = id;
     }

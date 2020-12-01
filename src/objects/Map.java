@@ -9,6 +9,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Node;
 import org.w3c.dom.Element;
+import java.lang.Math;
 
 public class Map {
 
@@ -118,4 +119,22 @@ public class Map {
         return segmentNameList;
     }
 
+    public Intersection findClosestIntersection(Intersection cursorIntersection) {
+        double cursorLatitude = cursorIntersection.getLatitude();
+        double cursorLongitude = cursorIntersection.getLongitude();
+        Intersection soughtIntersection = null;
+        double minimalDistance = 10000000;
+        for (Intersection intersection : intersectionList) {
+            double caculatedDistance = calculateDistanceBetweenCursorAndIntersection(cursorLatitude, cursorLongitude, intersection);
+            if (caculatedDistance < minimalDistance){
+                minimalDistance = caculatedDistance;
+                soughtIntersection = intersection;
+            }
+        }
+        return soughtIntersection;
+    }
+
+    private double calculateDistanceBetweenCursorAndIntersection(double cursorLatitude, double cursorLongitude, Intersection intersection){
+        return Math.sqrt((Math.pow(cursorLatitude-intersection.getLatitude(),2))+Math.pow(cursorLongitude-intersection.getLongitude(),2));
+    }
 }
