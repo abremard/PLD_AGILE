@@ -6,7 +6,6 @@ import com.sothawo.mapjfx.offline.OfflineCache;
 import command.ComputeTourCommand;
 import command.LoadMapCommand;
 import command.LoadRequestPlanCommand;
-import command.NewTourCommand;
 import controller.MVCController;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -20,7 +19,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
@@ -29,17 +27,12 @@ import javafx.stage.FileChooser;
 import objects.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import javax.swing.*;
-// import java.awt.*;
 import java.io.File;
-import java.lang.reflect.Array;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import javafx.scene.paint.Color;
 import processing.TupleRequete;
-
-import java.util.LinkedList;
 
 public class Controller {
 
@@ -103,7 +96,7 @@ public class Controller {
 
     private boolean isTimeline = false;
 
-    private static final Coordinate coordKarlsruheHarbour = new Coordinate(45.77087932755228, 4.863621380475198);
+    private static final Coordinate coordLyon = new Coordinate(45.77087932755228, 4.863621380475198);
 
     /** default zoom value. */
     private static final int ZOOM_DEFAULT = 14;
@@ -124,7 +117,7 @@ public class Controller {
     public Controller()
     {
         mvcController = new MVCController();
-        coordLines = new ArrayList<CoordinateLine>();
+        coordLines = new ArrayList<>();
         tourLines = new ArrayList<CoordinateLine>();
         markers = new ArrayList<Marker>();
         cards = new ArrayList<LocationTagContent>();
@@ -299,7 +292,7 @@ public class Controller {
                 addingRequest = true;
                 addedReqCount = 0;
 
-                //secondButton.setDisable(true);
+                secondButton.setDisable(true);
             }
         });
 
@@ -448,8 +441,11 @@ public class Controller {
             return;
         }
 
+
         Intersection newIntersection = new Intersection( event.getCoordinate().getLatitude(), event.getCoordinate().getLongitude());
-        //newIntersection = map.findClosestIntersection(newIntersection);
+        newIntersection = map.findClosestIntersection(newIntersection);
+        logger.info(" adding new intersection @" + newIntersection.toString());
+
         String file = ( addedReqCount%2 == 0)? pickupImageFile : deliveryImageFile;
         Coordinate coordIntersection = new Coordinate(newIntersection.getLatitude(), newIntersection.getLongitude());
         Marker newMarker = new Marker( getClass().getResource(file),-12,-12).setPosition(coordIntersection).setVisible(true);
@@ -457,6 +453,7 @@ public class Controller {
         mapView.addMarker(newMarker);
 
         addedReqCount++;
+        if( addedReqCount == 2 ) secondButton.setDisable(false);
 
     }
 
@@ -550,7 +547,7 @@ public class Controller {
         logger.info("setting center and enabling controls...");
         // start at the harbour with default zoom
         mapView.setZoom(ZOOM_DEFAULT);
-        mapView.setCenter(coordKarlsruheHarbour);
+        mapView.setCenter(coordLyon);
 
     }
 
