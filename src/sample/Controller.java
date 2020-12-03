@@ -16,6 +16,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
@@ -522,7 +523,10 @@ public class Controller {
         l.setCellFactory(new Callback<ListView<LocationTagContent>, ListCell<LocationTagContent>>() {
             @Override
             public ListCell<LocationTagContent> call(ListView<LocationTagContent> listView) {
-                return new CustomListCell();
+
+                //return new CustomListCell();
+                //NORMALLY SHOULD BE CUSTOMLISTCELL
+                return new CustomModifyListCell();
             }
         });
         logger.info("cell factory added");
@@ -631,4 +635,96 @@ public class Controller {
         }
     }
 
+    //CLASS THAT STYLES CONTENT OF CARD INTO A LIST CELL
+    private class CustomModifyListCell extends ListCell<LocationTagContent> {
+        private HBox content;
+        private Text name;
+        private Text address;
+        private Button editButton;
+        private Button deleteButton;
+        private Button upButton;
+        private Button downButton;
+
+        public CustomModifyListCell() {
+            super();
+            name = new Text();
+            name.setStyle("-fx-fill: #595959");
+            name.setFont(Font.font("SF Pro Display", 20.0));
+            address = new Text();
+            address.setStyle("-fx-fill: #595959");
+            address.setFont(Font.font("SF Pro Display", 12.0));
+            editButton = new Button("");
+            editButton.setGraphic(new ImageView("edit.png"));
+            deleteButton = new Button("");
+            editButton.setGraphic(new ImageView("delete.png"));
+            upButton = new Button("");
+            upButton.setGraphic(new ImageView("up.png"));
+            downButton = new Button("");
+            downButton.setGraphic(new ImageView("down.png"));
+
+            editButton.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    //call function to edit an item
+                    //you can pass the related LocationItemContent to edit the contents of the list (cards) with .getItem()
+                }
+            });
+
+            deleteButton.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    cards.remove(getItem());
+                    //call to refresh the content?
+                }
+            });
+
+            upButton.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    int index = cards.indexOf(getItem());
+                    if(index > 0)
+                    {
+                        LocationTagContent temp = cards.get(index);
+                        cards.set(index, cards.get(index-1));
+                        cards.set(index-1, temp);
+                        //call to refresh the content?
+                    }
+                }
+            });
+
+            downButton.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    int index = cards.indexOf(getItem());
+                    if(index < cards.size() -1) //or just size?
+                    {
+                        LocationTagContent temp = cards.get(index);
+                        cards.set(index, cards.get(index+1));
+                        cards.set(index+1, temp);
+                        //call to refresh the content?
+                    }
+                }
+            });
+
+            VBox vBox = new VBox(name, address);
+            Region region = new Region();
+            HBox.setHgrow(region, Priority.ALWAYS);
+            VBox vBox2 = new VBox(upButton, downButton);
+            vBox2.setAlignment(Pos.CENTER_RIGHT);
+            content = new HBox(vBox, region, editButton, deleteButton, vBox2);
+            content.setSpacing(10);
+        }
+
+        @Override
+        protected void updateItem(LocationTagContent item, boolean empty) {
+            super.updateItem(item, empty);
+            if (item != null && !empty) { // <== test for null item and empty parameter
+                name.setText(item.getName());
+                address.setText(item.getIntersection());
+                setGraphic(content);
+            } else {
+                setGraphic(null);
+            }
+        }
+    }
 }
