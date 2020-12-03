@@ -8,7 +8,7 @@ import controller.MVCController;
 
 public class AddState implements State {
     public void done(ListOfCommands l, MVCController c) {
-        l.Add(new AddRequestCommand());
+        //l.Add(new AddRequestCommand());
         c.setCurrentState(c.getModifyState());
         if (debug) {
             System.out.print("Confirming addition of a new request to the request list ");

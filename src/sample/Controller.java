@@ -1,6 +1,7 @@
 package sample;
 
 import com.sothawo.mapjfx.*;
+import com.sothawo.mapjfx.event.MapViewEvent;
 import com.sothawo.mapjfx.offline.OfflineCache;
 import command.ComputeTourCommand;
 import command.LoadMapCommand;
@@ -16,7 +17,6 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
@@ -29,7 +29,6 @@ import javafx.stage.FileChooser;
 import objects.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import javax.swing.*;
 // import java.awt.*;
 import java.io.File;
@@ -85,6 +84,9 @@ public class Controller {
     @FXML
     private Text requestText;
 
+    boolean addingRequest;
+    int addedReqCount;
+
     private ArrayList<CoordinateLine> coordLines;
     private ArrayList<CoordinateLine> tourLines;
     private ArrayList<CoordinateLine> selectedLines;
@@ -118,6 +120,7 @@ public class Controller {
 
     private MVCController mvcController;
 
+    // CONSTRUCTOR
     public Controller()
     {
         mvcController = new MVCController();
@@ -126,19 +129,21 @@ public class Controller {
         markers = new ArrayList<Marker>();
         cards = new ArrayList<LocationTagContent>();
         selectedLines = new ArrayList<CoordinateLine>();
+
+        addingRequest = false;
+        addedReqCount = 0;
     }
 
     public void initMapAndControls(Projection projection) {
         logger.info("begin initialize");
 
-        final FileChooser fileChooser = new FileChooser();
-
         // init MapView-Cache
         final OfflineCache offlineCache = mapView.getOfflineCache();
         final String cacheDir = System.getProperty("java.io.tmpdir") + "/mapjfx-cache";
 
-        mapView.setAnimationDuration(0);
+        initEventHandlers();
 
+        mapView.setAnimationDuration(0);
 
         // watch the MapView's initialized property to finish initialization
         mapView.initializedProperty().addListener((observable, oldValue, newValue) -> {
@@ -162,7 +167,31 @@ public class Controller {
         requestButton.setDisable(true);
         requestField.setDisable(true);
         mainButton.setDisable(true);
-        secondButton.setVisible(false);
+        secondButton.setDisable(true);
+        secondButton.setVisible(true);
+
+        secondButton.setText("Add Request");
+
+
+
+        logger.info("initialization finished");
+
+    }
+
+    public void initEventHandlers(){
+
+        logger.info("Setting up event handlers");
+
+        mapView.addEventHandler(MapViewEvent.MAP_CLICKED, event -> {
+            event.consume(); // not sure what this does tbh
+
+            if( addingRequest ){
+                handleNewRequestClick(event);
+            }
+
+        });
+
+        final FileChooser fileChooser = new FileChooser();
 
         //Initialise the File chooser buttons with their handlers
         mapButton.setOnAction(new EventHandler<ActionEvent>() {
@@ -179,8 +208,9 @@ public class Controller {
 
                 requestButton.setDisable(false);
                 requestField.setDisable(false);
-
+                secondButton.setDisable(false);
             }
+
         });
 
         //Initialise the File chooser buttons with their handlers
@@ -231,7 +261,6 @@ public class Controller {
 
                     //change text of button
                     mainButton.setText("Calculate Tour");
-                    secondButton.setVisible(false);
 
                     isTimeline = false;
                 } else
@@ -246,8 +275,6 @@ public class Controller {
 
                     //change text of button
                     mainButton.setText("New Tour");
-                    secondButton.setVisible(true);
-                    secondButton.setText("Test");
 
                     //get files, pass them to the algo, calculate path, get results
                     logger.info(map.toString());
@@ -266,7 +293,17 @@ public class Controller {
             }
         });
 
-        logger.info("initialization finished");
+        secondButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                addingRequest = true;
+                addedReqCount = 0;
+
+                //secondButton.setDisable(true);
+            }
+        });
+
+        logger.info("Finished setting up event handlers");
 
     }
 
@@ -403,6 +440,118 @@ public class Controller {
 
     }
 
+    public void handleNewRequestClick(MapViewEvent event){
+
+        if( addedReqCount > 1){
+            return;
+        }
+
+        Intersection newIntersection = new Intersection( event.getCoordinate().getLatitude(), event.getCoordinate().getLongitude());
+        //newIntersection = map.findClosestIntersection(newIntersection);
+        String file = ( addedReqCount%2 == 0)? pickupImageFile : deliveryImageFile;
+        Coordinate coordIntersection = new Coordinate(newIntersection.getLatitude(), newIntersection.getLongitude());
+        Marker newMarker = new Marker( getClass().getResource(file),-12,-12).setPosition(coordIntersection).setVisible(true);
+        markers.add(newMarker);
+        mapView.addMarker(newMarker);
+
+        addedReqCount++;
+
+    }
+
+    //METHOD THAT CREATES CARDS
+    public void initCardContent() {
+        cards.clear();
+        int nbPickup = 1;
+        int nbDelivery = 1;
+        ArrayList<TupleRequete> points = tour.getPtsPassage();
+        if(points != null) logger.info("Retrouve un objet nulllllllllll");
+        for (TupleRequete pt: points) {
+            String name = "";
+            String street1 = "";
+            String street2 = "";
+            double latitude = 0.0;
+            double longitude = 0.0;
+            if (pt.isDepart())
+            {
+                name = "Pickup "+nbPickup;
+                nbPickup++;
+                ArrayList<String> street = map.getSegmentNameFromIntersectionId(pt.getRequete().getPickup().getId());
+                logger.info(street.toString());
+                street1 = street.get(0);
+                if (street.size() >= 2) {
+                    street2 = street.get(1);
+                }
+                latitude = pt.getRequete().getPickup().getLatitude();
+                longitude = pt.getRequete().getPickup().getLongitude();
+            } else
+            {
+                name = "Delivery "+nbDelivery;
+                if(nbDelivery == (int)((points.size()+1)/2)) { name = "Back to shop"; }
+                nbDelivery++;
+                ArrayList<String> street = map.getSegmentNameFromIntersectionId(pt.getRequete().getDelivery().getId());
+                logger.info(street.toString());
+                street1 = street.get(0);
+                if (street.size() >= 2) {
+                    street2 = street.get(1);
+                }
+                latitude = pt.getRequete().getDelivery().getLatitude();
+                longitude = pt.getRequete().getDelivery().getLongitude();
+            }
+
+            LocalTime time  = pt.getTime();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+
+            Coordinate location = new Coordinate(latitude, longitude);
+
+            LocationTagContent item = new LocationTagContent(name, street1, street2, time.format(formatter), location, pt.getChemin());
+            cards.add(item);
+        }
+
+        logger.info("creating data");
+        ObservableList<LocationTagContent> data = FXCollections.observableArrayList();
+        data.addAll(cards);
+        logger.info("data added");
+        final ListView<LocationTagContent> l= new ListView<LocationTagContent>(data);
+
+        l.setMinWidth(350.0);
+        l.setMaxWidth(350.0);
+        l.setPrefHeight(586.0);
+        l.setPrefWidth(350.0);
+        l.setStyle("-fx-background-color: transparent");
+        l.getStylesheets().add(getClass().getResource("styleList.css").toExternalForm());
+
+        l.setCellFactory(new Callback<ListView<LocationTagContent>, ListCell<LocationTagContent>>() {
+            @Override
+            public ListCell<LocationTagContent> call(ListView<LocationTagContent> listView) {
+                return new CustomListCell();
+            }
+        });
+        logger.info("cell factory added");
+
+        list.setTopAnchor(l, 0.0);
+        list.setBottomAnchor(l, 0.0);
+        list.getChildren().add(l);
+
+        l.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+               LocationTagContent lt = l.getSelectionModel().getSelectedItem();
+               mapView.setCenter(lt.coordLocation);
+               displaySegmentTour(lt.chemin);
+            }
+        });
+    }
+
+    //finishes setup after the mpa is initialzed
+    private void afterMapIsInitialized() {
+        logger.info("map intialized");
+        logger.info("setting center and enabling controls...");
+        // start at the harbour with default zoom
+        mapView.setZoom(ZOOM_DEFAULT);
+        mapView.setCenter(coordKarlsruheHarbour);
+
+    }
+
     //CLASS THAT MODELS CONTENT OF CARDS TO SHOW IN TIMELINE
     private static class LocationTagContent {
         //ex. "Pickup 1", or "Delivery 3"
@@ -481,198 +630,6 @@ public class Controller {
                 setGraphic(null);
             }
         }
-    }
-
-    //CLASS THAT STYLES CONTENT OF CARD INTO A LIST CELL
-    private class CustomModifyListCell extends ListCell<LocationTagContent> {
-        private HBox content;
-        private Text name;
-        private Text address;
-        private Button editButton;
-        private Button deleteButton;
-        private Button upButton;
-        private Button downButton;
-
-        public CustomModifyListCell() {
-            super();
-            name = new Text();
-            name.setStyle("-fx-fill: #595959");
-            name.setFont(Font.font("SF Pro Display", 20.0));
-            address = new Text();
-            address.setStyle("-fx-fill: #595959");
-            address.setFont(Font.font("SF Pro Display", 12.0));
-            editButton = new Button("");
-            editButton.setGraphic(new ImageView("edit.png"));
-            deleteButton = new Button("");
-            editButton.setGraphic(new ImageView("delete.png"));
-            upButton = new Button("");
-            upButton.setGraphic(new ImageView("up.png"));
-            downButton = new Button("");
-            downButton.setGraphic(new ImageView("down.png"));
-
-            editButton.setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent event) {
-                    //call function to edit an item
-                    //you can pass the related LocationItemContent to edit the contents of the list (cards) with .getItem()
-                }
-            });
-
-            deleteButton.setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent event) {
-                    cards.remove(getItem());
-                    //call to refresh the content?
-                }
-            });
-
-            upButton.setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent event) {
-                    int index = cards.indexOf(getItem());
-                    if(index > 0)
-                    {
-                        LocationTagContent temp = cards.get(index);
-                        cards.set(index, cards.get(index-1));
-                        cards.set(index-1, temp);
-                        //call to refresh the content?
-                    }
-                }
-            });
-
-            downButton.setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent event) {
-                    int index = cards.indexOf(getItem());
-                    if(index < cards.size() -1) //or just size?
-                    {
-                        LocationTagContent temp = cards.get(index);
-                        cards.set(index, cards.get(index+1));
-                        cards.set(index+1, temp);
-                        //call to refresh the content?
-                    }
-                }
-            });
-
-            VBox vBox = new VBox(name, address);
-            Region region = new Region();
-            HBox.setHgrow(region, Priority.ALWAYS);
-            VBox vBox2 = new VBox(upButton, downButton);
-            vBox2.setAlignment(Pos.CENTER_RIGHT);
-            content = new HBox(vBox, region, editButton, deleteButton, vBox2);
-            content.setSpacing(10);
-        }
-
-        @Override
-        protected void updateItem(LocationTagContent item, boolean empty) {
-            super.updateItem(item, empty);
-            if (item != null && !empty) { // <== test for null item and empty parameter
-                name.setText(item.getName());
-                address.setText(item.getIntersection());
-                setGraphic(content);
-            } else {
-                setGraphic(null);
-            }
-        }
-    }
-
-
-    //METHOD THAT CREATES CARDS
-    public void initCardContent() {
-        cards.clear();
-        int nbPickup = 1;
-        int nbDelivery = 1;
-        ArrayList<TupleRequete> points = tour.getPtsPassage();
-        if(points != null) logger.info("Retrouve un objet nulllllllllll");
-        for (TupleRequete pt: points) {
-            String name = "";
-            String street1 = "";
-            String street2 = "";
-            double latitude = 0.0;
-            double longitude = 0.0;
-            if (pt.isDepart())
-            {
-                name = "Pickup "+nbPickup;
-                nbPickup++;
-                ArrayList<String> street = map.getSegmentNameFromIntersectionId(pt.getRequete().getPickup().getId());
-                logger.info(street.toString());
-                street1 = street.get(0);
-                if (street.size() >= 2) {
-                    street2 = street.get(1);
-                }
-                latitude = pt.getRequete().getPickup().getLatitude();
-                longitude = pt.getRequete().getPickup().getLongitude();
-            } else
-            {
-                name = "Delivery "+nbDelivery;
-                if(nbDelivery == (int)((points.size()+1)/2)) { name = "Back to shop"; }
-                nbDelivery++;
-                ArrayList<String> street = map.getSegmentNameFromIntersectionId(pt.getRequete().getDelivery().getId());
-                logger.info(street.toString());
-                street1 = street.get(0);
-                if (street.size() >= 2) {
-                    street2 = street.get(1);
-                }
-                latitude = pt.getRequete().getDelivery().getLatitude();
-                longitude = pt.getRequete().getDelivery().getLongitude();
-            }
-
-            LocalTime time  = pt.getTime();
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
-
-            Coordinate location = new Coordinate(latitude, longitude);
-
-            LocationTagContent item = new LocationTagContent(name, street1, street2, time.format(formatter), location, pt.getChemin());
-            cards.add(item);
-        }
-
-        logger.info("creating data");
-        ObservableList<LocationTagContent> data = FXCollections.observableArrayList();
-        data.addAll(cards);
-        logger.info("data added");
-        final ListView<LocationTagContent> l= new ListView<LocationTagContent>(data);
-
-        l.setMinWidth(350.0);
-        l.setMaxWidth(350.0);
-        l.setPrefHeight(586.0);
-        l.setPrefWidth(350.0);
-        l.setStyle("-fx-background-color: transparent");
-        l.getStylesheets().add(getClass().getResource("styleList.css").toExternalForm());
-
-        l.setCellFactory(new Callback<ListView<LocationTagContent>, ListCell<LocationTagContent>>() {
-            @Override
-            public ListCell<LocationTagContent> call(ListView<LocationTagContent> listView) {
-                //NORMALLY SHOULD BE CUSTOMLISTCELL
-                return new CustomModifyListCell();
-            }
-        });
-        logger.info("cell factory added");
-
-        list.setTopAnchor(l, 0.0);
-        list.setBottomAnchor(l, 0.0);
-        list.getChildren().add(l);
-
-        l.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-               LocationTagContent lt = l.getSelectionModel().getSelectedItem();
-               mapView.setCenter(lt.coordLocation);
-               displaySegmentTour(lt.chemin);
-            }
-        });
-    }
-
-
-    /**
-     * finishes setup after the mpa is initialzed
-     */
-    private void afterMapIsInitialized() {
-        logger.info("map intialized");
-        logger.info("setting center and enabling controls...");
-        // start at the harbour with default zoom
-        mapView.setZoom(ZOOM_DEFAULT);
-        mapView.setCenter(coordKarlsruheHarbour);
-
     }
 
 }
