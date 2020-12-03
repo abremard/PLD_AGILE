@@ -2,6 +2,7 @@ package sample;
 
 import com.sothawo.mapjfx.*;
 import com.sothawo.mapjfx.event.MapViewEvent;
+import com.sothawo.mapjfx.event.MarkerEvent;
 import com.sothawo.mapjfx.offline.OfflineCache;
 import command.ComputeTourCommand;
 import command.LoadMapCommand;
@@ -185,6 +186,11 @@ public class Controller {
 
         });
 
+        mapView.addEventHandler(MarkerEvent.MARKER_CLICKED, event -> {
+            event.consume();
+            logger.info(" clicked on a marker ");
+        });
+
         final FileChooser fileChooser = new FileChooser();
 
         //Initialise the File chooser buttons with their handlers
@@ -300,8 +306,6 @@ public class Controller {
         logger.info("Finished setting up event handlers");
 
     }
-
-
 
     private void displayMap() {
         removeFromMap(coordLines);
@@ -524,9 +528,9 @@ public class Controller {
             @Override
             public ListCell<LocationTagContent> call(ListView<LocationTagContent> listView) {
 
-                //return new CustomListCell();
+                return new CustomListCell();
                 //NORMALLY SHOULD BE CUSTOMLISTCELL
-                return new CustomModifyListCell();
+                //return new CustomModifyListCell();
             }
         });
         logger.info("cell factory added");
