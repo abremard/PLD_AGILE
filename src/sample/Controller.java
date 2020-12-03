@@ -307,6 +307,8 @@ public class Controller {
 
     }
 
+
+
     private void displayMap() {
         removeFromMap(coordLines);
         removeFromMap(selectedLines);
