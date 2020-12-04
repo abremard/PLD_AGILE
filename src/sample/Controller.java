@@ -241,7 +241,8 @@ public class Controller {
                 if(isTimeline)
                 {
                     //delete list of timeline
-                    list.getChildren().remove(list.getChildren().size() - 1);
+                    logger.info(String.valueOf(list.getChildren().remove(list.getChildren().size() -1)));
+
 
                     //show file picker elements
                     mapButton.setVisible(true);
@@ -516,6 +517,10 @@ public class Controller {
     }
 
     public void addCardsToScreen() {
+
+
+        logger.info(list.getChildren().toString());
+
         logger.info("creating data");
         ObservableList<LocationTagContent> data = FXCollections.observableArrayList();
         data.addAll(cards);
@@ -542,6 +547,7 @@ public class Controller {
 
         list.setTopAnchor(l, 0.0);
         list.setBottomAnchor(l, 0.0);
+
         list.getChildren().add(l);
 
         l.setOnMouseClicked(new EventHandler<MouseEvent>() {
@@ -689,6 +695,8 @@ public class Controller {
                     cards.remove(getItem());
                     logger.info(cards.toString());
                     //call to refresh the content?
+                    list.getChildren().remove(list.getChildren().size() -1);
+                    addCardsToScreen();
                 }
             });
 
@@ -703,6 +711,8 @@ public class Controller {
                         cards.set(index-1, temp);
                         logger.info(cards.toString());
                         //call to refresh the content?
+                        list.getChildren().remove(list.getChildren().size() -1);
+                        addCardsToScreen();
                     }
                 }
             });
@@ -718,6 +728,8 @@ public class Controller {
                         cards.set(index+1, temp);
                         logger.info(cards.toString());
                         //call to refresh the content?
+                        list.getChildren().remove(list.getChildren().size() -1);
+                        addCardsToScreen();
                     }
                 }
             });
