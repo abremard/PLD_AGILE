@@ -1,11 +1,12 @@
 package sample;
 
 import com.sothawo.mapjfx.*;
+import com.sothawo.mapjfx.event.MapViewEvent;
+import com.sothawo.mapjfx.event.MarkerEvent;
 import com.sothawo.mapjfx.offline.OfflineCache;
 import command.ComputeTourCommand;
 import command.LoadMapCommand;
 import command.LoadRequestPlanCommand;
-import command.NewTourCommand;
 import controller.MVCController;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -16,10 +17,10 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
@@ -28,18 +29,12 @@ import javafx.stage.FileChooser;
 import objects.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.swing.*;
-// import java.awt.*;
 import java.io.File;
-import java.lang.reflect.Array;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import javafx.scene.paint.Color;
 import processing.TupleRequete;
-
-import java.util.LinkedList;
 
 public class Controller {
 
@@ -84,6 +79,9 @@ public class Controller {
     @FXML
     private Text requestText;
 
+    boolean addingRequest;
+    int addedReqCount;
+
     private ArrayList<CoordinateLine> coordLines;
     private ArrayList<CoordinateLine> tourLines;
     private ArrayList<CoordinateLine> selectedLines;
@@ -100,7 +98,7 @@ public class Controller {
 
     private boolean isTimeline = false;
 
-    private static final Coordinate coordKarlsruheHarbour = new Coordinate(45.77087932755228, 4.863621380475198);
+    private static final Coordinate coordLyon = new Coordinate(45.77087932755228, 4.863621380475198);
 
     /** default zoom value. */
     private static final int ZOOM_DEFAULT = 14;
@@ -117,27 +115,30 @@ public class Controller {
 
     private MVCController mvcController;
 
+    // CONSTRUCTOR
     public Controller()
     {
         mvcController = new MVCController();
-        coordLines = new ArrayList<CoordinateLine>();
+        coordLines = new ArrayList<>();
         tourLines = new ArrayList<CoordinateLine>();
         markers = new ArrayList<Marker>();
         cards = new ArrayList<LocationTagContent>();
         selectedLines = new ArrayList<CoordinateLine>();
+
+        addingRequest = false;
+        addedReqCount = 0;
     }
 
     public void initMapAndControls(Projection projection) {
         logger.info("begin initialize");
 
-        final FileChooser fileChooser = new FileChooser();
-
         // init MapView-Cache
         final OfflineCache offlineCache = mapView.getOfflineCache();
         final String cacheDir = System.getProperty("java.io.tmpdir") + "/mapjfx-cache";
 
-        mapView.setAnimationDuration(0);
+        initEventHandlers();
 
+        mapView.setAnimationDuration(0);
 
         // watch the MapView's initialized property to finish initialization
         mapView.initializedProperty().addListener((observable, oldValue, newValue) -> {
@@ -161,7 +162,36 @@ public class Controller {
         requestButton.setDisable(true);
         requestField.setDisable(true);
         mainButton.setDisable(true);
-        secondButton.setVisible(false);
+        secondButton.setDisable(true);
+        secondButton.setVisible(true);
+
+        secondButton.setText("Add Request");
+
+
+
+        logger.info("initialization finished");
+
+    }
+
+    public void initEventHandlers(){
+
+        logger.info("Setting up event handlers");
+
+        mapView.addEventHandler(MapViewEvent.MAP_CLICKED, event -> {
+            event.consume(); // not sure what this does tbh
+
+            if( addingRequest ){
+                handleNewRequestClick(event);
+            }
+
+        });
+
+        mapView.addEventHandler(MarkerEvent.MARKER_CLICKED, event -> {
+            event.consume();
+            logger.info(" clicked on a marker ");
+        });
+
+        final FileChooser fileChooser = new FileChooser();
 
         //Initialise the File chooser buttons with their handlers
         mapButton.setOnAction(new EventHandler<ActionEvent>() {
@@ -178,8 +208,9 @@ public class Controller {
 
                 requestButton.setDisable(false);
                 requestField.setDisable(false);
-
+                secondButton.setDisable(false);
             }
+
         });
 
         //Initialise the File chooser buttons with their handlers
@@ -210,7 +241,8 @@ public class Controller {
                 if(isTimeline)
                 {
                     //delete list of timeline
-                    list.getChildren().remove(list.getChildren().size() - 1);
+                    logger.info(String.valueOf(list.getChildren().remove(list.getChildren().size() -1)));
+
 
                     //show file picker elements
                     mapButton.setVisible(true);
@@ -230,7 +262,6 @@ public class Controller {
 
                     //change text of button
                     mainButton.setText("Calculate Tour");
-                    secondButton.setVisible(false);
 
                     isTimeline = false;
                 } else
@@ -245,8 +276,6 @@ public class Controller {
 
                     //change text of button
                     mainButton.setText("New Tour");
-                    secondButton.setVisible(true);
-                    secondButton.setText("Test");
 
                     //get files, pass them to the algo, calculate path, get results
                     logger.info(map.toString());
@@ -265,7 +294,17 @@ public class Controller {
             }
         });
 
-        logger.info("initialization finished");
+        secondButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                addingRequest = true;
+                addedReqCount = 0;
+
+                secondButton.setDisable(true);
+            }
+        });
+
+        logger.info("Finished setting up event handlers");
 
     }
 
@@ -402,86 +441,27 @@ public class Controller {
 
     }
 
-    //CLASS THAT MODELS CONTENT OF CARDS TO SHOW IN TIMELINE
-    private static class LocationTagContent {
-        //ex. "Pickup 1", or "Delivery 3"
-        private String name;
-        //streets of the intersection
-        private String streetOne;
-        private String streetTwo;
-        //arrival time
-        private String arrivalTime;
-        //coordinates of location
-        private Coordinate coordLocation;
-        private ArrayList<Segment> chemin;
+    public void handleNewRequestClick(MapViewEvent event){
 
-        public String getName() {
-            return name;
+        if( addedReqCount > 1){
+            return;
         }
-        public String getIntersection() {
-            return streetOne + "\n" + streetTwo;
-        }
-        public String getArrivalTime() {
-            return arrivalTime;
-        }
-        public LocationTagContent(String name, String streetOne, String streetTwo, String arrivalTime, Coordinate coordLocation, ArrayList<Segment> chemin) {
-            super();
-            this.name = name;
-            this.streetOne = streetOne;
-            this.streetTwo = streetTwo;
-            this.arrivalTime = arrivalTime;
-            this.coordLocation = coordLocation;
-            this.chemin = chemin;
-        }
+
+
+        Intersection newIntersection = new Intersection( event.getCoordinate().getLatitude(), event.getCoordinate().getLongitude());
+        newIntersection = map.findClosestIntersection(newIntersection);
+        logger.info(" adding new intersection @" + newIntersection.toString());
+
+        String file = ( addedReqCount%2 == 0)? pickupImageFile : deliveryImageFile;
+        Coordinate coordIntersection = new Coordinate(newIntersection.getLatitude(), newIntersection.getLongitude());
+        Marker newMarker = new Marker( getClass().getResource(file),-12,-12).setPosition(coordIntersection).setVisible(true);
+        markers.add(newMarker);
+        mapView.addMarker(newMarker);
+
+        addedReqCount++;
+        if( addedReqCount == 2 ) secondButton.setDisable(false);
+
     }
-
-    //CLASS THAT STYLES CONTENT OF CARD INTO A LIST CELL
-    private class CustomListCell extends ListCell<LocationTagContent> {
-        private HBox content;
-        private Text name;
-        private Text address;
-        private Text arrivalText;
-        private Text arrivalTime;
-
-        public CustomListCell() {
-            super();
-            name = new Text();
-            name.setStyle("-fx-fill: #595959");
-            name.setFont(Font.font("SF Pro Display", 20.0));
-            address = new Text();
-            address.setStyle("-fx-fill: #595959");
-            address.setFont(Font.font("SF Pro Display", 12.0));
-            arrivalText = new Text("arrive by");
-            arrivalText.setStyle("-fx-fill: #595959");
-            arrivalText.setFont(Font.font("SF Pro Display", 12.0));
-            arrivalText.setTextAlignment(TextAlignment.RIGHT);
-            arrivalTime = new Text();
-            arrivalTime.setStyle("-fx-fill: #595959");
-            arrivalTime.setFont(Font.font("SF Pro Display", 25.0));
-            arrivalTime.setTextAlignment(TextAlignment.RIGHT);
-            VBox vBox = new VBox(name, address);
-            Region region = new Region();
-            HBox.setHgrow(region, Priority.ALWAYS);
-            VBox vBox2 = new VBox(arrivalText, arrivalTime);
-            vBox2.setAlignment(Pos.CENTER_RIGHT);
-            content = new HBox(vBox, region, vBox2);
-            content.setSpacing(10);
-        }
-
-        @Override
-        protected void updateItem(LocationTagContent item, boolean empty) {
-            super.updateItem(item, empty);
-            if (item != null && !empty) { // <== test for null item and empty parameter
-                name.setText(item.getName());
-                address.setText(item.getIntersection());
-                arrivalTime.setText(item.getArrivalTime());
-                setGraphic(content);
-            } else {
-                setGraphic(null);
-            }
-        }
-    }
-
 
     //METHOD THAT CREATES CARDS
     public void initCardContent() {
@@ -532,6 +512,15 @@ public class Controller {
             cards.add(item);
         }
 
+        addCardsToScreen();
+
+    }
+
+    public void addCardsToScreen() {
+
+
+        logger.info(list.getChildren().toString());
+
         logger.info("creating data");
         ObservableList<LocationTagContent> data = FXCollections.observableArrayList();
         data.addAll(cards);
@@ -548,36 +537,222 @@ public class Controller {
         l.setCellFactory(new Callback<ListView<LocationTagContent>, ListCell<LocationTagContent>>() {
             @Override
             public ListCell<LocationTagContent> call(ListView<LocationTagContent> listView) {
-                return new CustomListCell();
+
+                //return new CustomListCell();
+                //NORMALLY SHOULD BE CUSTOMLISTCELL
+                return new CustomModifyListCell();
             }
         });
         logger.info("cell factory added");
 
         list.setTopAnchor(l, 0.0);
         list.setBottomAnchor(l, 0.0);
+
         list.getChildren().add(l);
 
         l.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-               LocationTagContent lt = l.getSelectionModel().getSelectedItem();
-               mapView.setCenter(lt.coordLocation);
-               displaySegmentTour(lt.chemin);
+                LocationTagContent lt = l.getSelectionModel().getSelectedItem();
+                mapView.setCenter(lt.coordLocation);
+                displaySegmentTour(lt.chemin);
             }
         });
     }
 
-
-    /**
-     * finishes setup after the mpa is initialzed
-     */
+    //finishes setup after the mpa is initialzed
     private void afterMapIsInitialized() {
         logger.info("map intialized");
         logger.info("setting center and enabling controls...");
         // start at the harbour with default zoom
         mapView.setZoom(ZOOM_DEFAULT);
-        mapView.setCenter(coordKarlsruheHarbour);
+        mapView.setCenter(coordLyon);
 
     }
 
+    //CLASS THAT MODELS CONTENT OF CARDS TO SHOW IN TIMELINE
+    private static class LocationTagContent {
+        //ex. "Pickup 1", or "Delivery 3"
+        private String name;
+        //streets of the intersection
+        private String streetOne;
+        private String streetTwo;
+        //arrival time
+        private String arrivalTime;
+        //coordinates of location
+        private Coordinate coordLocation;
+        private ArrayList<Segment> chemin;
+
+        public String getName() {
+            return name;
+        }
+        public String getIntersection() {
+            return streetOne + "\n" + streetTwo;
+        }
+        public String getArrivalTime() {
+            return arrivalTime;
+        }
+        public LocationTagContent(String name, String streetOne, String streetTwo, String arrivalTime, Coordinate coordLocation, ArrayList<Segment> chemin) {
+            super();
+            this.name = name;
+            this.streetOne = streetOne;
+            this.streetTwo = streetTwo;
+            this.arrivalTime = arrivalTime;
+            this.coordLocation = coordLocation;
+            this.chemin = chemin;
+        }
+
+        public String toString() {
+            return name;
+        }
+    }
+
+    //CLASS THAT STYLES CONTENT OF CARD INTO A LIST CELL
+    private class CustomListCell extends ListCell<LocationTagContent> {
+        private HBox content;
+        private Text name;
+        private Text address;
+        private Text arrivalText;
+        private Text arrivalTime;
+
+        public CustomListCell() {
+            super();
+            name = new Text();
+            name.setStyle("-fx-fill: #595959");
+            name.setFont(Font.font("SF Pro Display", 20.0));
+            address = new Text();
+            address.setStyle("-fx-fill: #595959");
+            address.setFont(Font.font("SF Pro Display", 12.0));
+            arrivalText = new Text("arrive by");
+            arrivalText.setStyle("-fx-fill: #595959");
+            arrivalText.setFont(Font.font("SF Pro Display", 12.0));
+            arrivalText.setTextAlignment(TextAlignment.RIGHT);
+            arrivalTime = new Text();
+            arrivalTime.setStyle("-fx-fill: #595959");
+            arrivalTime.setFont(Font.font("SF Pro Display", 25.0));
+            arrivalTime.setTextAlignment(TextAlignment.RIGHT);
+            VBox vBox = new VBox(name, address);
+            Region region = new Region();
+            HBox.setHgrow(region, Priority.ALWAYS);
+            VBox vBox2 = new VBox(arrivalText, arrivalTime);
+            vBox2.setAlignment(Pos.CENTER_RIGHT);
+            content = new HBox(vBox, region, vBox2);
+            content.setSpacing(10);
+        }
+
+        @Override
+        protected void updateItem(LocationTagContent item, boolean empty) {
+            super.updateItem(item, empty);
+            if (item != null && !empty) { // <== test for null item and empty parameter
+                name.setText(item.getName());
+                address.setText(item.getIntersection());
+                arrivalTime.setText(item.getArrivalTime());
+                setGraphic(content);
+            } else {
+                setGraphic(null);
+            }
+        }
+    }
+
+    //CLASS THAT STYLES CONTENT OF CARD INTO A LIST CELL
+    private class CustomModifyListCell extends ListCell<LocationTagContent> {
+        private HBox content;
+        private Text name;
+        private Text address;
+        private Button editButton;
+        private Button deleteButton;
+        private Button upButton;
+        private Button downButton;
+
+        public CustomModifyListCell() {
+            super();
+            name = new Text();
+            name.setStyle("-fx-fill: #595959");
+            name.setFont(Font.font("SF Pro Display", 20.0));
+            address = new Text();
+            address.setStyle("-fx-fill: #595959");
+            address.setFont(Font.font("SF Pro Display", 12.0));
+            editButton = new Button("");
+            editButton.setGraphic(new ImageView("sample/edit.png"));
+            deleteButton = new Button("");
+            deleteButton.setGraphic(new ImageView("sample/delete.png"));
+            upButton = new Button("");
+            upButton.setGraphic(new ImageView("sample/up.png"));
+            downButton = new Button("");
+            downButton.setGraphic(new ImageView("sample/down.png"));
+
+            editButton.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    //call function to edit an item
+                    //you can pass the related LocationItemContent to edit the contents of the list (cards) with .getItem()
+                }
+            });
+
+            deleteButton.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    cards.remove(getItem());
+                    logger.info(cards.toString());
+                    //call to refresh the content?
+                    list.getChildren().remove(list.getChildren().size() -1);
+                    addCardsToScreen();
+                }
+            });
+
+            upButton.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    int index = cards.indexOf(getItem());
+                    if(index > 0)
+                    {
+                        LocationTagContent temp = cards.get(index);
+                        cards.set(index, cards.get(index-1));
+                        cards.set(index-1, temp);
+                        logger.info(cards.toString());
+                        //call to refresh the content?
+                        list.getChildren().remove(list.getChildren().size() -1);
+                        addCardsToScreen();
+                    }
+                }
+            });
+
+            downButton.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    int index = cards.indexOf(getItem());
+                    if(index < cards.size() -1) //or just size?
+                    {
+                        LocationTagContent temp = cards.get(index);
+                        cards.set(index, cards.get(index+1));
+                        cards.set(index+1, temp);
+                        logger.info(cards.toString());
+                        //call to refresh the content?
+                        list.getChildren().remove(list.getChildren().size() -1);
+                        addCardsToScreen();
+                    }
+                }
+            });
+
+            VBox vBox = new VBox(name, address);
+            Region region = new Region();
+            HBox.setHgrow(region, Priority.ALWAYS);
+            VBox vBox2 = new VBox(upButton, downButton);
+            vBox2.setAlignment(Pos.CENTER_RIGHT);
+            content = new HBox(vBox, region, editButton, deleteButton, vBox2);
+            content.setSpacing(10);
+        }
+
+        @Override
+        protected void updateItem(LocationTagContent item, boolean empty) {
+            super.updateItem(item, empty);
+            if (item != null && !empty) { // <== test for null item and empty parameter
+                name.setText(item.getName());
+                address.setText(item.getIntersection());
+                setGraphic(content);
+            } else {
+                setGraphic(null);
+            }
+        }
+    }
 }
