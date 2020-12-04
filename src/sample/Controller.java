@@ -330,8 +330,9 @@ public class Controller {
                     addedReqCount = 0;
                     //compute tour
                     //back to modify
+                    modifySetup(false);
                 }
-                if (isModify) {
+                else if (isModify) {
                     addRequestSetup();
                 } else {
                     modifySetup(true);
