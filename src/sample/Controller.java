@@ -260,7 +260,7 @@ public class Controller {
                 //detect on which view we are - File Picker or Timeline
                 if (isAddRequest) {
                     //CANCEL ADD REQUEST OPERATION, BACK TO MODIFY VIEW
-                    modifySetup();
+                    modifySetup(false);
                 }
                 else if(isTimeline)
                 {
@@ -334,7 +334,7 @@ public class Controller {
                 if (isModify) {
                     addRequestSetup();
                 } else {
-                    modifySetup();
+                    modifySetup(true);
                 }
             }
         });
@@ -361,7 +361,7 @@ public class Controller {
         isTimeline = false;
     }
 
-    private void modifySetup() {
+    private void modifySetup(boolean toDelete) {
         //make sure text box elements are not shown
         mapField.setVisible(false);
         requestField.setVisible(false);
@@ -370,7 +370,11 @@ public class Controller {
 
         mainButton.setText("Done");
         secondButton.setText("New Request");
-        list.getChildren().remove(list.getChildren().size() -1);
+        if (toDelete)
+        {
+            list.getChildren().remove(list.getChildren().size() -1);
+
+        }
         addCardsToScreen(true);
         isModify = true;
         isTimeline = false;
