@@ -95,6 +95,7 @@ public abstract class TemplateTSP implements TSP {
                 if (currentCost + g[currentVertex][0].getLongueur() < bestSolCost) {
                     bestSol = new Integer[visited.size()];
                     visited.toArray(bestSol);
+//                    bestSol[visited.size()] = 0;
                     bestSolCost = currentCost + g[currentVertex][0].getLongueur();
                 }
             }

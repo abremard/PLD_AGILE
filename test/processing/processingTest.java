@@ -15,11 +15,11 @@ public class processingTest {
 //        String mapPath = "data/smallMap.xml";
 //        String reqPath = "data/requestsSmall1.xml";
 
-        String mapPath = "data/mediumMap.xml";
-        String reqPath = "data/requestsMedium5.xml";
+//        String mapPath = "data/mediumMap.xml";
+//        String reqPath = "data/requestsMedium5.xml";
 
-//        String mapPath = "data/largeMap.xml";
-//        String reqPath = "data/requestsLarge9.xml";
+        String mapPath = "data/largeMap.xml";
+        String reqPath = "data/requestsLarge9.xml";
 
         Map map = new Map(mapPath);
         System.out.println("Map chargee, nombre d'intersections : " + map.getNoOfIntersections() + ",   nombre de segments : " + map.getNoOfSegments());
@@ -32,7 +32,7 @@ public class processingTest {
         }
         System.out.println("Liste de requetes chargee, nombre de requetes : " + planning.getRequestList().size() + "\n");
 
-        Tournee tournee = ComputeTour.planTour(map, planning, Heuristique.BRANCHANDBOUND);
+        Tournee tournee = ComputeTour.planTour(map, planning, Heuristique.GREEDY);
         System.out.println("\nTournee calculee :"); // pour map_test.xml, requests_test.xml, tourneeTriviale : S01, S12, S25, S51, S23, S30
 //        for (Segment seg : tournee.getSegmentList()) {
 //            System.out.println(seg);

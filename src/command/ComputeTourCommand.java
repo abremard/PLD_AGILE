@@ -32,7 +32,7 @@ public class ComputeTourCommand implements Command {
 
     @Override
     public void doCommand() {
-        tournee = ComputeTour.planTour(map, planningRequest, Heuristique.BRANCHANDBOUND);
+        tournee = ComputeTour.planTour(map, planningRequest, Heuristique.GREEDY);
     }
 
     @Override
