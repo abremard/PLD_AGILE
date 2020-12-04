@@ -4,6 +4,7 @@ import controller.MVCController;
 import command.ListOfCommands;
 import objects.Map;
 import objects.PlanningRequest;
+import objects.Request;
 
 public interface State {
     boolean debug = false;
@@ -44,8 +45,12 @@ public interface State {
      */
     default void newTour(ListOfCommands l, MVCController c) {}
 
+    default void modifyRequestList(MVCController c) {}
+
     default void edit(ListOfCommands l, MVCController c) {}
     default void addRequest(MVCController c) {}
+    default void removeRequest(MVCController c) {}
+    default void modifyRequest(MVCController c) {}
 
     /**
      * Undo permet de défaire une commande. Plutôt que de la retirer de la liste, on décrémente le curseur indiquant la position actuelle et on exécute les corrections nécessaires.
@@ -62,6 +67,12 @@ public interface State {
     default void redo(ListOfCommands l) { l.Redo(); }
 
     default void done(ListOfCommands l, MVCController c) {}
+    default void done(ListOfCommands l, MVCController c, PlanningRequest p, Request r) {}
+    default void done(ListOfCommands l, MVCController c, PlanningRequest p, int i) {}
+    default void done(ListOfCommands l, MVCController c, Request oldRequest, Request newRequest) {}
+    default void done(ListOfCommands l, MVCController c, Map m, PlanningRequest p) {}
+
+    default void cancel(MVCController c) {}
 
     default void confirmDelete(ListOfCommands l, MVCController c) {}
     default void confirmAdd(ListOfCommands l, MVCController c) {}
