@@ -326,7 +326,8 @@ public class Controller {
             @Override
             public void handle(ActionEvent event) {
                 if (isAddRequest) {
-                    //add request
+                    addingRequest = true;
+                    addedReqCount = 0;
                     //compute tour
                     //back to modify
                 }
