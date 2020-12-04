@@ -326,13 +326,17 @@ public class Controller {
             @Override
             public void handle(ActionEvent event) {
                 if (isAddRequest) {
-                    addingRequest = true;
-                    addedReqCount = 0;
+                    // clicked on add in adding request phase
+                    tempRequest.setPickupDur(60*Double.parseDouble(mapField.getText()));
+                    tempRequest.setDeliveryDur(60*Double.parseDouble(requestField.getText()));
+                    planningRequest.addRequest(planningRequest.getRequestList().size(), tempRequest);
                     //compute tour
                     //back to modify
                     modifySetup(false);
                 }
                 else if (isModify) {
+                    addingRequest = true;
+                    addedReqCount = 0;
                     addRequestSetup();
                 } else {
                     modifySetup(true);
@@ -534,10 +538,10 @@ public class Controller {
 
         if( addedReqCount%2 == 0){
             tempRequest.setPickup(newIntersection);
-            tempRequest.setPickupDur(5);
+            //tempRequest.setPickupDur(5);
         } else if ( addedReqCount%2 == 1){
             tempRequest.setDelivery(newIntersection);
-            tempRequest.setDelivery_dur(5);
+            //tempRequest.setDelivery_dur(5);
         }
 
 
@@ -545,7 +549,6 @@ public class Controller {
         if( addedReqCount == 2 ){
 
             secondButton.setDisable(false);
-            planningRequest.addRequest(tempRequest);
         }
 
     }
