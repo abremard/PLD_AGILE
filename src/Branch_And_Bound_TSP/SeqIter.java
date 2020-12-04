@@ -2,8 +2,10 @@
 package Branch_And_Bound_TSP;
 
 import processing.SuperArete;
+import processing.TupleRequete;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 
 public class SeqIter implements Iterator<Integer> {
@@ -20,11 +22,11 @@ public class SeqIter implements Iterator<Integer> {
      * @param currentVertex
      * @param g
      */
-    public SeqIter(Collection<Integer> unvisited, int currentVertex, SuperArete[][] g) {
+    public SeqIter(int currentVertex, Collection<TupleRequete> unvisited, HashMap<Long, Integer> ptsIdToIndex, SuperArete[][] g) {
         this.candidates = new Integer[unvisited.size()];
-        for (Integer s : unvisited) {
-            if (g[currentVertex][s] != null)
-                candidates[nbCandidates++] = s;
+        for (TupleRequete s : unvisited) {
+            if (g[currentVertex][ptsIdToIndex.get(s.getCurrentGoal().getId())] != null)
+                candidates[nbCandidates++] = ptsIdToIndex.get(s.getCurrentGoal().getId());
         }
     }
 

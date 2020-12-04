@@ -1,7 +1,10 @@
 
 package Branch_And_Bound_TSP;
 
+import objects.Request;
 import processing.SuperArete;
+
+import java.util.ArrayList;
 
 public interface TSP {
 	/**
@@ -11,7 +14,7 @@ public interface TSP {
 	 * @param timeLimit
 	 * @param g
 	 */
-	public void searchSolution(int timeLimit, SuperArete[][] g);
+	public void searchSolution(int timeLimit, SuperArete[][] g, ArrayList<Request> listeRequetes);
 
 	/**
 	 * @param i

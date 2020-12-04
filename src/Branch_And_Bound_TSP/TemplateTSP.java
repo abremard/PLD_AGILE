@@ -1,20 +1,21 @@
 
 package Branch_And_Bound_TSP;
 
+import objects.Request;
 import processing.SuperArete;
+import processing.TupleRequete;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
+import java.util.*;
 
 public abstract class TemplateTSP implements TSP {
     private Integer[] bestSol;
     protected SuperArete[][] g;
+    HashMap<Long, Integer> ptsIdToIndex;
     private float bestSolCost;
     private int timeLimit;
     private long startTime;
 
-    public void searchSolution(int timeLimit, SuperArete[][] g) {
+    public void searchSolution(int timeLimit, SuperArete[][] g, ArrayList<Request> listeRequetes) {
         if (timeLimit <= 0) return;
         startTime = System.currentTimeMillis();
         this.timeLimit = timeLimit;
@@ -25,7 +26,14 @@ public abstract class TemplateTSP implements TSP {
         Collection<Integer> visited = new ArrayList<Integer>(g.length);
         visited.add(0); // The first visited vertex is 0
         bestSolCost = Integer.MAX_VALUE;
-        branchAndBound(0, unvisited, visited, 0);
+
+        ArrayList<TupleRequete> requetes = new ArrayList<TupleRequete>();
+        for (Request req : listeRequetes) {
+            requetes.add(new TupleRequete(req, true));
+        }
+        setIndexDico();
+
+        branchAndBound(0, requetes.size(), visited, 0, requetes);
     }
 
     public Integer getSolution(int i) {
@@ -44,15 +52,22 @@ public abstract class TemplateTSP implements TSP {
         return -1;
     }
 
+    public void setIndexDico() {
+        ptsIdToIndex = new HashMap<>();
+        for (int i = 0; i < g.length; i++) {
+            ptsIdToIndex.put(g[i][i == 0 ? 1 : 0].getDepart().getId(), i);
+        }
+    }
+
     /**
      * Method that must be defined in TemplateTSP subclasses
      *
      * @param currentVertex
-     * @param unvisited
+     * @param requetes
      * @return a lower bound of the cost of paths in <code>g</code> starting from <code>currentVertex</code>, visiting
      * every vertex in <code>unvisited</code> exactly once, and returning back to vertex <code>0</code>.
      */
-    protected abstract float bound(Integer currentVertex, Collection<Integer> unvisited);
+    protected abstract float bound(Integer currentVertex, ArrayList<TupleRequete> requetes);
 
     /**
      * Method that must be defined in TemplateTSP subclasses
@@ -62,36 +77,64 @@ public abstract class TemplateTSP implements TSP {
      * @param g
      * @return an iterator for visiting all vertices in <code>unvisited</code> which are successors of <code>currentVertex</code>
      */
-    protected abstract Iterator<Integer> iterator(Integer currentVertex, Collection<Integer> unvisited, SuperArete[][] g);
+    protected abstract Iterator<Integer> iterator(Integer currentVertex, Collection<TupleRequete> unvisited, HashMap<Long, Integer> ptsIdToIndex, SuperArete[][] g);
 
     /**
      * Template method of a branch and bound algorithm for solving the TSP in <code>g</code>.
      *
      * @param currentVertex the last visited vertex
-     * @param unvisited     the set of vertex that have not yet been visited
+     * @param leftTodo     the set of vertex that have not yet been visited
      * @param visited       the sequence of vertices that have been already visited (including currentVertex)
      * @param currentCost   the cost of the path corresponding to <code>visited</code>
      */
-    private void branchAndBound(int currentVertex, Collection<Integer> unvisited,
-                                Collection<Integer> visited, float currentCost) {
+    private void branchAndBound(int currentVertex, int leftTodo, Collection<Integer> visited, float currentCost, ArrayList<TupleRequete> requetes) {
+
         if (System.currentTimeMillis() - startTime > timeLimit) return;
-        if (unvisited.size() == 0) {
+        if (leftTodo == 0) {
             if (g[currentVertex][0] != null) {
                 if (currentCost + g[currentVertex][0].getLongueur() < bestSolCost) {
                     visited.toArray(bestSol);
                     bestSolCost = currentCost + g[currentVertex][0].getLongueur();
                 }
             }
-        } else if (currentCost + bound(currentVertex, unvisited) < bestSolCost) {
-            Iterator<Integer> it = iterator(currentVertex, unvisited, g);
+        } else if (currentCost + bound(currentVertex, requetes) < bestSolCost) {
+            Iterator<Integer> it = iterator(currentVertex, requetes, ptsIdToIndex, g);
             while (it.hasNext()) {
                 Integer nextVertex = it.next();
+
+                // on traite les requetes a ce noeud
+                LinkedList<Integer> traites = new LinkedList<Integer>();
+                LinkedList<TupleRequete> removed = new LinkedList<TupleRequete>();
+                for (int i = 0; i < requetes.size(); i++) {
+                    if (requetes.get(i).getCurrentGoal().getId() == g[nextVertex][nextVertex == 0 ? 1 : 0].getDepart().getId()) {
+                        if(requetes.get(i).isDepart()) {
+                            traites.add(i);
+                        } else {
+                            removed.add(requetes.get(i));
+                        }
+                    }
+                }
+                // traitement effectif
+                for (int ind : traites) {
+                    requetes.get(ind).setDepart(false);
+                }
+                requetes.removeAll(removed);
+
+                // recursion
                 visited.add(nextVertex);
-                unvisited.remove(nextVertex);
-                branchAndBound(nextVertex, unvisited, visited,
-                        currentCost + g[currentVertex][nextVertex].getLongueur());
+//                visited.add(nextVertex);
+//                unvisited.remove(nextVertex);
+                branchAndBound(nextVertex, leftTodo-removed.size(), visited,
+                        currentCost + g[currentVertex][nextVertex].getLongueur(), requetes);
                 visited.remove(nextVertex);
-                unvisited.add(nextVertex);
+//                visited.remove(nextVertex);
+//                unvisited.add(nextVertex);
+
+                // on annule le traitement des requetes a ce noeud
+                requetes.addAll(removed);
+                for (int ind : traites) {
+                    requetes.get(ind).setDepart(true);
+                }
             }
         }
     }
