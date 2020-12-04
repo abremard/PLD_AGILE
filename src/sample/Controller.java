@@ -244,7 +244,8 @@ public class Controller {
                 if (isModify)
                 {
                     //DONE WITH MODIFICATION
-
+                    removeFromMap( selectedLines);
+                    removeFromMap( tourLines);
                     //PASS NEW ORDER AND SETUP TO CALCULATE TOUR
 
                     //remove previous timeline
@@ -254,8 +255,6 @@ public class Controller {
                     isTimeline = false; //--> will execute the else of isTimeline, and will pas to isTimeine true
                     isAddRequest = false;
                     isModify = false;
-
-
                 }
                 //detect on which view we are - File Picker or Timeline
                 if (isAddRequest) {
@@ -608,7 +607,7 @@ public class Controller {
 
             Coordinate location = new Coordinate(latitude, longitude);
 
-            LocationTagContent item = new LocationTagContent(name, street1, street2, time.format(formatter), location, pt.getChemin());
+            LocationTagContent item = new LocationTagContent(name, street1, street2, time.format(formatter), location, pt.getChemin(), pt.getRequete());
             cards.add(item);
         }
 
@@ -656,7 +655,7 @@ public class Controller {
             @Override
             public void handle(MouseEvent event) {
                 LocationTagContent lt = l.getSelectionModel().getSelectedItem();
-                mapView.setCenter(lt.coordLocation);
+                //mapView.setCenter(lt.coordLocation);
                 displaySegmentTour(lt.chemin);
             }
         });
@@ -683,6 +682,7 @@ public class Controller {
         private String arrivalTime;
         //coordinates of location
         private Coordinate coordLocation;
+        private Request request;
         private ArrayList<Segment> chemin;
 
         public String getName() {
@@ -694,7 +694,7 @@ public class Controller {
         public String getArrivalTime() {
             return arrivalTime;
         }
-        public LocationTagContent(String name, String streetOne, String streetTwo, String arrivalTime, Coordinate coordLocation, ArrayList<Segment> chemin) {
+        public LocationTagContent(String name, String streetOne, String streetTwo, String arrivalTime, Coordinate coordLocation, ArrayList<Segment> chemin, Request req) {
             super();
             this.name = name;
             this.streetOne = streetOne;
@@ -702,6 +702,7 @@ public class Controller {
             this.arrivalTime = arrivalTime;
             this.coordLocation = coordLocation;
             this.chemin = chemin;
+            this.request = req;
         }
 
         public String toString() {
@@ -794,6 +795,17 @@ public class Controller {
             deleteButton.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
+
+                    planningRequest.removeRequest(getItem().request);
+
+                    for( LocationTagContent ltc: cards ){
+
+                        if( Integer.parseInt(ltc.name.split(" ")[1]) == Integer.parseInt(getItem().name.split(" ")[1])
+                                && ltc.getName() != getItem().getName() ){
+                            cards.remove(ltc);
+                            break;
+                        }
+                    }
                     cards.remove(getItem());
                     logger.info(cards.toString());
                     //call to refresh the content?

@@ -681,17 +681,18 @@ public class ComputeTour {
     private static Tournee branchAndBoundOpti(SuperArete[][] matAdj, PlanningRequest planning, HashMap<Long, Integer> intersecIdToIndex) {
 
         TSP tsp = new TSP1();
-        tsp.searchSolution(20000, matAdj);
+        tsp.searchSolution(20000, matAdj, planning.getRequestList());
+        Integer[] solution = tsp.getSolution();
 
-        for (int ind : tsp.getSolution()) {
-            if(ind == 0) {
-                System.out.println(matAdj[ind][1].depart.getId());
-            } else {
-                System.out.println(matAdj[ind][0].depart.getId());
-            }
+        ArrayList<Segment> chemin = new ArrayList<Segment>();
+
+        for (int i = 1; i < solution.length; i++) {
+            chemin.addAll(matAdj[solution[i-1]][solution[i]].getChemin());
         }
+        Tournee tournee = new Tournee(chemin, planning.getRequestList());
+        recreateTimesTournee(tournee, planning);
 
-        return null;
+        return tournee;
     }
 
 }

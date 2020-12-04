@@ -1,5 +1,6 @@
 package processing;
 
+import objects.Intersection;
 import objects.Request;
 import objects.Segment;
 
@@ -28,6 +29,14 @@ public class TupleRequete {
 
     public void setRequete(Request requete) {
         this.requete = requete;
+    }
+
+    public Intersection getCurrentGoal() {
+        if(isDepart) {
+            return requete.getPickup();
+        } else {
+            return requete.getDelivery();
+        }
     }
 
     public boolean isDepart() {
