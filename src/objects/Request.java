@@ -1,21 +1,28 @@
 package objects;
 
 import java.time.LocalTime;
+import java.util.Objects;
 
 public class Request {
 
+    static int nbInstances = 0;
+
     Intersection pickup;
     Intersection delivery;
-    // les durees sont en seconde
+    // les durées sont en secondes
     double pickupDur;
     double deliveryDur;
     LocalTime startTime;
+    int id;
 
     public Request(Intersection pickup, Intersection delivery, double pickupDur, double deliveryDur) {
         this.pickup = pickup;
         this.delivery = delivery;
         this.pickupDur = pickupDur;
         this.deliveryDur = deliveryDur;
+
+        this.id = nbInstances;
+        ++nbInstances;
     }
 
     public Request(Intersection pickup, Intersection delivery, double pickupDur, double deliveryDur, LocalTime startTime) {
@@ -24,6 +31,9 @@ public class Request {
         this.pickupDur = pickupDur;
         this.deliveryDur = deliveryDur;
         this.startTime = startTime;
+
+        this.id = nbInstances;
+        ++nbInstances;
     }
 
     public Intersection getPickup() {
@@ -82,5 +92,10 @@ public class Request {
         else{
             return false;
         }
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

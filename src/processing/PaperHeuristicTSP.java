@@ -3,9 +3,7 @@ package processing;
 import objects.PlanningRequest;
 import objects.Request;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.*;
 
 
 /**
@@ -48,7 +46,6 @@ public class PaperHeuristicTSP {
     SuperArete[][] matAdj;
     PlanningRequest planning;
     HashMap<Long, Integer> ptsIdToIndex;
-    LinkedList<TupleRequete> currentTour;
     LinkedList<Integer> currentTourIndexes;
     ArrayList<Request> requestList;
     int nbRequest;
@@ -57,7 +54,6 @@ public class PaperHeuristicTSP {
         this.matAdj = matAdj;
         this.planning = planning;
         this.ptsIdToIndex = ptsIdToIndex;
-        this.currentTour = new LinkedList<>();
         this.currentTourIndexes = new LinkedList<>();
 
         this.requestList = planning.getRequestList();
@@ -97,6 +93,39 @@ public class PaperHeuristicTSP {
         this.currentTourIndexes.add(ptsIdToIndex.get(requestList.get(maxCostRequestIndex).getDelivery().getId()));
         this.currentTourIndexes.add(0);
 
+        Set<Request> requestsToProcess = new HashSet<>();
+        requestsToProcess.addAll(requestList);
+
+        while (requestsToProcess.size() > 0) {
+
+            // --------- Etape 1.2 : calcul des delta_i
+            DeltaI minDeltaI = new DeltaI(InsertionMethod.CONSECUTIVE, 10000000, 0);
+            int minDeltaIRequestIndex = 0;
+            DeltaI currDelta;
+
+            for (int i = 0; i < requestsToProcess.size(); ++i){
+                currDelta = minWeightedInsertionCost(requestList.get(i));
+                if (currDelta.cost < minDeltaI.cost) {
+                    minDeltaIRequestIndex = i;
+                    minDeltaI = currDelta;
+                }
+            }
+
+            // --------- Etape 1.3 : insertion de la requête avec le delta_i min
+            if (minDeltaI.insertionMethod == InsertionMethod.CONSECUTIVE) {
+                this.currentTourIndexes.add(minDeltaI.index1, ptsIdToIndex.get(requestList.get(minDeltaIRequestIndex).getDelivery().getId()));
+                this.currentTourIndexes.add(minDeltaI.index1, ptsIdToIndex.get(requestList.get(minDeltaIRequestIndex).getPickup().getId()));
+            } else {
+                this.currentTourIndexes.add(minDeltaI.index2, ptsIdToIndex.get(requestList.get(minDeltaIRequestIndex).getDelivery().getId()));
+                this.currentTourIndexes.add(minDeltaI.index1, ptsIdToIndex.get(requestList.get(minDeltaIRequestIndex).getPickup().getId()));
+            }
+
+            // fin du traitement de cette requête
+            requestsToProcess.remove(requestList.get(minDeltaIRequestIndex));
+        }
+
+        // --------- Etape 1.4 : Optimisation locale (3-opt)
+        // TODO 3-opt
     }
 
     /**
@@ -132,8 +161,8 @@ public class PaperHeuristicTSP {
         int k_index, l_index, s_index, t_index;
 
         for (int k = 0; k < currentTourIndexes.size() - 1; ++k) {
-            k_index = ptsIdToIndex.get(currentTour.get(k).requete.getPickup().getId());
-            l_index = ptsIdToIndex.get(currentTour.get(k+1).requete.getPickup().getId());
+            k_index = k;
+            l_index = k+1;
 
             // premier min : insertion consécutive
             cost = alpha * matAdj[k_index][i_index].getLongueur()
@@ -144,14 +173,14 @@ public class PaperHeuristicTSP {
             // màj du coût min & de la position trouvée
             if (cost < minConsecutiveInsertion) {
                 minConsecutiveInsertion = cost;
-                consecutiveInsertionIndex = k;
+                consecutiveInsertionIndex = k + 1;
             }
 
             // deuxième min : insertion séparée
-            if (k < currentTour.size() - 2) {
-                for (int s = k + 1; s < currentTour.size() - 1; ++k) {
-                    s_index = ptsIdToIndex.get(currentTour.get(s).requete.getPickup().getId());
-                    t_index = ptsIdToIndex.get(currentTour.get(s+1).requete.getPickup().getId());
+            if (k < currentTourIndexes.size() - 2) {
+                for (int s = k + 1; s < currentTourIndexes.size() - 1; ++k) {
+                    s_index = s;
+                    t_index = s + 1;
 
                     cost = alpha * (matAdj[k_index][i_index].getLongueur()
                                     + matAdj[i_index][l_index].getLongueur()
@@ -162,8 +191,8 @@ public class PaperHeuristicTSP {
 
                     if (cost < minSplitInsertion) {
                         minSplitInsertion = cost;
-                        pickupSplitInsertionIndex = k;
-                        deliverySplitInsertionIndex = s;
+                        pickupSplitInsertionIndex = k + 1;
+                        deliverySplitInsertionIndex = s + 1;
                     }
                 }
             }
