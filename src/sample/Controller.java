@@ -326,10 +326,20 @@ public class Controller {
             @Override
             public void handle(ActionEvent event) {
                 if (isAddRequest) {
+                    System.out.println("Clicked on add ");
                     // clicked on add in adding request phase
                     tempRequest.setPickupDur(60*Double.parseDouble(mapField.getText()));
                     tempRequest.setDeliveryDur(60*Double.parseDouble(requestField.getText()));
+
                     planningRequest.addRequest(planningRequest.getRequestList().size(), tempRequest);
+                    System.out.println(planningRequest.toString());
+                    mvcController.ComputeTour(map, planningRequest);
+                    ComputeTourCommand tourCommand = (ComputeTourCommand) mvcController.getL().getL().get(mvcController.getL().getI());
+                    tour = tourCommand.getTournee();
+                    displayTour();
+                    //call method that places results on timeline
+                    initCardContent();
+                    list.getChildren().remove(list.getChildren().size() -1);
                     //compute tour
                     //back to modify
                     modifySetup(false);
@@ -548,7 +558,7 @@ public class Controller {
         addedReqCount++;
         if( addedReqCount == 2 ){
 
-            secondButton.setDisable(false);
+            //secondButton.setDisable(false);
         }
 
     }
