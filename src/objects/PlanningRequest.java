@@ -86,8 +86,8 @@ public class PlanningRequest {
         requestList.add(index, newRequest);
     }
 
-    public void addRequest(int index, Request newRequest){
-        requestList.add(index, newRequest);
+    public void addRequest(Request newRequest){
+        requestList.add(newRequest);
     }
 
     public boolean removeRequest(Request requestToRemove){
@@ -110,8 +110,6 @@ public class PlanningRequest {
             }
         }
     }
-
-
 
     public void swapRequest(int a, int b){
         Collections.swap(requestList, a, b);
