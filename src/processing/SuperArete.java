@@ -32,4 +32,19 @@ public class SuperArete {
                 '}';
     }
 
+    public float getLongueur() {
+        return longueur;
+    }
+
+    public ArrayList<Segment> getChemin() {
+        return chemin;
+    }
+
+    public Intersection getDepart() {
+        return depart;
+    }
+
+    public Intersection getArrivee() {
+        return arrivee;
+    }
 }

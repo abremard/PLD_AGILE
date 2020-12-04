@@ -3,6 +3,7 @@ package controller;
 import command.ListOfCommands;
 import objects.Map;
 import objects.PlanningRequest;
+import objects.Request;
 import state.*;
 
 public class MVCController {
@@ -100,9 +101,21 @@ public class MVCController {
 
     public void ComputeTour(Map m, PlanningRequest p) { currentState.calculateTour(l, this, p, m); }
 
+    public void ModifyRequestList(){currentState.modifyRequestList(this);}
+
     public void addRequest(){currentState.addRequest(this);}
 
+    public void removeRequest(){currentState.removeRequest(this);}
+
+    public void modifyRequest(){currentState.modifyRequest(this);}
+
     public void done(){currentState.done(l, this);}
+    public void done(PlanningRequest p, Request r){currentState.done(l, this, p, r);}
+    public void done(PlanningRequest p, int i){currentState.done(l, this, p, i);}
+    public void done(Request oldRequest, Request newRequest){currentState.done(l, this, oldRequest, newRequest);}
+    public void done(Map m, PlanningRequest p){currentState.done(l, this, m, p);}
+
+    public void cancel(){currentState.cancel(this);}
 
     public void Reset() { currentState.newTour(l, this); }
 

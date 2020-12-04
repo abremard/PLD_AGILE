@@ -6,6 +6,8 @@ import java.time.LocalTime;
 import java.time.temporal.TemporalAmount;
 import java.util.*;
 
+import Branch_And_Bound_TSP.TSP;
+import Branch_And_Bound_TSP.TSP1;
 import objects.*;
 import objects.Map;
 
@@ -13,22 +15,19 @@ import objects.Map;
 * TODO
 *  - arrêter Dijsktra quand on a traité tous les points d'intérêt
 *  - algo pour le TSP (génétique ?)
+*  - branch and bound
 *
 * FIXME
-*  - greedy fait des bails chelous avec les requêtes médium
 *  - random passe pas par tous les points :'(
+*  - largeMap + requestsLarge9 + heuristique random -> bug
 * */
-
-/*
- * FIXME:
- *  - largeMap + requestsLarge9 + heuristique random -> bug
- * */
 
 public class ComputeTour {
 
     public static Tournee planTour(Map map, PlanningRequest planning, Heuristique heuristique) {
 
         HashMap<Long, Integer> intersecIdToIndex = indexationIntersections(map);
+        SuperArete[][] matAdj;
 
         switch (heuristique) {
             case TRIVIALE :
@@ -39,11 +38,15 @@ public class ComputeTour {
                 return tourneeRandom(map, planning, intersecIdToIndex);
             case GREEDY :
                 // version greedy
-                SuperArete[][] matAdj = getOptimalFullGraph(map, planning, intersecIdToIndex);
+                matAdj = getOptimalFullGraph(map, planning, intersecIdToIndex);
                 return greedy(matAdj, planning, intersecIdToIndex);
             case GENETIQUE :
                 // version genetique
                 return null;
+            case BRANCHANDBOUND :
+                // version greedy
+                matAdj = getOptimalFullGraph(map, planning, intersecIdToIndex);
+                return branchAndBoundOpti(matAdj, planning, intersecIdToIndex);
         }
 
         return null;
@@ -643,6 +646,7 @@ public class ComputeTour {
     /**
      * Génère une tournée aléatoire respectant les contraintes d'ordre pickup -> delivery avec les requêtes et la map*
      * passées en paramètre
+     * FIXME apparemment passe pas par tous les points nécessaires
      */
     private static Tournee tourneeRandom(Map map, PlanningRequest planning, HashMap<Long, Integer> intersecIdToIndex) {
 
@@ -659,6 +663,35 @@ public class ComputeTour {
         Tournee tournee = cheminVersTournee(planning, chemin);
         recreateTimesTournee(tournee, planning);
         return tournee;
+    }
+
+    private static Tournee tourneePaper(Map map, PlanningRequest planning, HashMap<Long, Integer> intersecIdToIndex) {
+
+        // dijkstra pour le graphe complet des plus courts chemins entre les points d'intérêt
+        SuperArete[][] matAdj = getOptimalFullGraph(map, planning, intersecIdToIndex);
+        // indexation de ces points d'intérêt
+        HashMap<Long, Integer> ptsIdToIndex = indexerPtsInteret(planning);
+
+        PaperHeuristicTSP heuristicTSP = new PaperHeuristicTSP(matAdj, planning, ptsIdToIndex);
+
+        // TODO
+		return null;
+	}
+
+    private static Tournee branchAndBoundOpti(SuperArete[][] matAdj, PlanningRequest planning, HashMap<Long, Integer> intersecIdToIndex) {
+
+        TSP tsp = new TSP1();
+        tsp.searchSolution(20000, matAdj);
+
+        for (int ind : tsp.getSolution()) {
+            if(ind == 0) {
+                System.out.println(matAdj[ind][1].depart.getId());
+            } else {
+                System.out.println(matAdj[ind][0].depart.getId());
+            }
+        }
+
+        return null;
     }
 
 }

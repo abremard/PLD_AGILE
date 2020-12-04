@@ -79,8 +79,9 @@ public class Controller {
     @FXML
     private Text requestText;
 
-    boolean addingRequest;
-    int addedReqCount;
+    private boolean addingRequest;
+    private int addedReqCount;
+    private Request tempRequest;
 
     private ArrayList<CoordinateLine> coordLines;
     private ArrayList<CoordinateLine> tourLines;
@@ -97,6 +98,8 @@ public class Controller {
     private Color selectionColor = new Color(1.0,0.4,0.0, 1.0);
 
     private boolean isTimeline = false;
+    private boolean isModify = false;
+    private boolean isAddRequest = false;
 
     private static final Coordinate coordLyon = new Coordinate(45.77087932755228, 4.863621380475198);
 
@@ -127,6 +130,7 @@ public class Controller {
 
         addingRequest = false;
         addedReqCount = 0;
+        tempRequest = new Request( new Intersection(0,0), new Intersection(0,0), 0,0);
     }
 
     public void initMapAndControls(Projection projection) {
@@ -162,10 +166,9 @@ public class Controller {
         requestButton.setDisable(true);
         requestField.setDisable(true);
         mainButton.setDisable(true);
-        secondButton.setDisable(true);
-        secondButton.setVisible(true);
+        secondButton.setVisible(false);
 
-        secondButton.setText("Add Request");
+        secondButton.setText("Modify");
 
 
 
@@ -225,7 +228,7 @@ public class Controller {
                 mvcController.LoadRequestPlan(file.getAbsolutePath());
                 LoadRequestPlanCommand requestCommand = (LoadRequestPlanCommand) mvcController.getL().getL().get(mvcController.getL().getI());
                 planningRequest = requestCommand.getPlanningRequest();
-                //markers.clear();
+
                 displayRequests();
 
                 mainButton.setDisable(false);
@@ -237,13 +240,37 @@ public class Controller {
         mainButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
+
+                if (isModify)
+                {
+                    //DONE WITH MODIFICATION
+
+                    //PASS NEW ORDER AND SETUP TO CALCULATE TOUR
+
+                    //remove previous timeline
+                    list.getChildren().remove(list.getChildren().size() -1);
+
+                    //update button position
+                    isTimeline = false; //--> will execute the else of isTimeline, and will pas to isTimeine true
+                    isAddRequest = false;
+                    isModify = false;
+
+
+                }
                 //detect on which view we are - File Picker or Timeline
-                if(isTimeline)
+                if (isAddRequest) {
+                    //CANCEL ADD REQUEST OPERATION, BACK TO MODIFY VIEW
+                    modifySetup();
+                }
+                else if(isTimeline)
                 {
                     //delete list of timeline
-                    list.getChildren().remove(list.getChildren().size() - 1);
+                    logger.info(String.valueOf(list.getChildren().remove(list.getChildren().size() -1)));
+
 
                     //show file picker elements
+                    mapText.setText("Import Map File");
+                    requestText.setText("Import Request File");
                     mapButton.setVisible(true);
                     requestButton.setVisible(true);
                     mapField.setVisible(true);
@@ -273,8 +300,10 @@ public class Controller {
                     requestText.setVisible(false);
                     mapText.setVisible(false);
 
-                    //change text of button
+                    //change text of buttons
                     mainButton.setText("New Tour");
+                    secondButton.setText("Modify");
+                    secondButton.setVisible(true);
 
                     //get files, pass them to the algo, calculate path, get results
                     logger.info(map.toString());
@@ -296,15 +325,55 @@ public class Controller {
         secondButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                addingRequest = true;
-                addedReqCount = 0;
-
-                secondButton.setDisable(true);
+                if (isAddRequest) {
+                    //add request
+                    //compute tour
+                    //back to modify
+                }
+                if (isModify) {
+                    addRequestSetup();
+                } else {
+                    modifySetup();
+                }
             }
         });
 
         logger.info("Finished setting up event handlers");
 
+    }
+
+    private void addRequestSetup() {
+        mainButton.setText("Cancel");
+        secondButton.setText("Add");
+        list.getChildren().remove(list.getChildren().size() -1);
+        mapText.setText("Pickup Duration");
+        requestText.setText("Delivery Duration");
+        mapField.setText("0");
+        requestField.setText("0");
+        mapText.setVisible(true);
+        requestText.setVisible(true);
+        requestField.setVisible(true);
+        mapField.setVisible(true);
+
+        isAddRequest = true;
+        isModify = false;
+        isTimeline = false;
+    }
+
+    private void modifySetup() {
+        //make sure text box elements are not shown
+        mapField.setVisible(false);
+        requestField.setVisible(false);
+        requestText.setVisible(false);
+        mapText.setVisible(false);
+
+        mainButton.setText("Done");
+        secondButton.setText("New Request");
+        list.getChildren().remove(list.getChildren().size() -1);
+        addCardsToScreen(true);
+        isModify = true;
+        isTimeline = false;
+        isAddRequest = false;
     }
 
     private void displayMap() {
@@ -457,8 +526,21 @@ public class Controller {
         markers.add(newMarker);
         mapView.addMarker(newMarker);
 
+        if( addedReqCount%2 == 0){
+            tempRequest.setPickup(newIntersection);
+            tempRequest.setPickupDur(5);
+        } else if ( addedReqCount%2 == 1){
+            tempRequest.setDelivery(newIntersection);
+            tempRequest.setDelivery_dur(5);
+        }
+
+
         addedReqCount++;
-        if( addedReqCount == 2 ) secondButton.setDisable(false);
+        if( addedReqCount == 2 ){
+
+            secondButton.setDisable(false);
+            planningRequest.addRequest(tempRequest);
+        }
 
     }
 
@@ -511,11 +593,13 @@ public class Controller {
             cards.add(item);
         }
 
-        addCardsToScreen();
+        addCardsToScreen(false);
 
     }
 
-    public void addCardsToScreen() {
+    public void addCardsToScreen(boolean isModify) {
+        logger.info(list.getChildren().toString());
+
         logger.info("creating data");
         ObservableList<LocationTagContent> data = FXCollections.observableArrayList();
         data.addAll(cards);
@@ -533,15 +617,20 @@ public class Controller {
             @Override
             public ListCell<LocationTagContent> call(ListView<LocationTagContent> listView) {
 
-                //return new CustomListCell();
-                //NORMALLY SHOULD BE CUSTOMLISTCELL
-                return new CustomModifyListCell();
+                if (isModify)
+                {
+                    return new CustomModifyListCell();
+                } else {
+                    return new CustomListCell();
+                }
+
             }
         });
         logger.info("cell factory added");
 
         list.setTopAnchor(l, 0.0);
         list.setBottomAnchor(l, 0.0);
+
         list.getChildren().add(l);
 
         l.setOnMouseClicked(new EventHandler<MouseEvent>() {
@@ -689,6 +778,8 @@ public class Controller {
                     cards.remove(getItem());
                     logger.info(cards.toString());
                     //call to refresh the content?
+                    list.getChildren().remove(list.getChildren().size() -1);
+                    addCardsToScreen(true);
                 }
             });
 
@@ -703,6 +794,8 @@ public class Controller {
                         cards.set(index-1, temp);
                         logger.info(cards.toString());
                         //call to refresh the content?
+                        list.getChildren().remove(list.getChildren().size() -1);
+                        addCardsToScreen(true);
                     }
                 }
             });
@@ -718,6 +811,8 @@ public class Controller {
                         cards.set(index+1, temp);
                         logger.info(cards.toString());
                         //call to refresh the content?
+                        list.getChildren().remove(list.getChildren().size() -1);
+                        addCardsToScreen(true);
                     }
                 }
             });

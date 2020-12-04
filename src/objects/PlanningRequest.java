@@ -82,8 +82,8 @@ public class PlanningRequest {
         }
     }
 
-    public void addRequest(Request newRequest){
-        requestList.add(newRequest);
+    public void addRequest(int index, Request newRequest){
+        requestList.add(index, newRequest);
     }
 
     public void addRequest(int index, Request newRequest){

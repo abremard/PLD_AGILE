@@ -13,4 +13,11 @@ public class TourState implements State {
             System.out.println(l.getI());
         }
     }
+
+    public void modifyRequestList(MVCController c) {
+        c.setCurrentState(c.getModifyState());
+        if (debug) {
+            System.out.print("Going from TourState to ModifyState ");
+        }
+    }
 }
