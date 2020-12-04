@@ -241,7 +241,8 @@ public class Controller {
                 if(isTimeline)
                 {
                     //delete list of timeline
-                    list.getChildren().remove(list.getChildren().size() - 1);
+                    logger.info(String.valueOf(list.getChildren().remove(list.getChildren().size() -1)));
+
 
                     //show file picker elements
                     mapButton.setVisible(true);
@@ -511,6 +512,15 @@ public class Controller {
             cards.add(item);
         }
 
+        addCardsToScreen();
+
+    }
+
+    public void addCardsToScreen() {
+
+
+        logger.info(list.getChildren().toString());
+
         logger.info("creating data");
         ObservableList<LocationTagContent> data = FXCollections.observableArrayList();
         data.addAll(cards);
@@ -528,23 +538,24 @@ public class Controller {
             @Override
             public ListCell<LocationTagContent> call(ListView<LocationTagContent> listView) {
 
-                return new CustomListCell();
+                //return new CustomListCell();
                 //NORMALLY SHOULD BE CUSTOMLISTCELL
-                //return new CustomModifyListCell();
+                return new CustomModifyListCell();
             }
         });
         logger.info("cell factory added");
 
         list.setTopAnchor(l, 0.0);
         list.setBottomAnchor(l, 0.0);
+
         list.getChildren().add(l);
 
         l.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-               LocationTagContent lt = l.getSelectionModel().getSelectedItem();
-               mapView.setCenter(lt.coordLocation);
-               displaySegmentTour(lt.chemin);
+                LocationTagContent lt = l.getSelectionModel().getSelectedItem();
+                mapView.setCenter(lt.coordLocation);
+                displaySegmentTour(lt.chemin);
             }
         });
     }
@@ -589,6 +600,10 @@ public class Controller {
             this.arrivalTime = arrivalTime;
             this.coordLocation = coordLocation;
             this.chemin = chemin;
+        }
+
+        public String toString() {
+            return name;
         }
     }
 
@@ -658,13 +673,13 @@ public class Controller {
             address.setStyle("-fx-fill: #595959");
             address.setFont(Font.font("SF Pro Display", 12.0));
             editButton = new Button("");
-            editButton.setGraphic(new ImageView("edit.png"));
+            editButton.setGraphic(new ImageView("sample/edit.png"));
             deleteButton = new Button("");
-            editButton.setGraphic(new ImageView("delete.png"));
+            deleteButton.setGraphic(new ImageView("sample/delete.png"));
             upButton = new Button("");
-            upButton.setGraphic(new ImageView("up.png"));
+            upButton.setGraphic(new ImageView("sample/up.png"));
             downButton = new Button("");
-            downButton.setGraphic(new ImageView("down.png"));
+            downButton.setGraphic(new ImageView("sample/down.png"));
 
             editButton.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
@@ -678,7 +693,10 @@ public class Controller {
                 @Override
                 public void handle(ActionEvent event) {
                     cards.remove(getItem());
+                    logger.info(cards.toString());
                     //call to refresh the content?
+                    list.getChildren().remove(list.getChildren().size() -1);
+                    addCardsToScreen();
                 }
             });
 
@@ -691,7 +709,10 @@ public class Controller {
                         LocationTagContent temp = cards.get(index);
                         cards.set(index, cards.get(index-1));
                         cards.set(index-1, temp);
+                        logger.info(cards.toString());
                         //call to refresh the content?
+                        list.getChildren().remove(list.getChildren().size() -1);
+                        addCardsToScreen();
                     }
                 }
             });
@@ -705,7 +726,10 @@ public class Controller {
                         LocationTagContent temp = cards.get(index);
                         cards.set(index, cards.get(index+1));
                         cards.set(index+1, temp);
+                        logger.info(cards.toString());
                         //call to refresh the content?
+                        list.getChildren().remove(list.getChildren().size() -1);
+                        addCardsToScreen();
                     }
                 }
             });
