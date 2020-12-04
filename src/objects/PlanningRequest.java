@@ -86,9 +86,32 @@ public class PlanningRequest {
         requestList.add(newRequest);
     }
 
-    public void removeRequest(int index){
-        requestList.remove(index);
+    public void addRequest(int index, Request newRequest){
+        requestList.add(index, newRequest);
     }
+
+    public boolean removeRequest(Request requestToRemove){
+        for(Request request : requestList){
+            if(request == requestToRemove){
+                requestList.remove(requestToRemove);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void removeRequest(int index) { requestList.remove(index); }
+
+    public void modifyRequest(Request requestToRemove, Request requestToAdd){
+        for(Request request : requestList){
+            if(request == requestToRemove){
+                requestList.remove(requestToRemove);
+                requestList.add(requestToAdd);
+            }
+        }
+    }
+
+
 
     public void swapRequest(int a, int b){
         Collections.swap(requestList, a, b);

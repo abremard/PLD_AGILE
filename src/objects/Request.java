@@ -68,4 +68,19 @@ public class Request {
                 ", startTime=" + startTime +
                 '}';
     }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this.getClass() == object.getClass()) {
+            Request request = (Request) object;
+            if ((this.getDelivery() == request.getDelivery()) && (this.getPickup() == request.getPickup()) && (this.getDeliveryDur() == request.getDeliveryDur()) && (this.getPickupDur() == request.getPickupDur())) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        else{
+            return false;
+        }
+    }
 }
