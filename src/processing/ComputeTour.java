@@ -646,6 +646,7 @@ public class ComputeTour {
     /**
      * Génère une tournée aléatoire respectant les contraintes d'ordre pickup -> delivery avec les requêtes et la map*
      * passées en paramètre
+     * FIXME apparemment passe pas par tous les points nécessaires
      */
     private static Tournee tourneeRandom(Map map, PlanningRequest planning, HashMap<Long, Integer> intersecIdToIndex) {
 
@@ -663,6 +664,19 @@ public class ComputeTour {
         recreateTimesTournee(tournee, planning);
         return tournee;
     }
+
+    private static Tournee tourneePaper(Map map, PlanningRequest planning, HashMap<Long, Integer> intersecIdToIndex) {
+
+        // dijkstra pour le graphe complet des plus courts chemins entre les points d'intérêt
+        SuperArete[][] matAdj = getOptimalFullGraph(map, planning, intersecIdToIndex);
+        // indexation de ces points d'intérêt
+        HashMap<Long, Integer> ptsIdToIndex = indexerPtsInteret(planning);
+
+        PaperHeuristicTSP heuristicTSP = new PaperHeuristicTSP(matAdj, planning, ptsIdToIndex);
+
+        // TODO
+		return null;
+	}
 
     private static Tournee branchAndBoundOpti(SuperArete[][] matAdj, PlanningRequest planning, HashMap<Long, Integer> intersecIdToIndex) {
 
