@@ -79,8 +79,9 @@ public class Controller {
     @FXML
     private Text requestText;
 
-    boolean addingRequest;
-    int addedReqCount;
+    private boolean addingRequest;
+    private int addedReqCount;
+    private Request tempRequest;
 
     private ArrayList<CoordinateLine> coordLines;
     private ArrayList<CoordinateLine> tourLines;
@@ -127,6 +128,7 @@ public class Controller {
 
         addingRequest = false;
         addedReqCount = 0;
+        tempRequest = new Request( new Intersection(0,0), new Intersection(0,0), 0,0);
     }
 
     public void initMapAndControls(Projection projection) {
@@ -298,9 +300,8 @@ public class Controller {
             @Override
             public void handle(ActionEvent event) {
                 addingRequest = true;
-                addedReqCount = 0;
-
                 secondButton.setDisable(true);
+                addedReqCount = 0;
             }
         });
 
@@ -458,8 +459,21 @@ public class Controller {
         markers.add(newMarker);
         mapView.addMarker(newMarker);
 
+        if( addedReqCount%2 == 0){
+            tempRequest.setPickup(newIntersection);
+            tempRequest.setPickupDur(5);
+        } else if ( addedReqCount%2 == 1){
+            tempRequest.setDelivery(newIntersection);
+            tempRequest.setDelivery_dur(5);
+        }
+
+
         addedReqCount++;
-        if( addedReqCount == 2 ) secondButton.setDisable(false);
+        if( addedReqCount == 2 ){
+
+            secondButton.setDisable(false);
+            planningRequest.addRequest(tempRequest);
+        }
 
     }
 

@@ -5,13 +5,36 @@ import objects.Request;
 
 public class RemoveRequestCommand implements Command {
 
-    private PlanningRequest oldPlanningRequest;
     private int removedRequestIndex;
     private Request removedRequest;
+
+    public int getRemovedRequestIndex() {
+        return removedRequestIndex;
+    }
+
+    public void setRemovedRequestIndex(int removedRequestIndex) {
+        this.removedRequestIndex = removedRequestIndex;
+    }
+
+    public Request getRemovedRequest() {
+        return removedRequest;
+    }
+
+    public void setRemovedRequest(Request removedRequest) {
+        this.removedRequest = removedRequest;
+    }
+
+    public PlanningRequest getNewPlanningRequest() {
+        return newPlanningRequest;
+    }
+
+    public void setNewPlanningRequest(PlanningRequest newPlanningRequest) {
+        this.newPlanningRequest = newPlanningRequest;
+    }
+
     private PlanningRequest newPlanningRequest;
 
     public RemoveRequestCommand(PlanningRequest oldPlanningRequest, int removedRequestIndex) {
-        this.oldPlanningRequest = oldPlanningRequest;
         this.removedRequestIndex = removedRequestIndex;
         this.removedRequest = oldPlanningRequest.getRequestList().get(removedRequestIndex);
         this.newPlanningRequest = new PlanningRequest(oldPlanningRequest);
@@ -24,7 +47,7 @@ public class RemoveRequestCommand implements Command {
 
     @Override
     public void undoCommand() {
-        this.newPlanningRequest.addRequest(removedRequest);
+        this.newPlanningRequest.addRequest(removedRequestIndex, removedRequest);
     }
 
 }
