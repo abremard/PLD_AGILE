@@ -255,19 +255,28 @@ public class ComputeTour {
             curChemin.add(seg);
 
             LinkedList<TupleRequete> aDelete = new LinkedList<TupleRequete>();
+            boolean found = false;
             for (TupleRequete req : pool) {
                 if(req.isDepart && req.requete.getPickup().getId() == seg.getDestination()) {
                     req.isDepart = false;
+                    curTime = curTime.plusSeconds((long)(req.getRequete().getPickupDur()));
+                    System.out.println("Pickup a " + req.getRequete().getPickup().getId() + " pendant " + req.getRequete().getPickupDur());
                     ptsPassage.add(new TupleRequete(req.getRequete(), true, curTime, curChemin));
-                    curChemin = new ArrayList<Segment>();
+                    found = true;
                 }
                 if(!req.isDepart && req.requete.getDelivery().getId() == seg.getDestination()) {
                     aDelete.add(req);
+                    curTime = curTime.plusSeconds((long)(req.getRequete().getDeliveryDur()));
+                    System.out.println("Delivery a " + req.getRequete().getDelivery().getId() + " pendant " + req.getRequete().getDeliveryDur());
                     ptsPassage.add(new TupleRequete(req.getRequete(), false, curTime, curChemin));
-                    curChemin = new ArrayList<Segment>();
+                    found = true;
                 }
             }
             pool.removeAll(aDelete);
+            if(found) {
+                System.out.println("On va de " + curChemin.get(0).getOrigin() + " a " + curChemin.get(curChemin.size()-1).getDestination());
+                curChemin = new ArrayList<Segment>();
+            }
         }
 
         tournee.setPtsPassage(ptsPassage);
