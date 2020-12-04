@@ -6,10 +6,10 @@ public class Request {
 
     Intersection pickup;
     Intersection delivery;
+    // les durees sont en seconde
     double pickupDur;
     double deliveryDur;
     LocalTime startTime;
-
 
     public Request(Intersection pickup, Intersection delivery, double pickupDur, double deliveryDur) {
         this.pickup = pickup;
@@ -54,7 +54,7 @@ public class Request {
         return deliveryDur;
     }
 
-    public void setDelivery_dur(int deliveryDur) {
+    public void setDeliveryDur(double deliveryDur) {
         this.deliveryDur = deliveryDur;
     }
 
@@ -67,5 +67,20 @@ public class Request {
                 ", deliveryDur=" + deliveryDur +
                 ", startTime=" + startTime +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this.getClass() == object.getClass()) {
+            Request request = (Request) object;
+            if ((this.getDelivery() == request.getDelivery()) && (this.getPickup() == request.getPickup()) && (this.getDeliveryDur() == request.getDeliveryDur()) && (this.getPickupDur() == request.getPickupDur())) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        else{
+            return false;
+        }
     }
 }

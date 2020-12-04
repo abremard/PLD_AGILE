@@ -98,6 +98,8 @@ public class Controller {
     private Color selectionColor = new Color(1.0,0.4,0.0, 1.0);
 
     private boolean isTimeline = false;
+    private boolean isModify = false;
+    private boolean isAddRequest = false;
 
     private static final Coordinate coordLyon = new Coordinate(45.77087932755228, 4.863621380475198);
 
@@ -164,10 +166,9 @@ public class Controller {
         requestButton.setDisable(true);
         requestField.setDisable(true);
         mainButton.setDisable(true);
-        secondButton.setDisable(true);
-        secondButton.setVisible(true);
+        secondButton.setVisible(false);
 
-        secondButton.setText("Add Request");
+        secondButton.setText("Modify");
 
 
 
@@ -227,7 +228,7 @@ public class Controller {
                 mvcController.LoadRequestPlan(file.getAbsolutePath());
                 LoadRequestPlanCommand requestCommand = (LoadRequestPlanCommand) mvcController.getL().getL().get(mvcController.getL().getI());
                 planningRequest = requestCommand.getPlanningRequest();
-                //markers.clear();
+
                 displayRequests();
 
                 mainButton.setDisable(false);
@@ -239,14 +240,37 @@ public class Controller {
         mainButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
+
+                if (isModify)
+                {
+                    //DONE WITH MODIFICATION
+
+                    //PASS NEW ORDER AND SETUP TO CALCULATE TOUR
+
+                    //remove previous timeline
+                    list.getChildren().remove(list.getChildren().size() -1);
+
+                    //update button position
+                    isTimeline = false; //--> will execute the else of isTimeline, and will pas to isTimeine true
+                    isAddRequest = false;
+                    isModify = false;
+
+
+                }
                 //detect on which view we are - File Picker or Timeline
-                if(isTimeline)
+                if (isAddRequest) {
+                    //CANCEL ADD REQUEST OPERATION, BACK TO MODIFY VIEW
+                    modifySetup(false);
+                }
+                else if(isTimeline)
                 {
                     //delete list of timeline
                     logger.info(String.valueOf(list.getChildren().remove(list.getChildren().size() -1)));
 
 
                     //show file picker elements
+                    mapText.setText("Import Map File");
+                    requestText.setText("Import Request File");
                     mapButton.setVisible(true);
                     requestButton.setVisible(true);
                     mapField.setVisible(true);
@@ -276,8 +300,10 @@ public class Controller {
                     requestText.setVisible(false);
                     mapText.setVisible(false);
 
-                    //change text of button
+                    //change text of buttons
                     mainButton.setText("New Tour");
+                    secondButton.setText("Modify");
+                    secondButton.setVisible(true);
 
                     //get files, pass them to the algo, calculate path, get results
                     logger.info(map.toString());
@@ -299,14 +325,75 @@ public class Controller {
         secondButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                addingRequest = true;
-                secondButton.setDisable(true);
-                addedReqCount = 0;
+                if (isAddRequest) {
+                    System.out.println("Clicked on add ");
+                    // clicked on add in adding request phase
+                    tempRequest.setPickupDur(60*Double.parseDouble(mapField.getText()));
+                    tempRequest.setDeliveryDur(60*Double.parseDouble(requestField.getText()));
+
+                    planningRequest.addRequest(planningRequest.getRequestList().size(), tempRequest);
+                    System.out.println(planningRequest.toString());
+                    mvcController.ComputeTour(map, planningRequest);
+                    ComputeTourCommand tourCommand = (ComputeTourCommand) mvcController.getL().getL().get(mvcController.getL().getI());
+                    tour = tourCommand.getTournee();
+                    displayTour();
+                    //call method that places results on timeline
+                    initCardContent();
+                    list.getChildren().remove(list.getChildren().size() -1);
+                    //compute tour
+                    //back to modify
+                    modifySetup(false);
+                }
+                else if (isModify) {
+                    addingRequest = true;
+                    addedReqCount = 0;
+                    addRequestSetup();
+                } else {
+                    modifySetup(true);
+                }
             }
         });
 
         logger.info("Finished setting up event handlers");
 
+    }
+
+    private void addRequestSetup() {
+        mainButton.setText("Cancel");
+        secondButton.setText("Add");
+        list.getChildren().remove(list.getChildren().size() -1);
+        mapText.setText("Pickup Duration");
+        requestText.setText("Delivery Duration");
+        mapField.setText("0");
+        requestField.setText("0");
+        mapText.setVisible(true);
+        requestText.setVisible(true);
+        requestField.setVisible(true);
+        mapField.setVisible(true);
+
+        isAddRequest = true;
+        isModify = false;
+        isTimeline = false;
+    }
+
+    private void modifySetup(boolean toDelete) {
+        //make sure text box elements are not shown
+        mapField.setVisible(false);
+        requestField.setVisible(false);
+        requestText.setVisible(false);
+        mapText.setVisible(false);
+
+        mainButton.setText("Done");
+        secondButton.setText("New Request");
+        if (toDelete)
+        {
+            list.getChildren().remove(list.getChildren().size() -1);
+
+        }
+        addCardsToScreen(true);
+        isModify = true;
+        isTimeline = false;
+        isAddRequest = false;
     }
 
     private void displayMap() {
@@ -461,18 +548,17 @@ public class Controller {
 
         if( addedReqCount%2 == 0){
             tempRequest.setPickup(newIntersection);
-            tempRequest.setPickupDur(5);
+            //tempRequest.setPickupDur(5);
         } else if ( addedReqCount%2 == 1){
             tempRequest.setDelivery(newIntersection);
-            tempRequest.setDelivery_dur(5);
+            //tempRequest.setDelivery_dur(5);
         }
 
 
         addedReqCount++;
         if( addedReqCount == 2 ){
 
-            secondButton.setDisable(false);
-            planningRequest.addRequest(tempRequest);
+            //secondButton.setDisable(false);
         }
 
     }
@@ -526,13 +612,11 @@ public class Controller {
             cards.add(item);
         }
 
-        addCardsToScreen();
+        addCardsToScreen(false);
 
     }
 
-    public void addCardsToScreen() {
-
-
+    public void addCardsToScreen(boolean isModify) {
         logger.info(list.getChildren().toString());
 
         logger.info("creating data");
@@ -552,9 +636,13 @@ public class Controller {
             @Override
             public ListCell<LocationTagContent> call(ListView<LocationTagContent> listView) {
 
-                //return new CustomListCell();
-                //NORMALLY SHOULD BE CUSTOMLISTCELL
-                return new CustomModifyListCell();
+                if (isModify)
+                {
+                    return new CustomModifyListCell();
+                } else {
+                    return new CustomListCell();
+                }
+
             }
         });
         logger.info("cell factory added");
@@ -710,7 +798,7 @@ public class Controller {
                     logger.info(cards.toString());
                     //call to refresh the content?
                     list.getChildren().remove(list.getChildren().size() -1);
-                    addCardsToScreen();
+                    addCardsToScreen(true);
                 }
             });
 
@@ -726,7 +814,7 @@ public class Controller {
                         logger.info(cards.toString());
                         //call to refresh the content?
                         list.getChildren().remove(list.getChildren().size() -1);
-                        addCardsToScreen();
+                        addCardsToScreen(true);
                     }
                 }
             });
@@ -743,7 +831,7 @@ public class Controller {
                         logger.info(cards.toString());
                         //call to refresh the content?
                         list.getChildren().remove(list.getChildren().size() -1);
-                        addCardsToScreen();
+                        addCardsToScreen(true);
                     }
                 }
             });

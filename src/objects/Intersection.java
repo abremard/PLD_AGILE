@@ -54,4 +54,19 @@ public class Intersection {
                 ", id=" + id +
                 '}';
     }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this.getClass() == object.getClass()) {
+            Intersection intersection = (Intersection) object;
+            if ((this.getLatitude() == intersection.getLatitude()) && (this.getLongitude() == intersection.getLongitude()) && (this.getId() == intersection.getId())) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        else{
+            return false;
+        }
+    }
 }
