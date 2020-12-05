@@ -20,10 +20,10 @@ public abstract class TemplateTSP implements TSP {
         startTime = System.currentTimeMillis();
         this.timeLimit = timeLimit;
         this.g = g;
-        bestSol = new Integer[g.length];
-        Collection<Integer> unvisited = new ArrayList<Integer>(g.length - 1);
-        for (int i = 1; i < g.length; i++) unvisited.add(i);
-        Collection<Integer> visited = new ArrayList<Integer>(g.length);
+//        bestSol = new Integer[g.length];
+//        ArrayList<Integer> unvisited = new ArrayList<Integer>(g.length - 1);
+//        for (int i = 1; i < g.length; i++) unvisited.add(i);
+        ArrayList<Integer> visited = new ArrayList<Integer>();
         visited.add(0); // The first visited vertex is 0
         bestSolCost = Integer.MAX_VALUE;
 
@@ -87,13 +87,15 @@ public abstract class TemplateTSP implements TSP {
      * @param visited       the sequence of vertices that have been already visited (including currentVertex)
      * @param currentCost   the cost of the path corresponding to <code>visited</code>
      */
-    private void branchAndBound(int currentVertex, int leftTodo, Collection<Integer> visited, float currentCost, ArrayList<TupleRequete> requetes) {
+    private void branchAndBound(int currentVertex, int leftTodo, ArrayList<Integer> visited, float currentCost, ArrayList<TupleRequete> requetes) {
 
         if (System.currentTimeMillis() - startTime > timeLimit) return;
         if (leftTodo == 0) {
             if (g[currentVertex][0] != null) {
                 if (currentCost + g[currentVertex][0].getLongueur() < bestSolCost) {
+                    bestSol = new Integer[visited.size()];
                     visited.toArray(bestSol);
+//                    bestSol[visited.size()] = 0;
                     bestSolCost = currentCost + g[currentVertex][0].getLongueur();
                 }
             }
@@ -105,12 +107,15 @@ public abstract class TemplateTSP implements TSP {
                 // on traite les requetes a ce noeud
                 LinkedList<Integer> traites = new LinkedList<Integer>();
                 LinkedList<TupleRequete> removed = new LinkedList<TupleRequete>();
+                LinkedList<Integer> removedInd = new LinkedList<Integer>();
+                ArrayList<TupleRequete> backupRequetes = new ArrayList<TupleRequete>(requetes);
                 for (int i = 0; i < requetes.size(); i++) {
                     if (requetes.get(i).getCurrentGoal().getId() == g[nextVertex][nextVertex == 0 ? 1 : 0].getDepart().getId()) {
                         if(requetes.get(i).isDepart()) {
                             traites.add(i);
                         } else {
                             removed.add(requetes.get(i));
+                            removedInd.add(i);
                         }
                     }
                 }
@@ -131,7 +136,8 @@ public abstract class TemplateTSP implements TSP {
 //                unvisited.add(nextVertex);
 
                 // on annule le traitement des requetes a ce noeud
-                requetes.addAll(removed);
+//                requetes.addAll(removed);
+                requetes = backupRequetes;
                 for (int ind : traites) {
                     requetes.get(ind).setDepart(true);
                 }

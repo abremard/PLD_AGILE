@@ -4,13 +4,14 @@ package Branch_And_Bound_TSP;
 import processing.SuperArete;
 import processing.TupleRequete;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 
 public class SeqIter implements Iterator<Integer> {
 
-    private Integer[] candidates;
+    private ArrayList<Integer> candidates;
     private int nbCandidates;
 
     /**
@@ -23,22 +24,25 @@ public class SeqIter implements Iterator<Integer> {
      * @param g
      */
     public SeqIter(int currentVertex, Collection<TupleRequete> unvisited, HashMap<Long, Integer> ptsIdToIndex, SuperArete[][] g) {
-        this.candidates = new Integer[unvisited.size()];
+        this.candidates = new ArrayList<Integer>();
         for (TupleRequete s : unvisited) {
-            if (g[currentVertex][ptsIdToIndex.get(s.getCurrentGoal().getId())] != null)
-                candidates[nbCandidates++] = ptsIdToIndex.get(s.getCurrentGoal().getId());
+            if (g[currentVertex][ptsIdToIndex.get(s.getCurrentGoal().getId())] != null) {// && ! candidates.contains(ptsIdToIndex.get(s.getCurrentGoal().getId()))) {
+                candidates.add(ptsIdToIndex.get(s.getCurrentGoal().getId()));
+                nbCandidates++;
+            }
         }
     }
 
     @Override
     public boolean hasNext() {
-        return nbCandidates > 0;
+        return candidates.size() > 0;
     }
 
     @Override
     public Integer next() {
-        nbCandidates--;
-        return candidates[nbCandidates];
+        int result = candidates.get(candidates.size()-1);
+        candidates.remove(candidates.size()-1);
+        return result;
     }
 
     @Override

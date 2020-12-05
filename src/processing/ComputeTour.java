@@ -246,7 +246,7 @@ public class ComputeTour {
         for (Request req : planning.getRequestList()) {
             pool.add(new TupleRequete(req, true));
         }
-        pool.add(new TupleRequete(new Request(planning.getDepot().getAdresse(), planning.getDepot().getAdresse(), 0, 0), true));
+        pool.add(new TupleRequete(new Request(planning.getDepot().getAdresse(), planning.getDepot().getAdresse(), 0, 0), false));
 
         ArrayList<TupleRequete> ptsPassage = new ArrayList<TupleRequete>();
 
@@ -255,19 +255,28 @@ public class ComputeTour {
             curChemin.add(seg);
 
             LinkedList<TupleRequete> aDelete = new LinkedList<TupleRequete>();
+            boolean found = false;
             for (TupleRequete req : pool) {
                 if(req.isDepart && req.requete.getPickup().getId() == seg.getDestination()) {
                     req.isDepart = false;
+                    curTime = curTime.plusSeconds((long)(req.getRequete().getPickupDur()));
+                    System.out.println("Pickup a " + req.getRequete().getPickup().getId() + " pendant " + req.getRequete().getPickupDur());
                     ptsPassage.add(new TupleRequete(req.getRequete(), true, curTime, curChemin));
-                    curChemin = new ArrayList<Segment>();
+                    found = true;
                 }
                 if(!req.isDepart && req.requete.getDelivery().getId() == seg.getDestination()) {
                     aDelete.add(req);
+                    curTime = curTime.plusSeconds((long)(req.getRequete().getDeliveryDur()));
+                    System.out.println("Delivery a " + req.getRequete().getDelivery().getId() + " pendant " + req.getRequete().getDeliveryDur());
                     ptsPassage.add(new TupleRequete(req.getRequete(), false, curTime, curChemin));
-                    curChemin = new ArrayList<Segment>();
+                    found = true;
                 }
             }
             pool.removeAll(aDelete);
+            if(found) {
+                System.out.println("On va de " + curChemin.get(0).getOrigin() + " a " + curChemin.get(curChemin.size()-1).getDestination());
+                curChemin = new ArrayList<Segment>();
+            }
         }
 
         tournee.setPtsPassage(ptsPassage);
@@ -524,7 +533,7 @@ public class ComputeTour {
         int curDepartInd = 0;
         for(TupleRequete req : pool) {
             if(req.requete.getPickup().getId() == matAdj[curDepartInd][1].depart.getId()) {
-                System.out.println("Pickup, attente de " + req.requete.getPickupDur() + " s");
+//                System.out.println("Pickup, attente de " + req.requete.getPickupDur() + " s");
                 curTime = curTime.plusSeconds((long)req.requete.getPickupDur());
                 req.isDepart = false;
             }
@@ -580,7 +589,7 @@ public class ComputeTour {
                 travelDur += seg.getLength();
             }
             travelDur *= 3600.0/15000.0; // conversion de metres vers secondes
-            System.out.println("On va aller de " + curChemin.depart.getId() + " à " + curIDarrivee + " en " + travelDur + " s");
+//            System.out.println("On va aller de " + curChemin.depart.getId() + " à " + curIDarrivee + " en " + travelDur + " s");
             curTime = curTime.plusSeconds((long)travelDur);
 
             // parcourir pool, pour chaque requete où il faut actuellement aller à minNode :
@@ -590,13 +599,13 @@ public class ComputeTour {
             for (TupleRequete dest : pool) {
                 if(dest.isDepart && dest.requete.getPickup().getId() == curIDarrivee) {
                     ptsPassage.add(new TupleRequete(dest.requete, true, curTime, curChemin.chemin));
-                    System.out.println("Pickup, attente de " + dest.requete.getPickupDur() + " s");
+//                    System.out.println("Pickup, attente de " + dest.requete.getPickupDur() + " s");
                     curTime = curTime.plusSeconds((long)dest.requete.getPickupDur());
                     dest.isDepart = false;
                 }
                 if(!dest.isDepart && dest.requete.getDelivery().getId() == curIDarrivee) {
                     ptsPassage.add(new TupleRequete(dest.requete, false, curTime, curChemin.chemin));
-                    System.out.println("Delivery, attente de " + dest.requete.getDeliveryDur() + " s");
+//                    System.out.println("Delivery, attente de " + dest.requete.getDeliveryDur() + " s");
                     curTime = curTime.plusSeconds((long)dest.requete.getDeliveryDur());
                     aDelete.add(dest);
                 }
@@ -634,13 +643,17 @@ public class ComputeTour {
             travelDur += seg.getLength();
         }
         travelDur *= 3600.0/15000.0; // conversion de metres vers secondes
-        System.out.println("On va aller de " + curChemin.depart.getId() + " au depot " + curIDarrivee + " en " + travelDur + " s");
+//        System.out.println("On va aller de " + curChemin.depart.getId() + " au depot " + curIDarrivee + " en " + travelDur + " s");
         curTime = curTime.plusSeconds((long)travelDur);
 
         chemin.addAll(curChemin.chemin);
         ptsPassage.add(new TupleRequete(new Request(planning.getDepot().getAdresse(), planning.getDepot().getAdresse(), 0, 0), false, curTime, curChemin.chemin));
 
-        return new Tournee(chemin, requests, ptsPassage);
+        Tournee tournee = new Tournee(chemin, requests);
+//        Tournee tournee = new Tournee(chemin, requests, ptsPassage);
+        recreateTimesTournee(tournee, planning);
+
+        return tournee;
     }
 
     /**
@@ -689,6 +702,7 @@ public class ComputeTour {
         for (int i = 1; i < solution.length; i++) {
             chemin.addAll(matAdj[solution[i-1]][solution[i]].getChemin());
         }
+        chemin.addAll(matAdj[solution[solution.length-1]][0].getChemin());
         Tournee tournee = new Tournee(chemin, planning.getRequestList());
         recreateTimesTournee(tournee, planning);
 
