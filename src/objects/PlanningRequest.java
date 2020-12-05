@@ -111,8 +111,4 @@ public class PlanningRequest {
         }
     }
 
-    public void swapRequest(int a, int b){
-        Collections.swap(requestList, a, b);
-    }
-
 }

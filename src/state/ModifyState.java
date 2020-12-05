@@ -7,6 +7,9 @@ import command.SwapOrderCommand;
 import controller.MVCController;
 import objects.PlanningRequest;
 import objects.Map;
+import sample.Controller;
+
+import java.util.ArrayList;
 
 //TODO littéralement tout sauf la transition entre ModifyState et AddState
 
@@ -32,8 +35,8 @@ public class ModifyState implements State {
         }
     }
 
-    public void swapRequest(ListOfCommands l, MVCController c, int a, int b, PlanningRequest oldPlanningRequest){
-        l.Add(new SwapOrderCommand(a, b, oldPlanningRequest));
+    public void swapRequest(ListOfCommands l, MVCController c, int a, int b, ArrayList<Controller.LocationTagContent> ltcList){
+        l.Add(new SwapOrderCommand(a, b, ltcList));
         if (debug) {
             System.out.print("Calling Swap Order Command");
             System.out.println(l.getI());

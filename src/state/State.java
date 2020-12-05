@@ -69,7 +69,7 @@ public interface State {
      */
     default void redo(ListOfCommands l) { l.Redo(); }
 
-    default void swapRequest(ListOfCommands l, MVCController c, int a, int b, PlanningRequest oldPlanningRequest){}
+    default void swapRequest(ListOfCommands l, MVCController c, int a, int b, ArrayList<Controller.LocationTagContent> ltcList){}
 
     default void addDone(ListOfCommands l, MVCController c, PlanningRequest p, Request r) {}
 

@@ -3,6 +3,10 @@ package command;
 // TODO : on change l'objet manipulé : planningRequest -> tournee et on fait initCardContent pour raffraichir les cartes sur Controller.
 
 import objects.PlanningRequest;
+import sample.Controller;
+
+import java.util.ArrayList;
+import java.util.Collections;
 
 public class SwapOrderCommand implements Command {
 
@@ -25,30 +29,29 @@ public class SwapOrderCommand implements Command {
         this.b = b;
     }
 
-    public PlanningRequest getNewPlanningRequest() {
-        return newPlanningRequest;
-    }
+    private ArrayList<Controller.LocationTagContent> ltcList;
 
-    public void setNewPlanningRequest(PlanningRequest newPlanningRequest) {
-        this.newPlanningRequest = newPlanningRequest;
-    }
-
-    private PlanningRequest newPlanningRequest;
-
-    public SwapOrderCommand(int a, int b, PlanningRequest oldPlanningRequest) {
+    public SwapOrderCommand(int a, int b, ArrayList<Controller.LocationTagContent> ltcList) {
         this.a = a;
         this.b = b;
-        this.newPlanningRequest = new PlanningRequest(oldPlanningRequest);
+        this.ltcList = ltcList;
     }
 
     @Override
     public void doCommand() {
-        this.newPlanningRequest.swapRequest(a, b);
+        Collections.swap(this.ltcList, a, b);
     }
 
     @Override
     public void undoCommand() {
-        this.newPlanningRequest.swapRequest(a, b);
+        Collections.swap(this.ltcList, a, b);
     }
 
+    public ArrayList<Controller.LocationTagContent> getLtcList() {
+        return ltcList;
+    }
+
+    public void setLtcList(ArrayList<Controller.LocationTagContent> ltcList) {
+        this.ltcList = ltcList;
+    }
 }

@@ -112,7 +112,7 @@ public class MVCController {
 
     public void modifyRequest(){currentState.modifyRequest(this);}
 
-    public void swapRequest(int a, int b, PlanningRequest oldPlanningRequest){currentState.swapRequest(l, this, a, b, oldPlanningRequest);}
+    public void swapRequest(int a, int b, ArrayList<Controller.LocationTagContent> ltcList){currentState.swapRequest(l, this, a, b,ltcList);}
 
     public void addDone(PlanningRequest p, Request r){currentState.addDone(l, this, p, r);}
 

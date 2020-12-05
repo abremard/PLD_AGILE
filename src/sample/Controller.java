@@ -328,7 +328,7 @@ public class Controller {
                     tempRequest.setPickupDur(60*Double.parseDouble(mapField.getText()));
                     tempRequest.setDeliveryDur(60*Double.parseDouble(requestField.getText()));
 
-                    mvcController.done(planningRequest, tempRequest);
+                    mvcController.addDone(planningRequest, tempRequest);
                     AddRequestCommand addCommand = (AddRequestCommand) mvcController.getL().getL().get(mvcController.getL().getI());
                     planningRequest = addCommand.getNewPlanningRequest();
 
@@ -800,12 +800,10 @@ public class Controller {
             deleteButton.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
-                    Request requestToRemove = getItem().request;
-                    int requestIndex = cards.indexOf(requestToRemove);
+                    // TODO : prevent user from deleting back to shop + prevent user from deleting the last request, otherwise planningRequest would be empty
+                    logger.info(cards.toString());
+                    int requestIndex = planningRequest.getRequestList().indexOf(getItem().request);
                     int removedCardIndex1 = cards.indexOf(getItem());
-
-                    planningRequest.removeRequest(getItem().request);
-
                     int cursor = 0;
 
                     for( LocationTagContent ltc: cards ){
@@ -816,16 +814,16 @@ public class Controller {
                         }
                         cursor++;
                     }
-                    cards.remove(getItem());
-                    logger.info(cards.toString());
-                    //call to refresh the content?
-                    list.getChildren().remove(list.getChildren().size() -1);
-                    addCardsToScreen(true);
+
+                    // TODO : call to refresh the content?
                     mvcController.removeRequest();
                     mvcController.removeDone(planningRequest, cards, requestIndex, removedCardIndex1, cursor);
                     RemoveRequestCommand removeCommand = (RemoveRequestCommand) mvcController.getL().getL().get(mvcController.getL().getI());
-                    // planningRequest = removeCommand.getNewPlanningRequest();
-                    // TODO il faut retrouver a partir de cards, l'index de la requete dans planningRequest + refresh card list + remove corresponding pickup/delivery card
+                    planningRequest = removeCommand.getNewPlanningRequest();
+                    cards = removeCommand.getNewLtcList();
+                    logger.info(cards.toString());
+                    list.getChildren().remove(list.getChildren().size() -1);
+                    addCardsToScreen(true);
                 }
             });
 
@@ -835,14 +833,17 @@ public class Controller {
                     int index = cards.indexOf(getItem());
                     if(index > 0)
                     {
-                        LocationTagContent temp = cards.get(index);
-                        cards.set(index, cards.get(index-1));
-                        cards.set(index-1, temp);
+                        // LocationTagContent temp = cards.get(index);
+                        // cards.set(index, cards.get(index-1));
+                        // cards.set(index-1, temp);
                         logger.info(cards.toString());
                         //call to refresh the content?
+                        mvcController.swapRequest(index, index-1, cards);
+                        SwapOrderCommand swapCommand = (SwapOrderCommand) mvcController.getL().getL().get(mvcController.getL().getI());
+                        cards = swapCommand.getLtcList();
+                        logger.info(cards.toString());
                         list.getChildren().remove(list.getChildren().size() -1);
                         addCardsToScreen(true);
-                        // mvcController.swapRequest(index, index-1, planningRequest);
                     }
                 }
             });
@@ -853,14 +854,17 @@ public class Controller {
                     int index = cards.indexOf(getItem());
                     if(index < cards.size() -1) //or just size?
                     {
-                        LocationTagContent temp = cards.get(index);
-                        cards.set(index, cards.get(index+1));
-                        cards.set(index+1, temp);
+                        // LocationTagContent temp = cards.get(index);
+                        // cards.set(index, cards.get(index+1));
+                        // cards.set(index+1, temp);
                         logger.info(cards.toString());
                         //call to refresh the content?
+                        mvcController.swapRequest(index, index+1, cards);
+                        SwapOrderCommand swapCommand = (SwapOrderCommand) mvcController.getL().getL().get(mvcController.getL().getI());
+                        cards = swapCommand.getLtcList();
+                        logger.info(cards.toString());
                         list.getChildren().remove(list.getChildren().size() -1);
                         addCardsToScreen(true);
-                        // mvcController.swapRequest(index, index+1, planningRequest);
                     }
                 }
             });
