@@ -15,11 +15,11 @@ public class processingTest {
 //        String mapPath = "data/smallMap.xml";
 //        String reqPath = "data/requestsSmall1.xml";
 
-        String mapPath = "data/mediumMap.xml";
-        String reqPath = "data/requestsMedium5.xml";
+//        String mapPath = "data/mediumMap.xml";
+//        String reqPath = "data/requestsMedium5.xml";
 
-//        String mapPath = "data/largeMap.xml";
-//        String reqPath = "data/requestsLarge9.xml";
+        String mapPath = "data/largeMap.xml";
+        String reqPath = "data/requestsLarge9.xml";
 
         // ------------ chargement & parsing des données de test
         Map map = new Map(mapPath);

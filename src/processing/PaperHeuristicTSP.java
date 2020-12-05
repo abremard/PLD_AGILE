@@ -102,19 +102,19 @@ public class PaperHeuristicTSP {
         requestsToProcess.remove(requestList.get(maxCostRequestIndex));
 
         // debug : chemin actuel
-        System.err.println(this.currentTourIndexes);
+        System.err.println("Initial tour indexes: " + this.currentTourIndexes);
 
         DeltaI currDelta;
         while (requestsToProcess.size() > 0) {
 
             // --------- Etape 1.2 : calcul des delta_i
             DeltaI minDeltaI = new DeltaI(InsertionMethod.CONSECUTIVE, 10000000, 0);
-            int minDeltaIRequestIndex = 0;
+            Request bestChoice = null;
 
-            for (int i = 0; i < requestsToProcess.size(); ++i) {
-                currDelta = minWeightedInsertionCost(requestList.get(i));
+            for (Request possibleRequest: requestsToProcess) {
+                currDelta = minWeightedInsertionCost(possibleRequest);
                 if (currDelta.cost < minDeltaI.cost) {
-                    minDeltaIRequestIndex = i;
+                    bestChoice = possibleRequest;
                     minDeltaI = currDelta;
                 }
             }
@@ -122,17 +122,18 @@ public class PaperHeuristicTSP {
             // --------- Etape 1.3 : insertion de la requête avec le delta_i min
             // ajout du point de delivery
             if (minDeltaI.insertionMethod == InsertionMethod.CONSECUTIVE) {
-                this.currentTourIndexes.add(minDeltaI.index1, ptsIdToIndex.get(requestList.get(minDeltaIRequestIndex).getDelivery().getId()));
+                this.currentTourIndexes.add(minDeltaI.index1, ptsIdToIndex.get(bestChoice.getDelivery().getId()));
             } else {
-                this.currentTourIndexes.add(minDeltaI.index2, ptsIdToIndex.get(requestList.get(minDeltaIRequestIndex).getDelivery().getId()));
+                this.currentTourIndexes.add(minDeltaI.index2, ptsIdToIndex.get(bestChoice.getDelivery().getId()));
             }
             // ajout du point de pickup après (pour utiliser le même indice)
-            this.currentTourIndexes.add(minDeltaI.index1, ptsIdToIndex.get(requestList.get(minDeltaIRequestIndex).getPickup().getId()));
+            this.currentTourIndexes.add(minDeltaI.index1, ptsIdToIndex.get(bestChoice.getPickup().getId()));
 
             // fin du traitement de cette requête
-            System.err.println("Removing request at index " + minDeltaIRequestIndex + " (" +requestList.get(minDeltaIRequestIndex) +")");
-            requestsToProcess.remove(requestList.get(minDeltaIRequestIndex));
-            System.err.println("Requests to process: " + requestsToProcess);
+//            System.err.println("Removing request " + bestChoice);
+            requestsToProcess.remove(bestChoice);
+//            System.err.println("Requests to process: " + requestsToProcess);
+            System.err.println("Current tour indexes: " + currentTourIndexes);
         }
 
         // --------- Etape 1.4 : Optimisation locale (3-opt)
