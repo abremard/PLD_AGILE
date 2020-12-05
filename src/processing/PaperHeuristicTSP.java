@@ -2,6 +2,7 @@ package processing;
 
 import objects.PlanningRequest;
 import objects.Request;
+import objects.Tournee;
 
 import java.util.*;
 
@@ -18,7 +19,7 @@ public class PaperHeuristicTSP {
     /**
      * Classe utilisée pour le retour de la méthode calculant le delta_i
      * pour une requête donnée sur le trajet actuel
-     * */
+     */
     private class DeltaI {
         public InsertionMethod insertionMethod;
         public float cost;
@@ -32,7 +33,7 @@ public class PaperHeuristicTSP {
             this.index2 = index2;
         }
 
-        DeltaI(InsertionMethod insertionMethod, float cost, int index){
+        DeltaI(InsertionMethod insertionMethod, float cost, int index) {
             this.insertionMethod = insertionMethod;
             this.cost = cost;
             this.index1 = index;
@@ -63,7 +64,7 @@ public class PaperHeuristicTSP {
     /**
      * Etape 1 de l'algorithme : création d'un premier trajet par insertions
      * successives des requêtes une par une.
-     * */
+     */
     void doubleInsertionHeuristic() {
 
         // --------- Etape 1.1 : initialisation
@@ -93,6 +94,9 @@ public class PaperHeuristicTSP {
         this.currentTourIndexes.add(ptsIdToIndex.get(requestList.get(maxCostRequestIndex).getDelivery().getId()));
         this.currentTourIndexes.add(0);
 
+        // debug
+        System.err.println(this.currentTourIndexes);
+
         Set<Request> requestsToProcess = new HashSet<>();
         requestsToProcess.addAll(requestList);
 
@@ -103,7 +107,7 @@ public class PaperHeuristicTSP {
             int minDeltaIRequestIndex = 0;
             DeltaI currDelta;
 
-            for (int i = 0; i < requestsToProcess.size(); ++i){
+            for (int i = 0; i < requestsToProcess.size(); ++i) {
                 currDelta = minWeightedInsertionCost(requestList.get(i));
                 if (currDelta.cost < minDeltaI.cost) {
                     minDeltaIRequestIndex = i;
@@ -112,16 +116,18 @@ public class PaperHeuristicTSP {
             }
 
             // --------- Etape 1.3 : insertion de la requête avec le delta_i min
+            // ajout du point de delivery
             if (minDeltaI.insertionMethod == InsertionMethod.CONSECUTIVE) {
                 this.currentTourIndexes.add(minDeltaI.index1, ptsIdToIndex.get(requestList.get(minDeltaIRequestIndex).getDelivery().getId()));
-                this.currentTourIndexes.add(minDeltaI.index1, ptsIdToIndex.get(requestList.get(minDeltaIRequestIndex).getPickup().getId()));
             } else {
                 this.currentTourIndexes.add(minDeltaI.index2, ptsIdToIndex.get(requestList.get(minDeltaIRequestIndex).getDelivery().getId()));
-                this.currentTourIndexes.add(minDeltaI.index1, ptsIdToIndex.get(requestList.get(minDeltaIRequestIndex).getPickup().getId()));
             }
+            // ajout du point de pickup après (pour utiliser le même indice)
+            this.currentTourIndexes.add(minDeltaI.index1, ptsIdToIndex.get(requestList.get(minDeltaIRequestIndex).getPickup().getId()));
 
             // fin du traitement de cette requête
             requestsToProcess.remove(requestList.get(minDeltaIRequestIndex));
+            System.err.println("Requests to process: " + requestsToProcess);
         }
 
         // --------- Etape 1.4 : Optimisation locale (3-opt)
@@ -161,10 +167,11 @@ public class PaperHeuristicTSP {
         int k_index, l_index, s_index, t_index;
 
         for (int k = 0; k < currentTourIndexes.size() - 1; ++k) {
-            k_index = k;
-            l_index = k+1;
+            k_index = currentTourIndexes.get(k);
+            l_index = currentTourIndexes.get(k + 1);
 
             // premier min : insertion consécutive
+            System.err.println("i: " + i_index + ", j: " + j_index + ", k: " + k_index + ", l: " + l_index);       // debug
             cost = alpha * matAdj[k_index][i_index].getLongueur()
                     + matAdj[i_index][j_index].getLongueur()
                     + (2 - alpha) * matAdj[j_index][l_index].getLongueur()
@@ -177,17 +184,18 @@ public class PaperHeuristicTSP {
             }
 
             // deuxième min : insertion séparée
-            if (k < currentTourIndexes.size() - 2) {
-                for (int s = k + 1; s < currentTourIndexes.size() - 1; ++k) {
-                    s_index = s;
-                    t_index = s + 1;
+            if (k < currentTourIndexes.size() - 3) {
+                for (int s = k + 1; s < currentTourIndexes.size() - 1; ++s) {
+                    s_index = currentTourIndexes.get(s);
+                    t_index = currentTourIndexes.get(s + 1);
+                    System.err.println("i: " + i_index + ", j: " + j_index + ", k: " + k_index + ", l: " + l_index + ", s: " + s_index + ", t: " + t_index);       // debug
 
                     cost = alpha * (matAdj[k_index][i_index].getLongueur()
-                                    + matAdj[i_index][l_index].getLongueur()
-                                    - matAdj[k_index][l_index].getLongueur())
+                            + matAdj[i_index][l_index].getLongueur()
+                            - matAdj[k_index][l_index].getLongueur())
                             + (2 - alpha) * (matAdj[s_index][j_index].getLongueur()
-                                             + matAdj[j_index][t_index].getLongueur()
-                                             - matAdj[s_index][t_index].getLongueur());
+                            + matAdj[j_index][t_index].getLongueur()
+                            - matAdj[s_index][t_index].getLongueur());
 
                     if (cost < minSplitInsertion) {
                         minSplitInsertion = cost;
@@ -206,4 +214,38 @@ public class PaperHeuristicTSP {
         }
     }
 
+    /**
+     * Construit un objet Tournee utilisable par l'IHM à partir du trajet actuel
+     *
+     * @return L'objet complet et utilisable
+     * TODO
+     */
+    Tournee buildTour() {
+
+        return null;
+    }
+
+    /**
+     * Renvoie la longueur du plus court chemin entre 2 points d'intérêt selon
+     * la matrice d'adjacence
+     *
+     * @param depart  Le point de départ du chemin
+     * @param arrivee Le point d'arrivée du chemin
+     * @return La longueur du plus court chemin entre depart et arrivee
+     */
+    private float longueurEntre(int depart, int arrivee) {
+        if (matAdj[depart][arrivee] != null) {
+            return matAdj[depart][arrivee].getLongueur();
+        } else {
+            return 0;
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "PaperHeuristicTSP{" +
+                "currentTourIndexes=" + currentTourIndexes +
+                ", nbRequest=" + nbRequest +
+                '}';
+    }
 }

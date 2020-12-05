@@ -21,6 +21,7 @@ public class processingTest {
         String mapPath = "data/largeMap.xml";
         String reqPath = "data/requestsLarge9.xml";
 
+        // ------------ chargement & parsing des données de test
         Map map = new Map(mapPath);
         System.out.println("Map chargee, nombre d'intersections : " + map.getNoOfIntersections() + ",   nombre de segments : " + map.getNoOfSegments());
 
@@ -32,7 +33,12 @@ public class processingTest {
         }
         System.out.println("Liste de requetes chargee, nombre de requetes : " + planning.getRequestList().size() + "\n");
 
-        Tournee tournee = ComputeTour.planTour(map, planning, Heuristique.GREEDY);
+        // ------------ calcul du chemin selon l'heuristique choisie
+//        Tournee tournee = ComputeTour.planTour(map, planning, Heuristique.GREEDY);
+        Tournee tournee = ComputeTour.planTour(map, planning, Heuristique.DOUBLEINSERTION);
+
+        // ------------ outputs
+        /*
         System.out.println("\nTournee calculee :"); // pour map_test.xml, requests_test.xml, tourneeTriviale : S01, S12, S25, S51, S23, S30
 //        for (Segment seg : tournee.getSegmentList()) {
 //            System.out.println(seg);
@@ -52,6 +58,8 @@ public class processingTest {
                 System.out.println(req.requete.getDelivery().getId() + " " + req.time + " " + req.chemin);
             }
         }
+
+         */
 
     }
 

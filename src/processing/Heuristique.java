@@ -1,3 +1,3 @@
 package processing;
 
-public enum Heuristique {TRIVIALE, RANDOM, GREEDY, GENETIQUE, BRANCHANDBOUND}
+public enum Heuristique {TRIVIALE, RANDOM, GREEDY, GENETIQUE, BRANCHANDBOUND, DOUBLEINSERTION}

@@ -47,6 +47,16 @@ public class ComputeTour {
                 // version greedy
                 matAdj = getOptimalFullGraph(map, planning, intersecIdToIndex);
                 return branchAndBoundOpti(matAdj, planning, intersecIdToIndex);
+            case DOUBLEINSERTION:
+                // version double-insertion heuristic
+                matAdj = getOptimalFullGraph(map, planning, intersecIdToIndex);
+                // indexation des points d'intérêt
+                HashMap<Long, Integer> ptsIdToIndex = indexerPtsInteret(planning);
+                PaperHeuristicTSP heuristicTSP = new PaperHeuristicTSP(matAdj, planning, ptsIdToIndex);
+                heuristicTSP.doubleInsertionHeuristic();
+                System.err.println("=== Double-insertion heuristic results ===");
+                System.err.println(heuristicTSP);
+
         }
 
         return null;
