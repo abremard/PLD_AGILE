@@ -10,7 +10,8 @@ public class InitialState implements State {
             l.Add(new LoadMapCommand(p));
             c.setCurrentState(c.getMapState());
             if (debug) {
-                System.out.print("Adding Load Map Command from Initial State to index ");
+                System.out.print(l.getI());
+                System.out.println(" - Adding Load Map Command from Initial State to index");
                 System.out.println(l.getI());
             }
         }

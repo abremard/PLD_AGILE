@@ -11,15 +11,15 @@ public class AddState implements State {
         l.Add(new AddRequestCommand(p, r));
         c.setCurrentState(c.getModifyState());
         if (debug) {
-            System.out.print("Confirming addition of a new request to the request list ");
-            System.out.println(l.getI());
+            System.out.print(l.getI());
+            System.out.println(" - Confirming addition of a new request to the request list ");
         }
     }
 
     public void cancel(MVCController c){
         c.setCurrentState(c.getModifyState());
         if (debug) {
-            System.out.print("Going from AddState to ModifyState without having changed anything");
+            System.out.println("Going from AddState to ModifyState without having changed anything");
         }
     }
 }

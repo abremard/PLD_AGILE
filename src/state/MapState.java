@@ -11,8 +11,8 @@ public class MapState implements State {
             l.Add(new LoadMapCommand(p));
             c.setCurrentState(c.getMapState());
             if (debug) {
-                System.out.print("Adding Load Map Command from MapState to index ");
-                System.out.println(l.getI());
+                System.out.print(l.getI());
+                System.out.println(" - Adding Load Map Command from MapState to index ");
             }
         }
     }
@@ -21,8 +21,8 @@ public class MapState implements State {
             l.Add(new LoadRequestPlanCommand(p));
             c.setCurrentState(c.getRequestState());
             if (debug) {
-                System.out.print("Adding Load Request Command from MapState to index ");
-                System.out.println(l.getI());
+                System.out.print(l.getI());
+                System.out.println(" - Adding Load Request Command from MapState to index ");
             }
         }
     }

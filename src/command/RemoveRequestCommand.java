@@ -2,11 +2,20 @@ package command;
 
 import objects.PlanningRequest;
 import objects.Request;
+import sample.Controller;
+
+import java.util.ArrayList;
 
 public class RemoveRequestCommand implements Command {
 
     private int removedRequestIndex;
     private Request removedRequest;
+    private int removedCardIndex1;
+    private int removedCardIndex2;
+    private Controller.LocationTagContent removedCard1;
+    private Controller.LocationTagContent removedCard2;
+    private PlanningRequest newPlanningRequest;
+    private ArrayList<Controller.LocationTagContent> ltc;
 
     public int getRemovedRequestIndex() {
         return removedRequestIndex;
@@ -32,17 +41,21 @@ public class RemoveRequestCommand implements Command {
         this.newPlanningRequest = newPlanningRequest;
     }
 
-    private PlanningRequest newPlanningRequest;
-
-    public RemoveRequestCommand(PlanningRequest oldPlanningRequest, int removedRequestIndex) {
+    public RemoveRequestCommand(PlanningRequest oldPlanningRequest, ArrayList<Controller.LocationTagContent> ltcList, int removedRequestIndex, int removedCardIndex1, int removedCardIndex2) {
         this.removedRequestIndex = removedRequestIndex;
+
         this.removedRequest = oldPlanningRequest.getRequestList().get(removedRequestIndex);
         this.newPlanningRequest = new PlanningRequest(oldPlanningRequest);
+        this.removedCardIndex1 = removedCardIndex1;
+        this.removedCardIndex2 = removedCardIndex2;
+        this.removedCard1 = ltc.get(removedCardIndex1);
+        this.removedCard2 = ltc.get(removedCardIndex2);
     }
 
     @Override
     public void doCommand() {
         this.newPlanningRequest.removeRequest(removedRequestIndex);
+
     }
 
     @Override

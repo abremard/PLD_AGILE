@@ -5,9 +5,12 @@ import command.ListOfCommands;
 import objects.Map;
 import objects.PlanningRequest;
 import objects.Request;
+import sample.Controller;
+
+import java.util.ArrayList;
 
 public interface State {
-    boolean debug = false;
+    boolean debug = true;
 
     /**
      * Appel au parseur de la carte .xml
@@ -66,9 +69,11 @@ public interface State {
      */
     default void redo(ListOfCommands l) { l.Redo(); }
 
+    default void swapRequest(ListOfCommands l, MVCController c, int a, int b, PlanningRequest oldPlanningRequest){}
+
     default void done(ListOfCommands l, MVCController c) {}
     default void done(ListOfCommands l, MVCController c, PlanningRequest p, Request r) {}
-    default void done(ListOfCommands l, MVCController c, PlanningRequest p, int i) {}
+    default void removeDone(ListOfCommands l, MVCController c, PlanningRequest oldPlanningRequest, ArrayList<Controller.LocationTagContent> ltcList, int removedRequestIndex, int removedCardIndex1, int removedCardIndex2) {}
     default void done(ListOfCommands l, MVCController c, Request oldRequest, Request newRequest) {}
     default void done(ListOfCommands l, MVCController c, Map m, PlanningRequest p) {}
 

@@ -1,5 +1,7 @@
 package command;
 
+// TODO : on change l'objet manipulé : planningRequest -> tournee et on fait initCardContent pour raffraichir les cartes sur Controller.
+
 import objects.PlanningRequest;
 
 public class SwapOrderCommand implements Command {

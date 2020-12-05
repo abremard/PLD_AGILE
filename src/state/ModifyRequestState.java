@@ -10,8 +10,8 @@ public class ModifyRequestState implements State {
         l.Add(new EditRequestCommand(oldRequest, newRequest));
         c.setCurrentState(c.getModifyState());
         if (debug) {
-            System.out.print("Confirming modification of a request of the request list ");
-            System.out.println(l.getI());
+            System.out.print(l.getI());
+            System.out.print(" - Confirming modification of a request of the request list ");
         }
     }
 

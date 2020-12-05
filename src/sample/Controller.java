@@ -4,9 +4,7 @@ import com.sothawo.mapjfx.*;
 import com.sothawo.mapjfx.event.MapViewEvent;
 import com.sothawo.mapjfx.event.MarkerEvent;
 import com.sothawo.mapjfx.offline.OfflineCache;
-import command.ComputeTourCommand;
-import command.LoadMapCommand;
-import command.LoadRequestPlanCommand;
+import command.*;
 import controller.MVCController;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -330,8 +328,13 @@ public class Controller {
                     tempRequest.setPickupDur(60*Double.parseDouble(mapField.getText()));
                     tempRequest.setDeliveryDur(60*Double.parseDouble(requestField.getText()));
 
-                    planningRequest.addRequest(planningRequest.getRequestList().size(), tempRequest);
-                    System.out.println(planningRequest.toString());
+                    mvcController.done(planningRequest, tempRequest);
+                    AddRequestCommand addCommand = (AddRequestCommand) mvcController.getL().getL().get(mvcController.getL().getI());
+                    planningRequest = addCommand.getNewPlanningRequest();
+
+                    // planningRequest.addRequest(planningRequest.getRequestList().size(), tempRequest);
+                    // System.out.println(planningRequest.toString());
+
                     mvcController.ComputeTour(map, planningRequest);
                     ComputeTourCommand tourCommand = (ComputeTourCommand) mvcController.getL().getL().get(mvcController.getL().getI());
                     tour = tourCommand.getTournee();
@@ -347,8 +350,10 @@ public class Controller {
                     addingRequest = true;
                     addedReqCount = 0;
                     addRequestSetup();
+                    mvcController.addRequest();
                 } else {
                     modifySetup(true);
+                    mvcController.ModifyRequestList();
                 }
             }
         });
@@ -672,7 +677,7 @@ public class Controller {
     }
 
     //CLASS THAT MODELS CONTENT OF CARDS TO SHOW IN TIMELINE
-    private static class LocationTagContent {
+    public static class LocationTagContent {
         //ex. "Pickup 1", or "Delivery 3"
         private String name;
         //streets of the intersection
@@ -795,22 +800,32 @@ public class Controller {
             deleteButton.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
+                    Request requestToRemove = getItem().request;
+                    int requestIndex = cards.indexOf(requestToRemove);
+                    int removedCardIndex1 = cards.indexOf(getItem());
 
                     planningRequest.removeRequest(getItem().request);
 
-                    for( LocationTagContent ltc: cards ){
+                    int cursor = 0;
 
+                    for( LocationTagContent ltc: cards ){
                         if( Integer.parseInt(ltc.name.split(" ")[1]) == Integer.parseInt(getItem().name.split(" ")[1])
                                 && ltc.getName() != getItem().getName() ){
                             cards.remove(ltc);
                             break;
                         }
+                        cursor++;
                     }
                     cards.remove(getItem());
                     logger.info(cards.toString());
                     //call to refresh the content?
                     list.getChildren().remove(list.getChildren().size() -1);
                     addCardsToScreen(true);
+                    mvcController.removeRequest();
+                    mvcController.removeDone(planningRequest, cards, requestIndex, removedCardIndex1, cursor);
+                    RemoveRequestCommand removeCommand = (RemoveRequestCommand) mvcController.getL().getL().get(mvcController.getL().getI());
+                    // planningRequest = removeCommand.getNewPlanningRequest();
+                    // TODO il faut retrouver a partir de cards, l'index de la requete dans planningRequest + refresh card list + remove corresponding pickup/delivery card
                 }
             });
 
@@ -827,6 +842,7 @@ public class Controller {
                         //call to refresh the content?
                         list.getChildren().remove(list.getChildren().size() -1);
                         addCardsToScreen(true);
+                        // mvcController.swapRequest(index, index-1, planningRequest);
                     }
                 }
             });
@@ -844,6 +860,7 @@ public class Controller {
                         //call to refresh the content?
                         list.getChildren().remove(list.getChildren().size() -1);
                         addCardsToScreen(true);
+                        // mvcController.swapRequest(index, index+1, planningRequest);
                     }
                 }
             });

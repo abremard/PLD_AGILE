@@ -4,7 +4,10 @@ import command.ListOfCommands;
 import objects.Map;
 import objects.PlanningRequest;
 import objects.Request;
+import sample.Controller;
 import state.*;
+
+import java.util.ArrayList;
 
 public class MVCController {
 
@@ -109,9 +112,11 @@ public class MVCController {
 
     public void modifyRequest(){currentState.modifyRequest(this);}
 
+    public void swapRequest(int a, int b, PlanningRequest oldPlanningRequest){currentState.swapRequest(l, this, a, b, oldPlanningRequest);}
+
     public void done(){currentState.done(l, this);}
     public void done(PlanningRequest p, Request r){currentState.done(l, this, p, r);}
-    public void done(PlanningRequest p, int i){currentState.done(l, this, p, i);}
+    public void removeDone(PlanningRequest oldPlanningRequest, ArrayList<Controller.LocationTagContent> ltcList, int removedRequestIndex, int removedCardIndex1, int removedCardIndex2){currentState.removeDone(l, this, oldPlanningRequest, ltcList, removedRequestIndex, removedCardIndex1, removedCardIndex2);}
     public void done(Request oldRequest, Request newRequest){currentState.done(l, this, oldRequest, newRequest);}
     public void done(Map m, PlanningRequest p){currentState.done(l, this, m, p);}
 
