@@ -71,7 +71,8 @@ public class Request {
     @Override
     public String toString() {
         return "Request{" +
-                "pickup=" + pickup +
+                "id=" + id +
+                ", pickup=" + pickup +
                 ", delivery=" + delivery +
                 ", pickupDur=" + pickupDur +
                 ", deliveryDur=" + deliveryDur +

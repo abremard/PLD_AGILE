@@ -76,11 +76,15 @@ public class PaperHeuristicTSP {
         int maxCostRequestIndex = 0;
         float cost;
 
+        // initialisation des requêtes à ajouter dans le trajet final
+        Set<Request> requestsToProcess = new HashSet<>();
+        requestsToProcess.addAll(requestList);
+
         for (int i = 0; i < nbRequest; i++) {
             Request request = requestList.get(i);
-            cost = matAdj[0][ptsIdToIndex.get(request.getPickup().getId())].getLongueur()
-                    + matAdj[ptsIdToIndex.get(request.getPickup().getId())][ptsIdToIndex.get(request.getDelivery().getId())].getLongueur()
-                    + matAdj[ptsIdToIndex.get(request.getDelivery().getId())][0].getLongueur();
+            cost = longueurEntre(0, ptsIdToIndex.get(request.getPickup().getId()))
+                    + longueurEntre(ptsIdToIndex.get(request.getPickup().getId()), ptsIdToIndex.get(request.getDelivery().getId()))
+                    + longueurEntre(ptsIdToIndex.get(request.getDelivery().getId()), 0);
 
             if (cost > maxCost) {
                 maxCost = cost;
@@ -94,18 +98,18 @@ public class PaperHeuristicTSP {
         this.currentTourIndexes.add(ptsIdToIndex.get(requestList.get(maxCostRequestIndex).getDelivery().getId()));
         this.currentTourIndexes.add(0);
 
-        // debug
+        // on enlève la requête qu'on vient de process de la liste des requêtes à ajouter
+        requestsToProcess.remove(requestList.get(maxCostRequestIndex));
+
+        // debug : chemin actuel
         System.err.println(this.currentTourIndexes);
 
-        Set<Request> requestsToProcess = new HashSet<>();
-        requestsToProcess.addAll(requestList);
-
+        DeltaI currDelta;
         while (requestsToProcess.size() > 0) {
 
             // --------- Etape 1.2 : calcul des delta_i
             DeltaI minDeltaI = new DeltaI(InsertionMethod.CONSECUTIVE, 10000000, 0);
             int minDeltaIRequestIndex = 0;
-            DeltaI currDelta;
 
             for (int i = 0; i < requestsToProcess.size(); ++i) {
                 currDelta = minWeightedInsertionCost(requestList.get(i));
@@ -126,6 +130,7 @@ public class PaperHeuristicTSP {
             this.currentTourIndexes.add(minDeltaI.index1, ptsIdToIndex.get(requestList.get(minDeltaIRequestIndex).getPickup().getId()));
 
             // fin du traitement de cette requête
+            System.err.println("Removing request at index " + minDeltaIRequestIndex + " (" +requestList.get(minDeltaIRequestIndex) +")");
             requestsToProcess.remove(requestList.get(minDeltaIRequestIndex));
             System.err.println("Requests to process: " + requestsToProcess);
         }
@@ -171,11 +176,11 @@ public class PaperHeuristicTSP {
             l_index = currentTourIndexes.get(k + 1);
 
             // premier min : insertion consécutive
-            System.err.println("i: " + i_index + ", j: " + j_index + ", k: " + k_index + ", l: " + l_index);       // debug
-            cost = alpha * matAdj[k_index][i_index].getLongueur()
-                    + matAdj[i_index][j_index].getLongueur()
-                    + (2 - alpha) * matAdj[j_index][l_index].getLongueur()
-                    - matAdj[k_index][l_index].getLongueur();
+//            System.err.println("i: " + i_index + ", j: " + j_index + ", k: " + k_index + ", l: " + l_index);       // debug
+            cost = alpha * longueurEntre(k_index, i_index)
+                    + longueurEntre(i_index, j_index)
+                    + (2 - alpha) * longueurEntre(j_index, l_index)
+                    - longueurEntre(k_index, l_index);
 
             // màj du coût min & de la position trouvée
             if (cost < minConsecutiveInsertion) {
@@ -188,14 +193,14 @@ public class PaperHeuristicTSP {
                 for (int s = k + 1; s < currentTourIndexes.size() - 1; ++s) {
                     s_index = currentTourIndexes.get(s);
                     t_index = currentTourIndexes.get(s + 1);
-                    System.err.println("i: " + i_index + ", j: " + j_index + ", k: " + k_index + ", l: " + l_index + ", s: " + s_index + ", t: " + t_index);       // debug
+//                    System.err.println("i: " + i_index + ", j: " + j_index + ", k: " + k_index + ", l: " + l_index + ", s: " + s_index + ", t: " + t_index);       // debug
 
-                    cost = alpha * (matAdj[k_index][i_index].getLongueur()
-                            + matAdj[i_index][l_index].getLongueur()
-                            - matAdj[k_index][l_index].getLongueur())
-                            + (2 - alpha) * (matAdj[s_index][j_index].getLongueur()
-                            + matAdj[j_index][t_index].getLongueur()
-                            - matAdj[s_index][t_index].getLongueur());
+                    cost = alpha * (longueurEntre(k_index, i_index)
+                            + longueurEntre(i_index, l_index)
+                            - longueurEntre(k_index, l_index))
+                            + (2 - alpha) * (longueurEntre(s_index, j_index)
+                            + longueurEntre(j_index, t_index)
+                            - longueurEntre(s_index, t_index));
 
                     if (cost < minSplitInsertion) {
                         minSplitInsertion = cost;
