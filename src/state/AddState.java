@@ -7,7 +7,7 @@ import objects.PlanningRequest;
 import objects.Request;
 
 public class AddState implements State {
-    public void done(ListOfCommands l, MVCController c, PlanningRequest p, Request r) {
+    public void addDone(ListOfCommands l, MVCController c, PlanningRequest p, Request r) {
         l.Add(new AddRequestCommand(p, r));
         c.setCurrentState(c.getModifyState());
         if (debug) {

@@ -71,11 +71,13 @@ public interface State {
 
     default void swapRequest(ListOfCommands l, MVCController c, int a, int b, PlanningRequest oldPlanningRequest){}
 
-    default void done(ListOfCommands l, MVCController c) {}
-    default void done(ListOfCommands l, MVCController c, PlanningRequest p, Request r) {}
+    default void addDone(ListOfCommands l, MVCController c, PlanningRequest p, Request r) {}
+
     default void removeDone(ListOfCommands l, MVCController c, PlanningRequest oldPlanningRequest, ArrayList<Controller.LocationTagContent> ltcList, int removedRequestIndex, int removedCardIndex1, int removedCardIndex2) {}
-    default void done(ListOfCommands l, MVCController c, Request oldRequest, Request newRequest) {}
-    default void done(ListOfCommands l, MVCController c, Map m, PlanningRequest p) {}
+
+    default void modifyRequestDone(ListOfCommands l, MVCController c, Request oldRequest, Request newRequest) {}
+
+    default void applyModificationDone(ListOfCommands l, MVCController c, Map m, PlanningRequest p) {}
 
     default void cancel(MVCController c) {}
 

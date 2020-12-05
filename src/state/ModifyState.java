@@ -40,7 +40,7 @@ public class ModifyState implements State {
         }
     }
 
-    public void done(ListOfCommands l, MVCController c, Map m, PlanningRequest p) {
+    public void applyModificationDone(ListOfCommands l, MVCController c, Map m, PlanningRequest p) {
         l.Add(new ApplyModificationCommand(m, p));
         c.setCurrentState(c.getTourState());
         if (debug) {

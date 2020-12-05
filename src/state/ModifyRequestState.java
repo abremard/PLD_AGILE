@@ -6,7 +6,7 @@ import controller.MVCController;
 import objects.Request;
 
 public class ModifyRequestState implements State {
-    public void done(ListOfCommands l, MVCController c, Request oldRequest, Request newRequest) {
+    public void modifyRequestDone(ListOfCommands l, MVCController c, Request oldRequest, Request newRequest) {
         l.Add(new EditRequestCommand(oldRequest, newRequest));
         c.setCurrentState(c.getModifyState());
         if (debug) {
