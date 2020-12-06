@@ -249,13 +249,20 @@ public class Controller {
                     //remove previous timeline
                     list.getChildren().remove(list.getChildren().size() -1);
 
+                    mvcController.ComputeTour(map, planningRequest);
+                    ComputeTourCommand tourCommand = (ComputeTourCommand) mvcController.getL().getL().get(mvcController.getL().getI());
+                    tour = tourCommand.getTournee();
+                    displayTour();
+                    //call method that places results on timeline
+                    initCardContent();
+
                     //update button position
                     isTimeline = false; //--> will execute the else of isTimeline, and will pas to isTimeine true
                     isAddRequest = false;
                     isModify = false;
                 }
                 //detect on which view we are - File Picker or Timeline
-                if (isAddRequest) {
+                else if (isAddRequest) {
                     //CANCEL ADD REQUEST OPERATION, BACK TO MODIFY VIEW
                     modifySetup(false);
                 }
