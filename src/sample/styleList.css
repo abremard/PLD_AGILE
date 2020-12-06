@@ -18,3 +18,12 @@
 .list-cell:selected {
     -fx-background-color: transparent, rgba(255, 255, 255, 0.71);
 }
+
+.button {
+    -fx-background-color: transparent;
+    -fx-background-radius: 5,5;
+}
+
+.button:hover {
+    -fx-background-color: rgba(250, 250, 250, 0.51);
+}

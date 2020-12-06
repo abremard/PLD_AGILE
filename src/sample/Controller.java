@@ -63,6 +63,12 @@ public class Controller {
     private Button mapButton;
 
     @FXML
+    private Button undoButton;
+
+    @FXML
+    private Button redoButton;
+
+    @FXML
     private Button requestButton;
 
     @FXML
@@ -137,6 +143,11 @@ public class Controller {
         // init MapView-Cache
         final OfflineCache offlineCache = mapView.getOfflineCache();
         final String cacheDir = System.getProperty("java.io.tmpdir") + "/mapjfx-cache";
+
+        undoButton.setGraphic(new ImageView("sample/undoButton.png"));
+        redoButton.setGraphic(new ImageView("sample/redoButton.png"));
+        undoButton.setVisible(false);
+        redoButton.setVisible(false);
 
         initEventHandlers();
 
@@ -241,6 +252,8 @@ public class Controller {
 
                 if (isModify)
                 {
+                    undoButton.setVisible(false);
+                    redoButton.setVisible(false);
                     //DONE WITH MODIFICATION
                     removeFromMap( selectedLines);
                     removeFromMap( tourLines);
@@ -254,6 +267,7 @@ public class Controller {
                     secondButton.setText("Modify");
                     secondButton.setVisible(true);
 
+                    // TODO : NEEDS TO BE REPLACED WITH DIFFERENT METHOD
                     mvcController.ComputeTour(map, planningRequest);
                     ComputeTourCommand tourCommand = (ComputeTourCommand) mvcController.getL().getL().get(mvcController.getL().getI());
                     tour = tourCommand.getTournee();
@@ -273,6 +287,8 @@ public class Controller {
                 }
                 else if(isTimeline)
                 {
+                    undoButton.setVisible(false);
+                    redoButton.setVisible(false);
                     //delete list of timeline
                     logger.info(String.valueOf(list.getChildren().remove(list.getChildren().size() -1)));
                     //remove selected path from timeline
@@ -302,6 +318,8 @@ public class Controller {
                     isTimeline = false;
                 } else
                 {
+                    undoButton.setVisible(false);
+                    redoButton.setVisible(false);
                     //hide elements from file picker view
                     mapButton.setVisible(false);
                     requestButton.setVisible(false);
@@ -376,6 +394,9 @@ public class Controller {
     }
 
     private void addRequestSetup() {
+        undoButton.setVisible(false);
+        redoButton.setVisible(false);
+
         mainButton.setText("Cancel");
         secondButton.setText("Add");
         list.getChildren().remove(list.getChildren().size() -1);
@@ -394,6 +415,8 @@ public class Controller {
     }
 
     private void modifySetup(boolean toDelete) {
+        undoButton.setVisible(true);
+        redoButton.setVisible(true);
         //make sure text box elements are not shown
         mapField.setVisible(false);
         requestField.setVisible(false);
@@ -600,8 +623,14 @@ public class Controller {
                 ArrayList<String> street = map.getSegmentNameFromIntersectionId(pt.getRequete().getPickup().getId());
                 logger.info(street.toString());
                 street1 = street.get(0);
+                if (street1.length()>20) {
+                    street1 = street1.substring(0, 19) + "..";
+                }
                 if (street.size() >= 2) {
                     street2 = street.get(1);
+                    if (street2.length()>20) {
+                        street2 = street2.substring(0, 19) + "..";
+                    }
                 }
                 latitude = pt.getRequete().getPickup().getLatitude();
                 longitude = pt.getRequete().getPickup().getLongitude();
@@ -857,6 +886,7 @@ public class Controller {
             upButton.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
+                    // TODO : verify pickup before delivery
                     int index = cards.indexOf(getItem());
                     if(index > 0)
                     {
@@ -878,6 +908,7 @@ public class Controller {
             downButton.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
+                    // TODO : verify pickup before delivery
                     int index = cards.indexOf(getItem());
                     if(index < cards.size() -1) //or just size?
                     {
@@ -902,6 +933,7 @@ public class Controller {
             VBox vBox2 = new VBox(upButton, downButton);
             vBox2.setAlignment(Pos.CENTER_RIGHT);
             content = new HBox(vBox, region, editButton, deleteButton, vBox2);
+            content.setAlignment(Pos.CENTER);
             content.setSpacing(10);
         }
 
