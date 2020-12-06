@@ -32,7 +32,8 @@ public class ComputeTourCommand implements Command {
 
     @Override
     public void doCommand() {
-        tournee = ComputeTour.planTour(map, planningRequest, Heuristique.GREEDY);
+//        tournee = ComputeTour.planTour(map, planningRequest, Heuristique.GREEDY);
+        tournee = ComputeTour.planTour(map, planningRequest, Heuristique.DOUBLEINSERTION);      // EXPERIMENTAL
     }
 
     @Override

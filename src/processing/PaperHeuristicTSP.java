@@ -2,6 +2,7 @@ package processing;
 
 import objects.PlanningRequest;
 import objects.Request;
+import objects.Segment;
 import objects.Tournee;
 
 import java.util.*;
@@ -44,18 +45,22 @@ public class PaperHeuristicTSP {
     static float alpha = 1;     // pour le calcul de delta_i, 0 < alpha < 2
     static int r = 3;           // détermine la longueur des chaînes à utiliser pour 3-opt
 
+    int nbRequest;
     SuperArete[][] matAdj;
     PlanningRequest planning;
     HashMap<Long, Integer> ptsIdToIndex;
     LinkedList<Integer> currentTourIndexes;
-    ArrayList<Request> requestList;
-    int nbRequest;
+    LinkedList<TupleRequete> currentTourPoints;     // stocke les indices des points dans la tournée
+    ArrayList<Request> requestList;     // pour stocker les requêtes associées aux points qu'on a choisi
+    // !!! le premier & le dernier élément d'un trajet complet sont des null car
+    // pas de requête depuis/vers le dépôt !
 
     PaperHeuristicTSP(SuperArete[][] matAdj, PlanningRequest planning, HashMap<Long, Integer> ptsIdToIndex) {
         this.matAdj = matAdj;
         this.planning = planning;
         this.ptsIdToIndex = ptsIdToIndex;
         this.currentTourIndexes = new LinkedList<>();
+        this.currentTourPoints = new LinkedList<>();
 
         this.requestList = planning.getRequestList();
         this.nbRequest = requestList.size();
@@ -93,10 +98,10 @@ public class PaperHeuristicTSP {
         }
 
         // initialisation du trajet
-        this.currentTourIndexes.add(0);
-        this.currentTourIndexes.add(ptsIdToIndex.get(requestList.get(maxCostRequestIndex).getPickup().getId()));
-        this.currentTourIndexes.add(ptsIdToIndex.get(requestList.get(maxCostRequestIndex).getDelivery().getId()));
-        this.currentTourIndexes.add(0);
+        ajouterPointTournee(null);
+        ajouterPointTournee(new TupleRequete(requestList.get(maxCostRequestIndex), true));
+        ajouterPointTournee(new TupleRequete(requestList.get(maxCostRequestIndex), false));
+        ajouterPointTournee(null);
 
         // on enlève la requête qu'on vient de process de la liste des requêtes à ajouter
         requestsToProcess.remove(requestList.get(maxCostRequestIndex));
@@ -111,7 +116,7 @@ public class PaperHeuristicTSP {
             DeltaI minDeltaI = new DeltaI(InsertionMethod.CONSECUTIVE, 10000000, 0);
             Request bestChoice = null;
 
-            for (Request possibleRequest: requestsToProcess) {
+            for (Request possibleRequest : requestsToProcess) {
                 currDelta = minWeightedInsertionCost(possibleRequest);
                 if (currDelta.cost < minDeltaI.cost) {
                     bestChoice = possibleRequest;
@@ -122,12 +127,12 @@ public class PaperHeuristicTSP {
             // --------- Etape 1.3 : insertion de la requête avec le delta_i min
             // ajout du point de delivery
             if (minDeltaI.insertionMethod == InsertionMethod.CONSECUTIVE) {
-                this.currentTourIndexes.add(minDeltaI.index1, ptsIdToIndex.get(bestChoice.getDelivery().getId()));
+                ajouterPointTournee(new TupleRequete(bestChoice, false), minDeltaI.index1);
             } else {
-                this.currentTourIndexes.add(minDeltaI.index2, ptsIdToIndex.get(bestChoice.getDelivery().getId()));
+                ajouterPointTournee(new TupleRequete(bestChoice, false), minDeltaI.index2);
             }
             // ajout du point de pickup après (pour utiliser le même indice)
-            this.currentTourIndexes.add(minDeltaI.index1, ptsIdToIndex.get(bestChoice.getPickup().getId()));
+            ajouterPointTournee(new TupleRequete(bestChoice, true), minDeltaI.index1);
 
             // fin du traitement de cette requête
 //            System.err.println("Removing request " + bestChoice);
@@ -224,11 +229,34 @@ public class PaperHeuristicTSP {
      * Construit un objet Tournee utilisable par l'IHM à partir du trajet actuel
      *
      * @return L'objet complet et utilisable
-     * TODO
      */
     Tournee buildTour() {
 
-        return null;
+        // initialisation des éléments à passer au constructeur de Tournee
+        ArrayList<Request> requestList = planning.getRequestList();
+        ArrayList<TupleRequete> ptsPassage = new ArrayList<>(this.currentTourPoints);
+
+        // initialisation de la liste des segments avec le chemin dépôt -> premier pickup
+        ArrayList<Segment> segmentList = new ArrayList<>(matAdj[0][currentTourIndexes.get(1)].chemin);
+
+        // remplissage du chemin avec la suite de la tournée
+        for (int i = 1; i < ptsPassage.size() - 1; ++i) {
+            TupleRequete pt1 = ptsPassage.get(i);
+            TupleRequete pt2 = ptsPassage.get(i + 1);
+
+            if (pt2 != null) {
+                segmentList.addAll(
+                        matAdj[ptsIdToIndex.get(pt1.getCurrentGoal().getId())][ptsIdToIndex.get(pt2.getCurrentGoal().getId())].chemin);
+            } else {        // dernier delivery -> dépôt
+                segmentList.addAll(
+                        matAdj[ptsIdToIndex.get(pt1.getCurrentGoal().getId())][0].chemin);
+            }
+        }
+
+        // ajout des heures d'arrivée à chaque point de passage + le chemin qui y mène
+        Tournee tournee = new Tournee(segmentList, requestList);
+        ComputeTour.recreateTimesTournee(tournee, planning);
+        return tournee;
     }
 
     /**
@@ -254,4 +282,28 @@ public class PaperHeuristicTSP {
                 ", nbRequest=" + nbRequest +
                 '}';
     }
+
+    /**
+     * Ajoute un point de passage à la tournée actuelle
+     *
+     * @param index        l'index que le point aura après insertion dans les différentes listes
+     * @param tupleRequete le point de passage à insérer
+     */
+    void ajouterPointTournee(TupleRequete tupleRequete, int index) {
+        if (tupleRequete != null) {
+            currentTourIndexes.add(index, ptsIdToIndex.get(tupleRequete.getCurrentGoal().getId()));
+        } else {
+            currentTourIndexes.add(0);
+        }
+        currentTourPoints.add(index, tupleRequete);
+    }
+
+    /**
+     * Surcharge pour ajouter un point directement à la fin du trajet actuel
+     */
+    void ajouterPointTournee(TupleRequete tupleRequete) {
+        ajouterPointTournee(tupleRequete, currentTourIndexes.size());
+    }
+
+    // todo supprimerPointTourner !
 }
