@@ -263,7 +263,8 @@ public class Controller {
                 {
                     //delete list of timeline
                     logger.info(String.valueOf(list.getChildren().remove(list.getChildren().size() -1)));
-
+                    //remove selected path from timeline
+                    removeFromMap(selectedLines);
 
                     //show file picker elements
                     mapText.setText("Import Map File");
@@ -800,30 +801,42 @@ public class Controller {
             deleteButton.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
-                    // TODO : prevent user from deleting back to shop + prevent user from deleting the last request, otherwise planningRequest would be empty
-                    logger.info(cards.toString());
-                    int requestIndex = planningRequest.getRequestList().indexOf(getItem().request);
-                    int removedCardIndex1 = cards.indexOf(getItem());
-                    int cursor = 0;
+                    // TODO : prevent user from deleting back to shop
+                    if (cards.size()>3)
+                    {
+                        logger.info(cards.toString());
+                        int requestIndex = planningRequest.getRequestList().indexOf(getItem().request);
+                        int removedCardIndex1 = cards.indexOf(getItem());
+                        int cursor = 0;
 
-                    for( LocationTagContent ltc: cards ){
-                        if( Integer.parseInt(ltc.name.split(" ")[1]) == Integer.parseInt(getItem().name.split(" ")[1])
-                                && ltc.getName() != getItem().getName() ){
-                            cards.remove(ltc);
-                            break;
+                        for( LocationTagContent ltc: cards ){
+                            if( Integer.parseInt(ltc.name.split(" ")[1]) == Integer.parseInt(getItem().name.split(" ")[1])
+                                    && ltc.getName() != getItem().getName() ){
+                                cards.remove(ltc);
+                                break;
+                            }
+                            cursor++;
                         }
-                        cursor++;
+
+                        // TODO : call to refresh the content?
+                        mvcController.removeRequest();
+                        mvcController.removeDone(planningRequest, cards, requestIndex, removedCardIndex1, cursor);
+                        RemoveRequestCommand removeCommand = (RemoveRequestCommand) mvcController.getL().getL().get(mvcController.getL().getI());
+                        planningRequest = removeCommand.getNewPlanningRequest();
+                        cards = removeCommand.getNewLtcList();
+                        logger.info(cards.toString());
+                        list.getChildren().remove(list.getChildren().size() -1);
+                        addCardsToScreen(true);
+                    } else {
+                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                        alert.setTitle("Attention!");
+                        alert.setHeaderText(null);
+                        alert.setContentText("You must have at least one request in your timeline.");
+
+                        alert.showAndWait();
                     }
 
-                    // TODO : call to refresh the content?
-                    mvcController.removeRequest();
-                    mvcController.removeDone(planningRequest, cards, requestIndex, removedCardIndex1, cursor);
-                    RemoveRequestCommand removeCommand = (RemoveRequestCommand) mvcController.getL().getL().get(mvcController.getL().getI());
-                    planningRequest = removeCommand.getNewPlanningRequest();
-                    cards = removeCommand.getNewLtcList();
-                    logger.info(cards.toString());
-                    list.getChildren().remove(list.getChildren().size() -1);
-                    addCardsToScreen(true);
+
                 }
             });
 
