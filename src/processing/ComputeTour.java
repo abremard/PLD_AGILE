@@ -1,9 +1,7 @@
 
 package processing;
 
-import java.lang.reflect.Array;
 import java.time.LocalTime;
-import java.time.temporal.TemporalAmount;
 import java.util.*;
 
 import Branch_And_Bound_TSP.TSP;
@@ -14,12 +12,11 @@ import objects.Map;
 /*
 * TODO
 *  - arrêter Dijsktra quand on a traité tous les points d'intérêt
-*  - algo pour le TSP (génétique ?)
-*  - branch and bound
+*  - heuristique du paper
 *
 * FIXME
-*  - random passe pas par tous les points :'(
-*  - largeMap + requestsLarge9 + heuristique random -> bug
+ *  - B&B : pas optimal ?
+ *  - random passe pas par tous les points :'( (notamment largeMap + requestsLarge9)
 * */
 
 public class ComputeTour {
@@ -58,6 +55,11 @@ public class ComputeTour {
                 System.err.println(heuristicTSP);
 
         }
+
+        return null;
+    }
+
+    public static Tournee recreateTourneeWithOrder(Map map, PlanningRequest planning, ArrayList<Intersection> order) {
 
         return null;
     }
@@ -235,6 +237,15 @@ public class ComputeTour {
         return intersecIdToIndex;
     }
 
+    /**
+     * Recree un chemin a partir d'une liste de predecesseurs, d'un depart et d'une arrivee.
+     * @param predList
+     * @param depart
+     * @param arrivee
+     * @param intersections
+     * @param intersecIdToIndex
+     * @return
+     */
     private static ArrayList<Segment> recreateChemin(ArrayList<Segment> predList, Intersection depart, Intersection arrivee, ArrayList<Intersection> intersections, HashMap<Long, Integer> intersecIdToIndex) {
         ArrayList<Segment> chemin = new ArrayList<Segment>();
         Intersection curNode = arrivee;
