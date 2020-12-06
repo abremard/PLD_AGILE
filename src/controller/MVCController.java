@@ -4,6 +4,7 @@ import command.ListOfCommands;
 import objects.Map;
 import objects.PlanningRequest;
 import objects.Request;
+import objects.Tournee;
 import sample.Controller;
 import state.*;
 
@@ -12,6 +13,10 @@ import java.util.ArrayList;
 public class MVCController {
 
     private ListOfCommands l;
+    private Map map;
+    private PlanningRequest planningRequest;
+    private Tournee tour;
+    private ArrayList<Controller.LocationTagContent> ltcList;
 
     private State currentState;
     private InitialState initialState;
@@ -129,4 +134,36 @@ public class MVCController {
     public void Undo() { currentState.undo(l); }
 
     public void Redo() { currentState.redo(l); }
+
+    public Map getMap() {
+        return map;
+    }
+
+    public void setMap(Map map) {
+        this.map = map;
+    }
+
+    public PlanningRequest getPlanningRequest() {
+        return planningRequest;
+    }
+
+    public void setPlanningRequest(PlanningRequest planningRequest) {
+        this.planningRequest = planningRequest;
+    }
+
+    public Tournee getTour() {
+        return tour;
+    }
+
+    public void setTour(Tournee tour) {
+        this.tour = tour;
+    }
+
+    public ArrayList<Controller.LocationTagContent> getLtcList() {
+        return ltcList;
+    }
+
+    public void setLtcList(ArrayList<Controller.LocationTagContent> ltcList) {
+        this.ltcList = ltcList;
+    }
 }

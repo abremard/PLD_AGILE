@@ -1,5 +1,6 @@
 package state;
 
+import command.AddRequestCommand;
 import command.ListOfCommands;
 import command.RemoveRequestCommand;
 import controller.MVCController;
@@ -11,6 +12,9 @@ import java.util.ArrayList;
 public class RemoveState implements State {
     public void removeDone(ListOfCommands l, MVCController c, PlanningRequest oldPlanningRequest, ArrayList<Controller.LocationTagContent> ltcList, int removedRequestIndex, int removedCardIndex1, int removedCardIndex2) {
         l.Add(new RemoveRequestCommand(oldPlanningRequest, ltcList, removedRequestIndex, removedCardIndex1, removedCardIndex2));
+        RemoveRequestCommand removeRequestCommand = (RemoveRequestCommand) l.getL().get(l.getI());
+        c.setPlanningRequest(removeRequestCommand.getNewPlanningRequest());
+        c.setLtcList(removeRequestCommand.getNewLtcList());
         c.setCurrentState(c.getModifyState());
         if (debug) {
             System.out.print(l.getI());

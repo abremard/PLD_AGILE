@@ -213,8 +213,7 @@ public class Controller {
                 mapField.setText(file.getAbsolutePath());
 
                 mvcController.LoadMap(file.getAbsolutePath());
-                LoadMapCommand mapCommand = (LoadMapCommand) mvcController.getL().getL().get(mvcController.getL().getI());
-                map = mapCommand.getMap();
+                map = mvcController.getMap();
 
                 displayMap();
 
@@ -235,8 +234,7 @@ public class Controller {
                 System.out.println(file.getAbsolutePath());
 
                 mvcController.LoadRequestPlan(file.getAbsolutePath());
-                LoadRequestPlanCommand requestCommand = (LoadRequestPlanCommand) mvcController.getL().getL().get(mvcController.getL().getI());
-                planningRequest = requestCommand.getPlanningRequest();
+                planningRequest = mvcController.getPlanningRequest();
 
                 displayRequests();
 
@@ -269,8 +267,7 @@ public class Controller {
 
                     // TODO : NEEDS TO BE REPLACED WITH DIFFERENT METHOD
                     mvcController.ComputeTour(map, planningRequest);
-                    ComputeTourCommand tourCommand = (ComputeTourCommand) mvcController.getL().getL().get(mvcController.getL().getI());
-                    tour = tourCommand.getTournee();
+                    tour = mvcController.getTour();
                     displayTour();
                     //call method that places results on timeline
                     initCardContent();
@@ -338,8 +335,7 @@ public class Controller {
                     logger.info(planningRequest.toString());
                     //call method that places results on the map
                     mvcController.ComputeTour(map, planningRequest);
-                    ComputeTourCommand tourCommand = (ComputeTourCommand) mvcController.getL().getL().get(mvcController.getL().getI());
-                    tour = tourCommand.getTournee();
+                    tour = mvcController.getTour();
                     displayTour();
                     //call method that places results on timeline
                     initCardContent();
@@ -360,15 +356,13 @@ public class Controller {
                     tempRequest.setDeliveryDur(60*Double.parseDouble(requestField.getText()));
 
                     mvcController.addDone(planningRequest, tempRequest);
-                    AddRequestCommand addCommand = (AddRequestCommand) mvcController.getL().getL().get(mvcController.getL().getI());
-                    planningRequest = addCommand.getNewPlanningRequest();
+                    planningRequest = mvcController.getPlanningRequest();
 
                     // planningRequest.addRequest(planningRequest.getRequestList().size(), tempRequest);
                     // System.out.println(planningRequest.toString());
 
                     mvcController.ComputeTour(map, planningRequest);
-                    ComputeTourCommand tourCommand = (ComputeTourCommand) mvcController.getL().getL().get(mvcController.getL().getI());
-                    tour = tourCommand.getTournee();
+                    tour = mvcController.getTour();
                     displayTour();
                     //call method that places results on timeline
                     initCardContent();
@@ -864,9 +858,8 @@ public class Controller {
                         // TODO : call to refresh the content?
                         mvcController.removeRequest();
                         mvcController.removeDone(planningRequest, cards, requestIndex, removedCardIndex1, cursor-1);
-                        RemoveRequestCommand removeCommand = (RemoveRequestCommand) mvcController.getL().getL().get(mvcController.getL().getI());
-                        planningRequest = removeCommand.getNewPlanningRequest();
-                        cards = removeCommand.getNewLtcList(); // ERROR : WRONG ITEM IS DELETED, cursor-1 seems to fix it?
+                        planningRequest = mvcController.getPlanningRequest();
+                        cards = mvcController.getLtcList(); // ERROR : WRONG ITEM IS DELETED, cursor-1 seems to fix it?
                         logger.info(cards.toString());
                         list.getChildren().remove(list.getChildren().size() -1);
                         addCardsToScreen(true);
@@ -896,8 +889,7 @@ public class Controller {
                         logger.info(cards.toString());
                         //call to refresh the content?
                         mvcController.swapRequest(index, index-1, cards);
-                        SwapOrderCommand swapCommand = (SwapOrderCommand) mvcController.getL().getL().get(mvcController.getL().getI());
-                        cards = swapCommand.getLtcList();
+                        cards = mvcController.getLtcList();
                         logger.info(cards.toString());
                         list.getChildren().remove(list.getChildren().size() -1);
                         addCardsToScreen(true);
@@ -918,12 +910,27 @@ public class Controller {
                         logger.info(cards.toString());
                         //call to refresh the content?
                         mvcController.swapRequest(index, index+1, cards);
-                        SwapOrderCommand swapCommand = (SwapOrderCommand) mvcController.getL().getL().get(mvcController.getL().getI());
-                        cards = swapCommand.getLtcList();
+                        cards = mvcController.getLtcList();
                         logger.info(cards.toString());
                         list.getChildren().remove(list.getChildren().size() -1);
                         addCardsToScreen(true);
                     }
+                }
+            });
+
+            undoButton.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    logger.info("undo is clicked");
+                    mvcController.Undo();
+                }
+            });
+
+            redoButton.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    logger.info("redo is clicked");
+                    mvcController.Redo();
                 }
             });
 
