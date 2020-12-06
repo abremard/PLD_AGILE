@@ -627,6 +627,9 @@ public class Controller {
         logger.info("creating data");
         ObservableList<LocationTagContent> data = FXCollections.observableArrayList();
         data.addAll(cards);
+        if (isModify) {
+            data.remove(cards.size() -1);
+        }
         logger.info("data added");
         final ListView<LocationTagContent> l= new ListView<LocationTagContent>(data);
 
@@ -801,7 +804,6 @@ public class Controller {
             deleteButton.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
-                    // TODO : prevent user from deleting back to shop
                     if (cards.size()>3)
                     {
                         logger.info(cards.toString());
