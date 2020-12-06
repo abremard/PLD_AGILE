@@ -249,6 +249,11 @@ public class Controller {
                     //remove previous timeline
                     list.getChildren().remove(list.getChildren().size() -1);
 
+                    //change text of buttons
+                    mainButton.setText("New Tour");
+                    secondButton.setText("Modify");
+                    secondButton.setVisible(true);
+
                     mvcController.ComputeTour(map, planningRequest);
                     ComputeTourCommand tourCommand = (ComputeTourCommand) mvcController.getL().getL().get(mvcController.getL().getI());
                     tour = tourCommand.getTournee();
