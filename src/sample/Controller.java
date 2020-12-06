@@ -814,7 +814,7 @@ public class Controller {
                         for( LocationTagContent ltc: cards ){
                             if( Integer.parseInt(ltc.name.split(" ")[1]) == Integer.parseInt(getItem().name.split(" ")[1])
                                     && ltc.getName() != getItem().getName() ){
-                                cards.remove(ltc);
+                                //cards.remove(ltc);
                                 break;
                             }
                             cursor++;
@@ -822,10 +822,10 @@ public class Controller {
 
                         // TODO : call to refresh the content?
                         mvcController.removeRequest();
-                        mvcController.removeDone(planningRequest, cards, requestIndex, removedCardIndex1, cursor);
+                        mvcController.removeDone(planningRequest, cards, requestIndex, removedCardIndex1, cursor-1);
                         RemoveRequestCommand removeCommand = (RemoveRequestCommand) mvcController.getL().getL().get(mvcController.getL().getI());
                         planningRequest = removeCommand.getNewPlanningRequest();
-                        cards = removeCommand.getNewLtcList();
+                        cards = removeCommand.getNewLtcList(); // ERROR : WRONG ITEM IS DELETED, cursor-1 seems to fix it?
                         logger.info(cards.toString());
                         list.getChildren().remove(list.getChildren().size() -1);
                         addCardsToScreen(true);
