@@ -50,11 +50,14 @@ public class ComputeTour {
                 matAdj = getOptimalFullGraph(map, planning, intersecIdToIndex);
                 // indexation des points d'intérêt
                 HashMap<Long, Integer> ptsIdToIndex = indexerPtsInteret(planning);
-                PaperHeuristicTSP heuristicTSP = new PaperHeuristicTSP(matAdj, planning, ptsIdToIndex);
-                heuristicTSP.doubleInsertionHeuristic();
-                System.err.println("=== Double-insertion heuristic results ===");
-                System.err.println(heuristicTSP);
+                PaperHeuristicTSP doubleInsertion = new PaperHeuristicTSP(matAdj, planning, ptsIdToIndex);
+                // calcul étape 1
+                doubleInsertion.doubleInsertionHeuristic();
 
+                // résultats
+                System.err.println("=== Double-insertion heuristic results ===");
+                System.err.println(doubleInsertion);
+                return doubleInsertion.buildTour();
         }
 
         return null;
@@ -271,7 +274,7 @@ public class ComputeTour {
         return chemin;
     }
 
-    private static void recreateTimesTournee(Tournee tournee, PlanningRequest planning) {
+    public static void recreateTimesTournee(Tournee tournee, PlanningRequest planning) {
         LocalTime curTime = LocalTime.now();
         ArrayList<Segment> curChemin = new ArrayList<Segment>();
         // pool

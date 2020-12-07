@@ -1,5 +1,6 @@
 package command;
 
+import controller.MVCController;
 import objects.Map;
 import objects.PlanningRequest;
 import objects.Tournee;
@@ -11,7 +12,6 @@ public class ComputeTourCommand implements Command {
     /** classe attributes **/
     private Map map;
     private PlanningRequest planningRequest;
-    private Tournee tournee;
 
     /** getters & setters **/
     public Map getMap() {
@@ -19,9 +19,6 @@ public class ComputeTourCommand implements Command {
     }
     public PlanningRequest getPlanningRequest() {
         return planningRequest;
-    }
-    public Tournee getTournee() {
-        return tournee;
     }
 
     /** constructor **/
@@ -31,10 +28,11 @@ public class ComputeTourCommand implements Command {
     }
 
     @Override
-    public void doCommand() {
-        tournee = ComputeTour.planTour(map, planningRequest, Heuristique.GREEDY);
+    public void doCommand(MVCController c) {
+        c.setTour(ComputeTour.planTour(map, planningRequest, Heuristique.GREEDY));
+        // tournee = ComputeTour.planTour(map, planningRequest, Heuristique.DOUBLEINSERTION);      // EXPERIMENTAL
     }
 
     @Override
-    public void undoCommand() {}
+    public void undoCommand(MVCController c) {}
 }

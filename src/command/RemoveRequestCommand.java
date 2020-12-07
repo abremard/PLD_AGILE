@@ -1,5 +1,6 @@
 package command;
 
+import controller.MVCController;
 import objects.PlanningRequest;
 import objects.Request;
 import sample.Controller;
@@ -53,33 +54,33 @@ public class RemoveRequestCommand implements Command {
     }
 
     @Override
-    public void doCommand() {
+    public void doCommand(MVCController c) {
         this.newPlanningRequest.removeRequest(removedRequestIndex);
-        this.newLtcList.remove(removedCardIndex1);
-        this.newLtcList.remove(removedCardIndex2);
+        if (removedCardIndex1<removedCardIndex2) {
+            this.newLtcList.remove(removedCardIndex2);
+            this.newLtcList.remove(removedCardIndex1);
+        }
+        else {
+            this.newLtcList.remove(removedCardIndex1);
+            this.newLtcList.remove(removedCardIndex2);
+        }
+        c.setLtcList(newLtcList);
+        c.setPlanningRequest(newPlanningRequest);
     }
 
     @Override
-    public void undoCommand() {
+    public void undoCommand(MVCController c) {
         this.newPlanningRequest.addRequest(removedRequestIndex, removedRequest);
-        this.newLtcList.add(removedCardIndex1, removedCard1);
-        this.newLtcList.add(removedCardIndex2, removedCard2);
-    }
-
-    public int getRemovedCardIndex1() {
-        return removedCardIndex1;
-    }
-
-    public void setRemovedCardIndex1(int removedCardIndex1) {
-        this.removedCardIndex1 = removedCardIndex1;
-    }
-
-    public int getRemovedCardIndex2() {
-        return removedCardIndex2;
-    }
-
-    public void setRemovedCardIndex2(int removedCardIndex2) {
-        this.removedCardIndex2 = removedCardIndex2;
+        if (removedCardIndex1<removedCardIndex2) {
+            this.newLtcList.add(removedCardIndex1, removedCard1);
+            this.newLtcList.add(removedCardIndex2, removedCard2);
+        }
+        else {
+            this.newLtcList.add(removedCardIndex2, removedCard2);
+            this.newLtcList.add(removedCardIndex1, removedCard1);
+        }
+        c.setLtcList(newLtcList);
+        c.setPlanningRequest(newPlanningRequest);
     }
 
     public Controller.LocationTagContent getRemovedCard1() {

@@ -1,16 +1,11 @@
 package command;
+import controller.MVCController;
 import objects.Map;
 
 public class LoadMapCommand implements Command {
 
     /** classe attributes **/
-    private Map map;
     private String path;
-
-    /** getters & setters **/
-    public Map getMap() {
-        return map;
-    }
 
     /** constructor **/
     public LoadMapCommand(String p) {
@@ -18,10 +13,10 @@ public class LoadMapCommand implements Command {
     }
 
     @Override
-    public void doCommand() {
-        map = new Map(path);
+    public void doCommand(MVCController c) {
+        c.setMap(new Map(path));
     }
 
     @Override
-    public void undoCommand() {}
+    public void undoCommand(MVCController c) {}
 }

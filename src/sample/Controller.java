@@ -63,6 +63,12 @@ public class Controller {
     private Button mapButton;
 
     @FXML
+    private Button undoButton;
+
+    @FXML
+    private Button redoButton;
+
+    @FXML
     private Button requestButton;
 
     @FXML
@@ -138,6 +144,11 @@ public class Controller {
         final OfflineCache offlineCache = mapView.getOfflineCache();
         final String cacheDir = System.getProperty("java.io.tmpdir") + "/mapjfx-cache";
 
+        undoButton.setGraphic(new ImageView("sample/undoButton.png"));
+        redoButton.setGraphic(new ImageView("sample/redoButton.png"));
+        undoButton.setVisible(false);
+        redoButton.setVisible(false);
+
         initEventHandlers();
 
         mapView.setAnimationDuration(0);
@@ -202,8 +213,7 @@ public class Controller {
                 mapField.setText(file.getAbsolutePath());
 
                 mvcController.LoadMap(file.getAbsolutePath());
-                LoadMapCommand mapCommand = (LoadMapCommand) mvcController.getL().getL().get(mvcController.getL().getI());
-                map = mapCommand.getMap();
+                refreshModel();
 
                 displayMap();
 
@@ -224,8 +234,7 @@ public class Controller {
                 System.out.println(file.getAbsolutePath());
 
                 mvcController.LoadRequestPlan(file.getAbsolutePath());
-                LoadRequestPlanCommand requestCommand = (LoadRequestPlanCommand) mvcController.getL().getL().get(mvcController.getL().getI());
-                planningRequest = requestCommand.getPlanningRequest();
+                refreshModel();
 
                 displayRequests();
 
@@ -241,6 +250,8 @@ public class Controller {
 
                 if (isModify)
                 {
+                    undoButton.setVisible(false);
+                    redoButton.setVisible(false);
                     //DONE WITH MODIFICATION
                     removeFromMap( selectedLines);
                     removeFromMap( tourLines);
@@ -254,9 +265,9 @@ public class Controller {
                     secondButton.setText("Modify");
                     secondButton.setVisible(true);
 
-                    mvcController.ComputeTour(map, planningRequest);
-                    ComputeTourCommand tourCommand = (ComputeTourCommand) mvcController.getL().getL().get(mvcController.getL().getI());
-                    tour = tourCommand.getTournee();
+                    ArrayList<Intersection> order = new ArrayList<>(); // TODO : MODIFY ORDER
+                    mvcController.applyModificationDone(map, planningRequest, order);
+                    refreshModel();
                     displayTour();
                     //call method that places results on timeline
                     initCardContent();
@@ -273,6 +284,8 @@ public class Controller {
                 }
                 else if(isTimeline)
                 {
+                    undoButton.setVisible(false);
+                    redoButton.setVisible(false);
                     //delete list of timeline
                     logger.info(String.valueOf(list.getChildren().remove(list.getChildren().size() -1)));
                     //remove selected path from timeline
@@ -302,6 +315,8 @@ public class Controller {
                     isTimeline = false;
                 } else
                 {
+                    undoButton.setVisible(false);
+                    redoButton.setVisible(false);
                     //hide elements from file picker view
                     mapButton.setVisible(false);
                     requestButton.setVisible(false);
@@ -320,8 +335,7 @@ public class Controller {
                     logger.info(planningRequest.toString());
                     //call method that places results on the map
                     mvcController.ComputeTour(map, planningRequest);
-                    ComputeTourCommand tourCommand = (ComputeTourCommand) mvcController.getL().getL().get(mvcController.getL().getI());
-                    tour = tourCommand.getTournee();
+                    refreshModel();
                     displayTour();
                     //call method that places results on timeline
                     initCardContent();
@@ -341,19 +355,17 @@ public class Controller {
                     tempRequest.setPickupDur(60*Double.parseDouble(mapField.getText()));
                     tempRequest.setDeliveryDur(60*Double.parseDouble(requestField.getText()));
 
-                    mvcController.addDone(planningRequest, tempRequest);
-                    AddRequestCommand addCommand = (AddRequestCommand) mvcController.getL().getL().get(mvcController.getL().getI());
-                    planningRequest = addCommand.getNewPlanningRequest();
+                    mvcController.addDone(planningRequest, map, cards, tempRequest);
+                    AddRequestCommand cmd = (AddRequestCommand) mvcController.getL().getL().get(mvcController.getL().getI());
+                    refreshModel();
 
                     // planningRequest.addRequest(planningRequest.getRequestList().size(), tempRequest);
                     // System.out.println(planningRequest.toString());
 
-                    mvcController.ComputeTour(map, planningRequest);
-                    ComputeTourCommand tourCommand = (ComputeTourCommand) mvcController.getL().getL().get(mvcController.getL().getI());
-                    tour = tourCommand.getTournee();
                     displayTour();
                     //call method that places results on timeline
                     initCardContent();
+                    cmd.setNewLtcList(new ArrayList<>(cards));
                     list.getChildren().remove(list.getChildren().size() -1);
                     //compute tour
                     //back to modify
@@ -376,6 +388,9 @@ public class Controller {
     }
 
     private void addRequestSetup() {
+        undoButton.setVisible(false);
+        redoButton.setVisible(false);
+
         mainButton.setText("Cancel");
         secondButton.setText("Add");
         list.getChildren().remove(list.getChildren().size() -1);
@@ -394,6 +409,8 @@ public class Controller {
     }
 
     private void modifySetup(boolean toDelete) {
+        undoButton.setVisible(true);
+        redoButton.setVisible(true);
         //make sure text box elements are not shown
         mapField.setVisible(false);
         requestField.setVisible(false);
@@ -515,6 +532,7 @@ public class Controller {
         long idDepot = planningRequest.getDepot().getAdresse().getId();
         depot = map.matchIdToIntersection(idDepot);
         planningRequest.getDepot().setAdresse(depot);
+        mvcController.setPlanningRequest(planningRequest);
 
 
         for( Request request : planningRequest.getRequestList()  ){
@@ -600,8 +618,14 @@ public class Controller {
                 ArrayList<String> street = map.getSegmentNameFromIntersectionId(pt.getRequete().getPickup().getId());
                 logger.info(street.toString());
                 street1 = street.get(0);
+                if (street1.length()>20) {
+                    street1 = street1.substring(0, 19) + "..";
+                }
                 if (street.size() >= 2) {
                     street2 = street.get(1);
+                    if (street2.length()>20) {
+                        street2 = street2.substring(0, 19) + "..";
+                    }
                 }
                 latitude = pt.getRequete().getPickup().getLatitude();
                 longitude = pt.getRequete().getPickup().getLongitude();
@@ -630,6 +654,7 @@ public class Controller {
         }
 
         addCardsToScreen(false);
+        mvcController.setLtcList(cards);
 
     }
 
@@ -834,10 +859,8 @@ public class Controller {
 
                         // TODO : call to refresh the content?
                         mvcController.removeRequest();
-                        mvcController.removeDone(planningRequest, cards, requestIndex, removedCardIndex1, cursor-1);
-                        RemoveRequestCommand removeCommand = (RemoveRequestCommand) mvcController.getL().getL().get(mvcController.getL().getI());
-                        planningRequest = removeCommand.getNewPlanningRequest();
-                        cards = removeCommand.getNewLtcList(); // ERROR : WRONG ITEM IS DELETED, cursor-1 seems to fix it?
+                        mvcController.removeDone(planningRequest, cards, requestIndex, removedCardIndex1, cursor);
+                        refreshModel();
                         logger.info(cards.toString());
                         list.getChildren().remove(list.getChildren().size() -1);
                         addCardsToScreen(true);
@@ -857,6 +880,7 @@ public class Controller {
             upButton.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
+                    // TODO : verify pickup before delivery
                     int index = cards.indexOf(getItem());
                     if(index > 0)
                     {
@@ -866,8 +890,7 @@ public class Controller {
                         logger.info(cards.toString());
                         //call to refresh the content?
                         mvcController.swapRequest(index, index-1, cards);
-                        SwapOrderCommand swapCommand = (SwapOrderCommand) mvcController.getL().getL().get(mvcController.getL().getI());
-                        cards = swapCommand.getLtcList();
+                        refreshModel();
                         logger.info(cards.toString());
                         list.getChildren().remove(list.getChildren().size() -1);
                         addCardsToScreen(true);
@@ -878,6 +901,7 @@ public class Controller {
             downButton.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
+                    // TODO : verify pickup before delivery
                     int index = cards.indexOf(getItem());
                     if(index < cards.size() -1) //or just size?
                     {
@@ -887,12 +911,35 @@ public class Controller {
                         logger.info(cards.toString());
                         //call to refresh the content?
                         mvcController.swapRequest(index, index+1, cards);
-                        SwapOrderCommand swapCommand = (SwapOrderCommand) mvcController.getL().getL().get(mvcController.getL().getI());
-                        cards = swapCommand.getLtcList();
+                        refreshModel();
                         logger.info(cards.toString());
                         list.getChildren().remove(list.getChildren().size() -1);
                         addCardsToScreen(true);
                     }
+                }
+            });
+
+            undoButton.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    logger.info("undo is clicked");
+                    mvcController.Undo();
+                    refreshModel();
+                    logger.info(cards.toString());
+                    list.getChildren().remove(list.getChildren().size() -1);
+                    addCardsToScreen(true);
+                }
+            });
+
+            redoButton.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    logger.info("redo is clicked");
+                    mvcController.Redo();
+                    refreshModel();
+                    logger.info(cards.toString());
+                    list.getChildren().remove(list.getChildren().size() -1);
+                    addCardsToScreen(true);
                 }
             });
 
@@ -902,6 +949,7 @@ public class Controller {
             VBox vBox2 = new VBox(upButton, downButton);
             vBox2.setAlignment(Pos.CENTER_RIGHT);
             content = new HBox(vBox, region, editButton, deleteButton, vBox2);
+            content.setAlignment(Pos.CENTER);
             content.setSpacing(10);
         }
 
@@ -917,4 +965,12 @@ public class Controller {
             }
         }
     }
+
+    protected void refreshModel() {
+        map = mvcController.getMap();
+        planningRequest = mvcController.getPlanningRequest();
+        tour = mvcController.getTour();
+        cards = mvcController.getLtcList();
+    }
+
 }

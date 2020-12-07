@@ -14,10 +14,14 @@ public class Tournee {
 
     public void setPtsPassage(ArrayList<TupleRequete> ptsPassage) { this.ptsPassage = ptsPassage; }
 
-    @Deprecated
     public Tournee(ArrayList<Segment> segmentList, ArrayList<Request> requestList) {
         this.segmentList = segmentList;
         this.requestList = requestList;
+    }
+
+    public Tournee() {
+        this.segmentList = new ArrayList<Segment>();
+        this.requestList = new ArrayList<Request>();
     }
 
     // nouvelle version à utiliser à la place de l'ancienne (pour initialiser ptsPassage)

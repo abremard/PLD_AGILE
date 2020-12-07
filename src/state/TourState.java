@@ -19,7 +19,7 @@ public class TourState implements State {
     public void modifyRequestList(MVCController c) {
         c.setCurrentState(c.getModifyState());
         if (debug) {
-            System.out.print("Going from TourState to ModifyState ");
+            System.out.println("Going from TourState to ModifyState ");
         }
     }
 

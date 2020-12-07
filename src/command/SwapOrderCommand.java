@@ -2,6 +2,7 @@ package command;
 
 // TODO : on change l'objet manipulé : planningRequest -> tournee et on fait initCardContent pour raffraichir les cartes sur Controller.
 
+import controller.MVCController;
 import objects.PlanningRequest;
 import sample.Controller;
 
@@ -38,12 +39,13 @@ public class SwapOrderCommand implements Command {
     }
 
     @Override
-    public void doCommand() {
+    public void doCommand(MVCController c) {
         Collections.swap(this.ltcList, a, b);
+        c.setLtcList(ltcList);
     }
 
     @Override
-    public void undoCommand() {
+    public void undoCommand(MVCController c) {
         Collections.swap(this.ltcList, a, b);
     }
 

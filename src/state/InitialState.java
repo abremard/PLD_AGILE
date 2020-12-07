@@ -7,12 +7,10 @@ import controller.MVCController;
 public class InitialState implements State {
     public void loadMap(ListOfCommands l, MVCController c, String p) {
         if (p != null) {
-            l.Add(new LoadMapCommand(p));
+            l.Add(new LoadMapCommand(p), c);
             c.setCurrentState(c.getMapState());
             if (debug) {
-                System.out.print(l.getI());
-                System.out.println(" - Adding Load Map Command from Initial State to index");
-                System.out.println(l.getI());
+                System.out.println(l.getI()+" - Adding Load Map Command from Initial State to Map State");
             }
         }
     }

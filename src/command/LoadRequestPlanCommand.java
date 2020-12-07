@@ -1,5 +1,6 @@
 package command;
 
+import controller.MVCController;
 import objects.PlanningRequest;
 import org.xml.sax.SAXException;
 
@@ -24,9 +25,10 @@ public class LoadRequestPlanCommand implements Command {
     }
 
     @Override
-    public void doCommand() {
+    public void doCommand(MVCController c) {
         try {
             planningRequest.parseRequest(path);
+            c.setPlanningRequest(planningRequest);
         } catch (ParserConfigurationException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -37,5 +39,5 @@ public class LoadRequestPlanCommand implements Command {
     }
 
     @Override
-    public void undoCommand() {}
+    public void undoCommand(MVCController c) {}
 }

@@ -1,5 +1,7 @@
 package command;
 
+import controller.MVCController;
+
 public class ReverseCommand implements Command{
     private Command cmd;
 
@@ -8,12 +10,12 @@ public class ReverseCommand implements Command{
     }
 
     @Override
-    public void doCommand() {
-        cmd.undoCommand();
+    public void doCommand(MVCController c) {
+        cmd.undoCommand(c);
     }
 
     @Override
-    public void undoCommand() {
-        cmd.doCommand();
+    public void undoCommand(MVCController c) {
+        cmd.doCommand(c);
     }
 }

@@ -26,6 +26,16 @@
                         <Image url="@/sample/title.png" />
                      </image>
                   </ImageView>
+                  <Button fx:id="undoButton" layoutX="241.0" layoutY="28.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="44.0" style="-fx-background-color: #f2f2f2; -fx-background-radius: 12 12 12 12;"  textFill="#717171">
+                     <font>
+                        <Font name="Arial Bold" size="14.0" />
+                     </font>
+                  </Button>
+                  <Button fx:id="redoButton" layoutX="292.0" layoutY="28.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="44.0" style="-fx-background-color: #f2f2f2; -fx-background-radius: 12 12 12 12;"  textFill="#717171">
+                     <font>
+                        <Font name="Arial Bold" size="14.0" />
+                     </font>
+                  </Button>
                </children></AnchorPane>
           <AnchorPane fx:id="list" maxHeight="1.7976931348623157E308" maxWidth="350.0" minHeight="0.0" minWidth="370.0" prefHeight="100.0" prefWidth="370.0" style="-fx-background-color: transparent;">
                <children>
