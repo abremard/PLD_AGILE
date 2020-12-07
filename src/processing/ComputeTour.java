@@ -1,6 +1,7 @@
 
 package processing;
 
+import java.lang.reflect.Array;
 import java.time.LocalTime;
 import java.util.*;
 
@@ -60,8 +61,19 @@ public class ComputeTour {
     }
 
     public static Tournee recreateTourneeWithOrder(Map map, PlanningRequest planning, ArrayList<Intersection> order) {
+        HashMap<Long, Integer> intersecIdToIndex = indexationIntersections(map);
+        HashMap<Long, Integer> indexPtsInterets = indexerPtsInteret(planning);
+        SuperArete[][] matAdj = getOptimalFullGraph(map, planning, intersecIdToIndex);
 
-        return null;
+        ArrayList<Segment> chemin = new ArrayList<Segment>();
+        int previousInd = 0;
+        for (int i=1; i<order.size(); i++) {
+            chemin.addAll(matAdj[previousInd][indexPtsInterets.get(order.get(i).getId())].getChemin());
+        }
+
+        Tournee tournee = new Tournee(chemin, planning.getRequestList());
+        recreateTimesTournee(tournee, planning);
+        return tournee;
     }
 
     public static SuperArete[][] testFullGraph(Map map, PlanningRequest planning) {
