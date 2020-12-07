@@ -2,6 +2,7 @@ package state;
 
 import controller.MVCController;
 import command.ListOfCommands;
+import objects.Intersection;
 import objects.Map;
 import objects.PlanningRequest;
 import objects.Request;
@@ -10,7 +11,7 @@ import sample.Controller;
 import java.util.ArrayList;
 
 public interface State {
-    boolean debug = true;
+    boolean debug = false;
 
     /**
      * Appel au parseur de la carte .xml
@@ -60,24 +61,24 @@ public interface State {
      *
      * @param l Liste des commandes, à laquelle on déplace le curseur
      */
-    default void undo(ListOfCommands l) { l.Undo(); }
+    default void undo(ListOfCommands l, MVCController c) { l.Undo(c); }
 
     /**
      * Redo permet de re-exécuter une commande qui a été retiré par un undo. On incrémente le curseur et re-exécute la commande.
      *
      * @param l Liste des commandes, à laquelle on déplace le curseur
      */
-    default void redo(ListOfCommands l) { l.Redo(); }
+    default void redo(ListOfCommands l, MVCController c) { l.Redo(c); }
 
     default void swapRequest(ListOfCommands l, MVCController c, int a, int b, ArrayList<Controller.LocationTagContent> ltcList){}
 
-    default void addDone(ListOfCommands l, MVCController c, PlanningRequest p, Request r) {}
+    default void addDone(ListOfCommands l, MVCController c, PlanningRequest p, Map m, ArrayList<Controller.LocationTagContent> ltcList, Request r) {}
 
     default void removeDone(ListOfCommands l, MVCController c, PlanningRequest oldPlanningRequest, ArrayList<Controller.LocationTagContent> ltcList, int removedRequestIndex, int removedCardIndex1, int removedCardIndex2) {}
 
     default void modifyRequestDone(ListOfCommands l, MVCController c, Request oldRequest, Request newRequest) {}
 
-    default void applyModificationDone(ListOfCommands l, MVCController c, Map m, PlanningRequest p) {}
+    default void applyModificationDone(ListOfCommands l, MVCController c, Map m, PlanningRequest p, ArrayList<Intersection> order) {}
 
     default void cancel(MVCController c) {}
 

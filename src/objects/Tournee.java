@@ -19,6 +19,11 @@ public class Tournee {
         this.requestList = requestList;
     }
 
+    public Tournee() {
+        this.segmentList = new ArrayList<Segment>();
+        this.requestList = new ArrayList<Request>();
+    }
+
     // nouvelle version à utiliser à la place de l'ancienne (pour initialiser ptsPassage)
     public Tournee(ArrayList<Segment> segmentList, ArrayList<Request> requestList, ArrayList<TupleRequete> ptsPassage) {
         this.segmentList = segmentList;

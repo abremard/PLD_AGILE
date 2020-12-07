@@ -1,5 +1,6 @@
 package command;
 
+import controller.MVCController;
 import objects.Request;
 
 public class EditRequestCommand implements Command {
@@ -15,10 +16,10 @@ public class EditRequestCommand implements Command {
     }
 
     @Override
-    public void doCommand() { returnedRequest = newRequest; }
+    public void doCommand(MVCController c) { returnedRequest = newRequest; }
 
     @Override
-    public void undoCommand() { returnedRequest = oldRequest; }
+    public void undoCommand(MVCController c) { returnedRequest = oldRequest; }
 
     public Request getOldRequest() {
         return oldRequest;

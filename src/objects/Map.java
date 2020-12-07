@@ -19,6 +19,13 @@ public class Map {
     Integer noOfIntersections;
     Integer noOfSegments;
 
+    public Map() {
+        this.intersectionList = new ArrayList<Intersection>();
+        this.segmentList = new ArrayList<Segment>();
+        this.noOfIntersections = 0;
+        this.noOfSegments = 0;
+    }
+
     public Map(String documentName) {
         try {
             File inputFile = new File(documentName);

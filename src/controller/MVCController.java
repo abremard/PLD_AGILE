@@ -1,10 +1,7 @@
 package controller;
 
 import command.ListOfCommands;
-import objects.Map;
-import objects.PlanningRequest;
-import objects.Request;
-import objects.Tournee;
+import objects.*;
 import sample.Controller;
 import state.*;
 
@@ -39,6 +36,10 @@ public class MVCController {
         this.addState = new AddState();
         this.modifyRequestState = new ModifyRequestState();
         this.removeState = new RemoveState();
+        this.map = new Map();
+        this.planningRequest = new PlanningRequest();
+        this.tour = new Tournee();
+        this.ltcList = new ArrayList<>();
     }
 
     public ListOfCommands getL() {
@@ -85,7 +86,7 @@ public class MVCController {
         this.tourState = tourState;
     }
 
-    public ModifyState getModifyState() {return modifyState;}
+    public ModifyState getModifyState() { return modifyState; }
 
     public void setModifyState(ModifyState modifyState) {this.modifyState = modifyState;}
 
@@ -119,21 +120,21 @@ public class MVCController {
 
     public void swapRequest(int a, int b, ArrayList<Controller.LocationTagContent> ltcList){currentState.swapRequest(l, this, a, b,ltcList);}
 
-    public void addDone(PlanningRequest p, Request r){currentState.addDone(l, this, p, r);}
+    public void addDone(PlanningRequest p, Map m, ArrayList<Controller.LocationTagContent> ltcList, Request r){currentState.addDone(l, this, p, m, ltcList, r);}
 
     public void removeDone(PlanningRequest oldPlanningRequest, ArrayList<Controller.LocationTagContent> ltcList, int removedRequestIndex, int removedCardIndex1, int removedCardIndex2){currentState.removeDone(l, this, oldPlanningRequest, ltcList, removedRequestIndex, removedCardIndex1, removedCardIndex2);}
 
     public void modifyRequestDone(Request oldRequest, Request newRequest){currentState.modifyRequestDone(l, this, oldRequest, newRequest);}
 
-    public void applyModificationDone(Map m, PlanningRequest p){currentState.applyModificationDone(l, this, m, p);}
+    public void applyModificationDone(Map m, PlanningRequest p, ArrayList<Intersection> order){currentState.applyModificationDone(l, this, m, p, order);}
 
     public void cancel(){currentState.cancel(this);}
 
     public void Reset() { currentState.newTour(l, this); }
 
-    public void Undo() { currentState.undo(l); }
+    public void Undo() { currentState.undo(l, this); }
 
-    public void Redo() { currentState.redo(l); }
+    public void Redo() { currentState.redo(l, this); }
 
     public Map getMap() {
         return map;
