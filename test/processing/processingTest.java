@@ -62,6 +62,23 @@ public class processingTest {
 
          */
 
+        // test code pour recreateTourneeWithOrder
+//        matAdj = getOptimalFullGraph(map, planning, intersecIdToIndex);
+//        Tournee tournee = greedy(matAdj, planning, intersecIdToIndex);
+//
+//        ArrayList<TupleRequete> ordre = tournee.getPtsPassage();
+//        System.out.println(ordre.get(0).getCurrentGoal().getId());
+//        System.out.println(ordre.get(1).getCurrentGoal().getId());
+//        System.out.println(ordre.size());
+//        TupleRequete first = ordre.get(0);
+//        ordre.set(0, ordre.get(1));
+//        ordre.set(1, first);
+//        System.out.println(ordre.get(0).getCurrentGoal().getId());
+//        System.out.println(ordre.get(1).getCurrentGoal().getId());
+//        System.out.println(ordre.size());
+//        tournee = recreateTourneeWithOrder(map, planning, tournee.getPtsPassage());
+
+
     }
 
 }
