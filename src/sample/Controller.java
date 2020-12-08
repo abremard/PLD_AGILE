@@ -1083,6 +1083,10 @@ public class Controller {
         public String toString() {
             return name;
         }
+
+        public ArrayList<Segment> getChemin() {
+            return chemin;
+        }
     }
 
     /**
