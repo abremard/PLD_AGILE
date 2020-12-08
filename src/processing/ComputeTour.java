@@ -63,15 +63,16 @@ public class ComputeTour {
         return null;
     }
 
-    public static Tournee recreateTourneeWithOrder(Map map, PlanningRequest planning, ArrayList<Intersection> order) {
+    public static Tournee recreateTourneeWithOrder(Map map, PlanningRequest planning, ArrayList<TupleRequete> order) {
         HashMap<Long, Integer> intersecIdToIndex = indexationIntersections(map);
         HashMap<Long, Integer> indexPtsInterets = indexerPtsInteret(planning);
         SuperArete[][] matAdj = getOptimalFullGraph(map, planning, intersecIdToIndex);
 
         ArrayList<Segment> chemin = new ArrayList<Segment>();
         int previousInd = 0;
-        for (int i=1; i<order.size(); i++) {
-            chemin.addAll(matAdj[previousInd][indexPtsInterets.get(order.get(i).getId())].getChemin());
+        for (int i=0; i<order.size(); i++) {
+            chemin.addAll(matAdj[previousInd][indexPtsInterets.get(order.get(i).getCurrentGoal().getId())].getChemin());
+            previousInd = indexPtsInterets.get(order.get(i).getCurrentGoal().getId());
         }
 
         Tournee tournee = new Tournee(chemin, planning.getRequestList());
