@@ -9,11 +9,13 @@ import Branch_And_Bound_TSP.TSP;
 import Branch_And_Bound_TSP.TSP1;
 import objects.*;
 import objects.Map;
+import sample.Controller;
 
 /*
 * TODO
 *  - arrêter Dijsktra quand on a traité tous les points d'intérêt
 *  - heuristique du paper
+*  - JavaDoc
 *
 * FIXME
  *  - B&B : pas optimal ?
@@ -22,6 +24,14 @@ import objects.Map;
 
 public class ComputeTour {
 
+    /**
+     * Fonction principale de ComputeTour, permet de calculer une tournée d'après les informations des fichiers XML
+     * de map et de liste de requêtes, ainsi que d'un choix d'heuristique.
+     * @param map           La carte représentant le graphe sur lequel on effectue le parcours
+     * @param planning      Le planning contenant la liste des requêtes à traiter ainsi que le dépôt
+     * @param heuristique   L'heuristique à utiliser (conditionne la qualité du résultat et la vitesse d'exécution)
+     * @return la tournée calculée
+     */
     public static Tournee planTour(Map map, PlanningRequest planning, Heuristique heuristique) {
 
         HashMap<Long, Integer> intersecIdToIndex = indexationIntersections(map);
@@ -63,7 +73,14 @@ public class ComputeTour {
         return null;
     }
 
-    public static Tournee recreateTourneeWithOrder(Map map, PlanningRequest planning, ArrayList<TupleRequete> order) {
+    /**
+     * Calcule la tournée passant par les points de récupération et de dépôt dans un ordre spécifique.
+     * @param map           La carte représentant le graphe sur lequel on effectue le parcours
+     * @param planning      Le planning contenant la liste des requêtes à traiter ainsi que le dépôt
+     * @param order         Les points par lesquelles la tournée doit passer, dans l'ordre chronologique.
+     * @return la tournée calculée
+     */
+    public static Tournee recreateTourneeWithOrder(Map map, PlanningRequest planning, ArrayList<Controller.LocationTagContent> order) {
         HashMap<Long, Integer> intersecIdToIndex = indexationIntersections(map);
         HashMap<Long, Integer> indexPtsInterets = indexerPtsInteret(planning);
         SuperArete[][] matAdj = getOptimalFullGraph(map, planning, intersecIdToIndex);
@@ -71,8 +88,8 @@ public class ComputeTour {
         ArrayList<Segment> chemin = new ArrayList<Segment>();
         int previousInd = 0;
         for (int i=0; i<order.size(); i++) {
-            chemin.addAll(matAdj[previousInd][indexPtsInterets.get(order.get(i).getCurrentGoal().getId())].getChemin());
-            previousInd = indexPtsInterets.get(order.get(i).getCurrentGoal().getId());
+            chemin.addAll(matAdj[previousInd][indexPtsInterets.get(order.get(i).getChemin().get(order.get(i).getChemin().size()-1).getDestination())].getChemin());
+            previousInd = indexPtsInterets.get(order.get(i).getChemin().get(order.get(i).getChemin().size()-1).getDestination());
         }
 
         Tournee tournee = new Tournee(chemin, planning.getRequestList());
@@ -90,13 +107,12 @@ public class ComputeTour {
     /**
      * Dijkstra sur la map donnée en entrée depuis le point de départ vers tous les points d'intérêts (plus les points
      * sur le chemin)
-     *
      * @param map        La carte représentant le graphe sur lequel on effectue le parcours
      * @param depart     Le point de départ du parcours
      * @param ptsInteret La liste des points d'intérêt, c'est-à-dire les points vers lesquels on veut connaître le plus
      *                   court chemin depuis le point de départ
      * @return La liste des prédécesseurs de chaque sommet dans le plus court chemin depuis le départ vers tous les
-     * points qui sont plus proches que le plus lointain point d'intérêt ,pas forcément pour les autres
+     * points qui sont plus proches que le plus lointain point d'intérêt, pas forcément pour les autres
      * (arrêt de l'algo quand on a fini de traiter tous les points d'intérêt)
      */
     private static ArrayList<Segment> dijkstra(Map map, Intersection depart, LinkedList<Intersection> ptsInteret, HashMap<Long, Integer> intersecIdToIndex) {
@@ -158,6 +174,18 @@ public class ComputeTour {
     }
 
     // SuperArete[depart][arrivee]
+    /**
+     * Calcule le graphe complet dont les sommets sont les points où il y a un pickup ou une delivery,
+     * ainsi que le dépôt (points d'intérêt), et dont les arêtes sont les plus courts chemins sur la map entre ces
+     * points d'intérêt.
+     * @param map               La carte représentant le graphe sur lequel on effectue le parcours
+     * @param planning          Le planning contenant la liste des requêtes à traiter ainsi que le dépôt
+     * @param intersecIdToIndex Le dictionnaire donnant l'indice d'une intersection dans la liste d'intersections de
+     *                          la map, à partir de son ID
+     * @return le graphe complet sous forme d'une matrice d'adjacence. Y accéder aux indices [depart][arrivee] donne
+     * l'objet SuperArete dont l'attribut chemin est le plus court chemin (en tant que liste de Segments de la map)
+     * en allant du point de depart vers le point d'arrivée.
+     */
     private static SuperArete[][] getOptimalFullGraph(Map map, PlanningRequest planning, HashMap<Long, Integer> intersecIdToIndex) {
         ArrayList<Request> requests = planning.getRequestList();
         ArrayList<Intersection> intersections = map.getIntersectionList();
@@ -215,10 +243,9 @@ public class ComputeTour {
     /**
      * Renvoie la liste d'adjacence correspondant au graphe construit à partir des segments & intersections de la map
      * passée en paramètre.
-     *
-     * @param map               La map à partir de laquelle on construit la liste d'adjacence (plus pratique pour les algos)
-     * @param intersecIdToIndex Dictionnaire faisant la correspondance entre ID d'une Intersection et son indice/index
-     *                          dans les différentes structures de données indexées par Intersection
+     * @param map               La carte représentant le graphe sur lequel on effectue le parcours
+     * @param intersecIdToIndex Le dictionnaire donnant l'indice d'une intersection dans la liste d'intersections de
+     *                          la map, à partir de son ID
      * @return La liste d'adjacence, indexée par indices (obtenus à partir des ID des intersections avec la HashMap
      * passée en paramètre) et contenant pour chaque Intersection la liste des segments ayant pour origine cette
      * Intersection.
@@ -240,6 +267,12 @@ public class ComputeTour {
         return listeAdj;
     }
 
+    /**
+     * Crée un dictionnaire donnant l'indice d'une intersection dans la liste d'intersections de la map,
+     * à partir de son ID.
+     * @param map       La carte représentant le graphe sur lequel on effectue le parcours
+     * @return Le dictionnaire
+     */
     private static HashMap<Long, Integer> indexationIntersections(Map map) {
         // dico id -> index dans les tableaux indexés par intersections
         // pour le sens inverse : utiliser le tableau intersections
@@ -254,13 +287,16 @@ public class ComputeTour {
     }
 
     /**
-     * Recree un chemin a partir d'une liste de predecesseurs, d'un depart et d'une arrivee.
-     * @param predList
-     * @param depart
-     * @param arrivee
-     * @param intersections
-     * @param intersecIdToIndex
-     * @return
+     * Recree un chemin (en tant que liste de Segments) a partir d'une liste de predecesseurs,
+     * d'un depart et d'une arrivee.
+     * @param predList          La liste d'arêtes prédécesseures : à chaque indice, le Segment menant du point précédent
+     *                          vers ce point
+     * @param depart            L'intersection au départ du chemin
+     * @param arrivee           L'intersection à l'arrivée du chemin
+     * @param intersections     La liste d'intersections de la map
+     * @param intersecIdToIndex Le dictionnaire donnant l'indice d'une intersection dans la liste d'intersections de
+     *                          la map, à partir de son ID
+     * @return le chemin du départ à l'arrivée
      */
     private static ArrayList<Segment> recreateChemin(ArrayList<Segment> predList, Intersection depart, Intersection arrivee, ArrayList<Intersection> intersections, HashMap<Long, Integer> intersecIdToIndex) {
         ArrayList<Segment> chemin = new ArrayList<Segment>();
