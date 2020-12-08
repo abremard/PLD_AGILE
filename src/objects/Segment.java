@@ -1,11 +1,35 @@
+
 package objects;
 
+/**
+ * Classe métier représentant un Segment (rue) sur la carte, c'est-à-dire une arête dans le graphe.
+ * Les Segments sont considérés comme étant dirigés, ils ont donc une origine et une destination.
+ * @author H4302
+ * @see Depot
+ */
 public class Segment {
+
+    /**
+     * ID de l'intersection de laquelle le Segment part.
+     */
     long origin;
+
+    /**
+     * ID de l'intersection à laquelle le Segment arrive.
+     */
     long destination;
+
+    /**
+     * Longueur du Segment, en mètres.
+     */
     Float length;
-    Float time;
+
+    /**
+     * Nom du Segment (de la rue).
+     */
     String name;
+
+    // Constructeur
 
     public Segment(long origin, long destination, Float length, String name) {
         this.origin = origin;
@@ -13,6 +37,8 @@ public class Segment {
         this.length = length;
         this.name = name;
     }
+
+    // Getters et setters
 
     public long getOrigin() {
         return origin;
@@ -24,10 +50,6 @@ public class Segment {
 
     public Float getLength() {
         return length;
-    }
-
-    public Float getTime() {
-        return time;
     }
 
     public String getName() {
@@ -46,13 +68,11 @@ public class Segment {
         this.length = length;
     }
 
-    public void setTime(Float time) {
-        this.time = time;
-    }
-
     public void setName(String name) {
         this.name = name;
     }
+
+    // Surcharges
 
     @Override
     public String toString() {      // généré par IntelliJ <3
@@ -60,7 +80,6 @@ public class Segment {
                 "origin=" + origin +
                 ", destination=" + destination +
                 ", length=" + length +
-                ", time=" + time +
                 ", name='" + name + '\'' +
                 '}';
     }
