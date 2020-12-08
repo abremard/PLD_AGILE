@@ -871,6 +871,10 @@ public class Controller {
         public String toString() {
             return name;
         }
+
+        public ArrayList<Segment> getChemin() {
+            return chemin;
+        }
     }
 
     //CLASS THAT STYLES CONTENT OF CARD INTO A LIST CELL
