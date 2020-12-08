@@ -26,12 +26,12 @@
                         <Image url="@/sample/title.png" />
                      </image>
                   </ImageView>
-                  <Button fx:id="undoButton" layoutX="241.0" layoutY="28.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="44.0" style="-fx-background-color: #f2f2f2; -fx-background-radius: 12 12 12 12;"  textFill="#717171">
+                  <Button fx:id="undoButton" layoutX="241.0" layoutY="28.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="44.0" style="-fx-background-color: #f2f2f2; -fx-background-radius: 12 12 12 12;" textFill="#717171">
                      <font>
                         <Font name="Arial Bold" size="14.0" />
                      </font>
                   </Button>
-                  <Button fx:id="redoButton" layoutX="292.0" layoutY="28.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="44.0" style="-fx-background-color: #f2f2f2; -fx-background-radius: 12 12 12 12;"  textFill="#717171">
+                  <Button fx:id="redoButton" layoutX="292.0" layoutY="28.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="44.0" style="-fx-background-color: #f2f2f2; -fx-background-radius: 12 12 12 12;" textFill="#717171">
                      <font>
                         <Font name="Arial Bold" size="14.0" />
                      </font>
@@ -53,6 +53,11 @@
                   </Text>
                   <TextField fx:id="requestField" layoutX="14.0" layoutY="132.0" prefHeight="40.0" prefWidth="278.0" style="-fx-background-color: #d0cece; -fx-background-radius: 12 12 12 12;" />
                   <Button fx:id="requestButton" layoutX="298.0" layoutY="132.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="38.0" style="-fx-background-color: #d0cece; -fx-background-radius: 12 12 12 12;" text="..." />
+                  <Text fx:id="infoText" fill="#5d5d5c" layoutX="14.0" layoutY="210.0" strokeType="OUTSIDE" strokeWidth="0.0" text=" ">
+                     <font>
+                        <Font name="Arial" size="13.0" />
+                     </font>
+                  </Text>
                </children>
             </AnchorPane>
             <AnchorPane maxHeight="100.0" minHeight="100.0" minWidth="370.0" prefHeight="100.0" prefWidth="370.0" style="-fx-background-color: transparent;">
