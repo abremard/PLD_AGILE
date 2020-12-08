@@ -7,6 +7,9 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 
+/**
+ * Commande qui nous permet de charger une liste de requêtes à satisfaire lors de la tournée.
+ */
 public class LoadRequestPlanCommand implements Command {
 
     /** classe attributes **/

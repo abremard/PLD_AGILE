@@ -266,6 +266,61 @@ public class Controller {
         tempRequest = new Request( new Intersection(0,0), new Intersection(0,0), 0,0);
     }
 
+
+
+    public LocationTagContent convertRequestToLTC(Request request, boolean isPickup) {
+        String name = "";
+        String street1 = "";
+        String street2 = "";
+        double latitude = 0.0;
+        double longitude = 0.0;
+        if (isPickup == true)
+        {
+            int index = (cards.size() - 1)/2;
+            name = "Pickup "+ Integer.toString(index);
+            ArrayList<String> street = map.getSegmentNameFromIntersectionId(request.getPickup().getId());
+            logger.info(street.toString());
+            street1 = street.get(0);
+            if (street1.length()>20) {
+                street1 = street1.substring(0, 19) + "..";
+            }
+            if (street.size() >= 2) {
+                street2 = street.get(1);
+                if (street2.length()>20) {
+                    street2 = street2.substring(0, 19) + "..";
+                }
+            }
+            latitude = request.getPickup().getLatitude();
+            longitude = request.getPickup().getLongitude();
+        } else
+        {
+            int index = (cards.size() - 1)/2;
+            name = "Delivery "+ Integer.toString(index);
+            ArrayList<String> street = map.getSegmentNameFromIntersectionId(request.getDelivery().getId());
+            logger.info(street.toString());
+            street1 = street.get(0);
+            if (street1.length()>20) {
+                street1 = street1.substring(0, 19) + "..";
+            }
+            if (street.size() >= 2) {
+                street2 = street.get(1);
+                if (street2.length()>20) {
+                    street2 = street2.substring(0, 19) + "..";
+                }
+            }
+            latitude = request.getDelivery().getLatitude();
+            longitude = request.getDelivery().getLongitude();
+        }
+
+        LocalTime time  = null;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+
+        Coordinate location = new Coordinate(latitude, longitude);
+
+        LocationTagContent item = new LocationTagContent(name, street1, street2, time.format(formatter), location, null, request);
+        item.setIsPickup(isPickup);
+        return item;
+    }
     /**
      * Initialise the Map and all of the buttons
      * @param projection Projection of the window
@@ -528,6 +583,7 @@ public class Controller {
                 else if ( isEdit){
                     //mvcController.modifyRequestDone();
                     Request editedRequest = tempRequest;
+
                     Request newRequest = new Request(tempRequest.getPickup(),tempRequest.getDelivery(), tempRequest.getPickupDur(), tempRequest.getDeliveryDur());
                     if( mapText.getText().equals("Pickup Duration")){
                         newRequest.setPickupDur(Double.parseDouble(mapField.getText()));
@@ -894,6 +950,7 @@ public class Controller {
             String street2 = "";
             double latitude = 0.0;
             double longitude = 0.0;
+            boolean isPickup = false;
             if (pt.isDepart())
             {
                 name = "Pickup "+nbPickup;
@@ -912,6 +969,7 @@ public class Controller {
                 }
                 latitude = pt.getRequete().getPickup().getLatitude();
                 longitude = pt.getRequete().getPickup().getLongitude();
+                isPickup = true;
             } else
             {
                 name = "Delivery "+nbDelivery;
@@ -931,6 +989,7 @@ public class Controller {
                 }
                 latitude = pt.getRequete().getDelivery().getLatitude();
                 longitude = pt.getRequete().getDelivery().getLongitude();
+                isPickup = false;
             }
 
             LocalTime time  = pt.getTime();
@@ -939,6 +998,7 @@ public class Controller {
             Coordinate location = new Coordinate(latitude, longitude);
 
             LocationTagContent item = new LocationTagContent(name, street1, street2, time.format(formatter), location, pt.getChemin(), pt.getRequete());
+            item.setIsPickup(isPickup);
             cards.add(item);
         }
 
@@ -1047,6 +1107,7 @@ public class Controller {
          *  The path in the tour to get to this location from the previous location in the tour
          */
         private ArrayList<Segment> chemin;
+        private boolean isPickup;
 
         /**
          * Get the name of the LTC
@@ -1069,6 +1130,13 @@ public class Controller {
         public String getArrivalTime() {
             return arrivalTime;
         }
+
+        public void setIsPickup(boolean state) {
+            this.isPickup = state;
+        }
+        public Boolean getIsPickup() {
+            return isPickup;
+        }
         /**
          * Constructor
          * @param name Name of location (Pickup/Delivery)
@@ -1088,6 +1156,7 @@ public class Controller {
             this.coordLocation = coordLocation;
             this.chemin = chemin;
             this.request = req;
+            this.isPickup = false;
         }
 
         /**

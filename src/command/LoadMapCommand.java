@@ -2,6 +2,9 @@ package command;
 import controller.MVCController;
 import objects.Map;
 
+/**
+ * Commande qui nous permet de charger une carte sur l'IHM.
+ */
 public class LoadMapCommand implements Command {
 
     /** classe attributes **/

@@ -9,6 +9,9 @@ import sample.Controller;
 import java.util.ArrayList;
 import java.util.Collections;
 
+/**
+ * Commande qui nous permet d'intervertir deux pickup/delivery afin de modifier leur priorité.
+ */
 public class SwapOrderCommand implements Command {
 
     private int a;

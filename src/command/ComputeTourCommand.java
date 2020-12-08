@@ -7,6 +7,9 @@ import objects.Tournee;
 import processing.ComputeTour;
 import processing.Heuristique;
 
+/**
+ * Commande qui nous permet de calculer la tournée optimale.
+ */
 public class ComputeTourCommand implements Command {
 
     /** classe attributes **/

@@ -12,6 +12,9 @@ import processing.Heuristique;
 
 import java.util.ArrayList;
 
+/**
+ * Commande qui nous permet de valider les modifications de la tournée.
+ */
 public class ApplyModificationCommand implements Command {
 
     private Map map;
