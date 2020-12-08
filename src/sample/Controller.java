@@ -84,6 +84,7 @@ public class Controller {
     private Text requestText;
 
     private boolean addingRequest;
+    private boolean editingRequest = false;
     private int addedReqCount;
     private Request tempRequest;
 
@@ -104,6 +105,7 @@ public class Controller {
     private boolean isTimeline = false;
     private boolean isModify = false;
     private boolean isAddRequest = false;
+    private boolean isEdit = false;
 
     private static final Coordinate coordLyon = new Coordinate(45.77087932755228, 4.863621380475198);
 
@@ -195,7 +197,9 @@ public class Controller {
             if( addingRequest ){
                 handleNewRequestClick(event);
             }
-
+            else if( editingRequest ){
+                handleEditRequestClick(event);
+            }
         });
 
         mapView.addEventHandler(MarkerEvent.MARKER_CLICKED, event -> {
@@ -281,6 +285,10 @@ public class Controller {
                 else if (isAddRequest) {
                     //CANCEL ADD REQUEST OPERATION, BACK TO MODIFY VIEW
                     modifySetup(false);
+                }
+                else if(isEdit){
+                    modifySetup(false);
+                    editingRequest = false;
                 }
                 else if(isTimeline)
                 {
@@ -376,6 +384,21 @@ public class Controller {
                     addedReqCount = 0;
                     addRequestSetup();
                     mvcController.addRequest();
+                }
+                else if ( isEdit){
+                    //mvcController.modifyRequestDone();
+                    Request editedRequest = tempRequest;
+                    Request newRequest = new Request(tempRequest.getPickup(),tempRequest.getDelivery(), tempRequest.getPickupDur(), tempRequest.getDeliveryDur());
+                    if( mapText.getText().equals("Pickup Duration")){
+                        newRequest.setPickupDur(Double.parseDouble(mapField.getText()));
+                    } else if( mapText.getText().equals("Delivery Duration")){
+                        newRequest.setDeliveryDur(Double.parseDouble(mapField.getText()));
+                    }
+
+
+
+                    list.getChildren().remove(list.getChildren().size() -1);
+                    modifySetup(false);
                 } else {
                     modifySetup(true);
                     mvcController.ModifyRequestList();
@@ -406,7 +429,39 @@ public class Controller {
         isAddRequest = true;
         isModify = false;
         isTimeline = false;
+        isEdit = false;
     }
+
+    private void editSetup( LocationTagContent item ) {
+        undoButton.setVisible(false);
+        redoButton.setVisible(false);
+
+        String type = item.getName().split(" ")[0];
+
+        tempRequest = item.request;
+
+        if( type.equals("Pickup") ){
+            mapText.setText("Pickup Duration");
+            mapField.setText(Double.toString(item.request.getPickupDur()));
+        } else if( type.equals("Delivery") ){
+            mapText.setText("Delivery Duration");
+            mapField.setText(Double.toString(item.request.getDeliveryDur()));
+        }
+
+        mainButton.setText("Cancel");
+        secondButton.setText("Done");
+        list.getChildren().remove(list.getChildren().size() -1);
+        mapText.setVisible(true);
+        mapField.setVisible(true);
+
+
+        editingRequest = true;
+        isEdit = true;
+        isAddRequest = false;
+        isModify = false;
+        isTimeline = false;
+    }
+
 
     private void modifySetup(boolean toDelete) {
         undoButton.setVisible(true);
@@ -428,6 +483,7 @@ public class Controller {
         isModify = true;
         isTimeline = false;
         isAddRequest = false;
+        isEdit = false;
     }
 
     private void displayMap() {
@@ -549,8 +605,10 @@ public class Controller {
             request.setDelivery(delivery);
             Coordinate coordPickup = new Coordinate(pickup.getLatitude(), pickup.getLongitude());
             Marker markerPickup = new Marker( getClass().getResource(pickupImageFile),-12,-12).setPosition(coordPickup).setVisible(true);
+            request.getPickup().setMarkerId(markerPickup.getId());
             Coordinate coordDelivery = new Coordinate(delivery.getLatitude(),delivery.getLongitude());
             Marker markerDelivery = new Marker( getClass().getResource(deliveryImageFile),-11,-25).setPosition(coordDelivery).setVisible(true);
+            request.getDelivery().setMarkerId(markerDelivery.getId());
             markers.add(markerPickup);
             markers.add(markerDelivery);
             mapView.addMarker(markerPickup);
@@ -583,19 +641,60 @@ public class Controller {
 
         if( addedReqCount%2 == 0){
             tempRequest.setPickup(newIntersection);
+            tempRequest.getPickup().setMarkerId(newMarker.getId());
             //tempRequest.setPickupDur(5);
         } else if ( addedReqCount%2 == 1){
             tempRequest.setDelivery(newIntersection);
+            tempRequest.getDelivery().setMarkerId(newMarker.getId());
             //tempRequest.setDelivery_dur(5);
         }
-
 
         addedReqCount++;
         if( addedReqCount == 2 ){
 
             //secondButton.setDisable(false);
         }
+    }
 
+    public void handleEditRequestClick(MapViewEvent event){
+
+        Intersection newIntersection = new Intersection( event.getCoordinate().getLatitude(), event.getCoordinate().getLongitude());
+        newIntersection = map.findClosestIntersection(newIntersection);
+        Coordinate coordIntersection = new Coordinate(newIntersection.getLatitude(), newIntersection.getLongitude());
+
+        logger.info(" adding new intersection @" + newIntersection.toString());
+
+        Marker newMarker = null;
+
+        String file = "";
+        if(mapText.getText().equals("Pickup Duration")){
+            for( Marker m : markers){
+                if( m.getId().equals(tempRequest.getPickup().getMarkerId()) ){
+                    mapView.removeMarker(m);
+                    markers.remove(m);
+                    break;
+                }
+            }
+            file = pickupImageFile;
+            tempRequest.setPickup(newIntersection);
+            newMarker = new Marker( getClass().getResource(file),-12,-12).setPosition(coordIntersection).setVisible(true);
+            tempRequest.getPickup().setMarkerId(newMarker.getId());
+        } else if (mapText.getText().equals("Delivery Duration")){
+            for( Marker m : markers){
+                if( m.getId().equals(tempRequest.getDelivery().getMarkerId()) ){
+                    mapView.removeMarker(m);
+                    markers.remove(m);
+                    break;
+                }
+            }
+            file = deliveryImageFile;
+            tempRequest.setDelivery(newIntersection);
+            newMarker = new Marker( getClass().getResource(file),-12,-12).setPosition(coordIntersection).setVisible(true);
+            tempRequest.getDelivery().setMarkerId(newMarker.getId());
+        }
+        markers.add(newMarker);
+        mapView.addMarker(newMarker);
+        //editingRequest = false;
     }
 
     //METHOD THAT CREATES CARDS
@@ -841,6 +940,8 @@ public class Controller {
                 public void handle(ActionEvent event) {
                     //call function to edit an item
                     //you can pass the related LocationItemContent to edit the contents of the list (cards) with .getItem()
+                    editSetup( getItem());
+
                 }
             });
 

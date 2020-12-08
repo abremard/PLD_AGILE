@@ -6,6 +6,7 @@ public class Intersection {
     double latitude;
     double longitude;
     long id;
+    String markerId;
 
     public Intersection(double latitude, double longitude, long id) {
         this.latitude = latitude;
@@ -44,6 +45,14 @@ public class Intersection {
 
     public void setId(long id) {
         this.id = id;
+    }
+
+    public String getMarkerId() {
+        return markerId;
+    }
+
+    public void setMarkerId(String markerId) {
+        this.markerId = markerId;
     }
 
     @Override
