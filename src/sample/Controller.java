@@ -940,7 +940,6 @@ public class Controller {
      */
     public void initCardContent() {
         cards.clear();
-        int nbPickup = 1;
         int nbDelivery = 1;
         ArrayList<TupleRequete> points = tour.getPtsPassage();
         if(points != null) logger.info("Retrouve un objet nulllllllllll");
@@ -953,8 +952,7 @@ public class Controller {
             boolean isPickup = false;
             if (pt.isDepart())
             {
-                name = "Pickup "+nbPickup;
-                nbPickup++;
+                name = "Pickup "+pt.getRequete().getId();
                 ArrayList<String> street = map.getSegmentNameFromIntersectionId(pt.getRequete().getPickup().getId());
                 logger.info(street.toString());
                 street1 = street.get(0);
@@ -972,7 +970,7 @@ public class Controller {
                 isPickup = true;
             } else
             {
-                name = "Delivery "+nbDelivery;
+                name = "Delivery "+pt.getRequete().getId();
                 if(nbDelivery == (int)((points.size()+1)/2)) { name = "Back to shop"; }
                 nbDelivery++;
                 ArrayList<String> street = map.getSegmentNameFromIntersectionId(pt.getRequete().getDelivery().getId());

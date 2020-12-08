@@ -56,6 +56,10 @@ public class Request {
 
     // Getters et setters
 
+    public int getId() {
+        return id;
+    }
+
     public Intersection getPickup() {
         return pickup;
     }
