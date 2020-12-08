@@ -6,6 +6,9 @@ import objects.Segment;
 import objects.Tournee;
 
 import java.util.*;
+import java.lang.Math.*;
+
+import static java.lang.StrictMath.*;
 
 
 /**
@@ -16,6 +19,21 @@ import java.util.*;
 public class PaperHeuristicTSP {
 
     enum InsertionMethod {CONSECUTIVE, SPLIT}
+
+    /**
+     * Façons de réassembler un chemin A-B-C-D auquel on a enlevé les 3 arêtes
+     * entre A et B, entre B et C et entre C et D, ces quatre lettres
+     * représentant chacune une portion du chemin, composée d'un ou plus
+     * point(s), sans considérer les cas 2-opt (on repose une arête là où on
+     * vient d'en enlever une, dans le même sens)
+     * <p>
+     * - DOUBLE_REVERSE : A - B à l'envers - C à l'envers - D
+     * - INVERT-ORDER : A - C - B - D
+     * - REVERSE_B : B - C - B à l'envers - D
+     * - REVERSE_C : A - C à l'envers - B - D
+     * - INVERT_REVERSE : A - C à l'envers - B à l'envers - D
+     */
+    enum AssembleOrder {DOUBLE_REVERSE, INVERT_ORDER, REVERSE_B, REVERSE_C, INVERT_REVERSE}
 
     /**
      * Classe utilisée pour le retour de la méthode calculant le delta_i
@@ -142,7 +160,7 @@ public class PaperHeuristicTSP {
         }
 
         // --------- Etape 1.4 : Optimisation locale (3-opt)
-        // TODO 3-opt
+        // TODO 3-opt UNIQUEMENT SI LE TRAJET EST ASSEZ LONG !!!
     }
 
     /**
@@ -153,6 +171,7 @@ public class PaperHeuristicTSP {
      * @param request La requête dont on calcule le delta_i
      * @return delta_i, le minimum weighted insertion cost de la meilleure
      * combinaison trouvée, ainsi que sa méthode & sa position d'insertion
+     * @see DeltaI
      */
     DeltaI minWeightedInsertionCost(Request request) {
 
@@ -226,6 +245,116 @@ public class PaperHeuristicTSP {
     }
 
     /**
+     * Renvoie le coût de la permutation 3-opt selon la méthode renseignée.
+     * Ce coût correspond à la longueur du chemin considéré qui variera en
+     * fonction de l'ordre dans lequel on assemble les sous-chemins, c'est-
+     * à-dire le coût du chemin qui commence à cut1 et qui finit à cut3 + 1.
+     *
+     * @param center L'indice dans le chemin du point autour duquel on effectue
+     *               l'optimisation (longueur du sous-chemin déterminée par r)
+     * @param cut1   L'indice du point dans le chemin depuis lequel on "coupe" la
+     *               première arête (dernier point de A)
+     * @param cut2   L'indice du point dans le chemin depuis lequel on "coupe" la
+     *               deuxième arête (dernier point de B)
+     * @param cut3   L'indice du point dans le chemin depuis lequel on "coupe" la
+     *               troisième arête (dernier point de C)
+     * @param order  L'ordre dans lequel on assemble les sous-chemins entre eux
+     * @see InsertionMethod
+     * @see PaperHeuristicTSP#doubleInsertionHeuristic()
+     */
+    public float ThreeOptCost(int center, int cut1, int cut2, int cut3, AssembleOrder order) {
+
+        float cost = 0;
+
+        /*
+         * Ordres possibles :
+         * - DOUBLE_REVERSE : A - B à l'envers - C à l'envers - D
+         * - INVERT-ORDER : A - C - B - D
+         * - REVERSE_B : A - C - B à l'envers - D
+         * - REVERSE_C : A - C à l'envers - B - D
+         * - INVERT_REVERSE : A - C à l'envers - B à l'envers - D
+         * */
+        switch (order) {
+            case DOUBLE_REVERSE:        // A - B à l'envers - C à l'envers - D
+                // fin de A -> fin de B
+                cost += longueurEntre(currentTourIndexes.get(cut1), currentTourIndexes.get(cut2));
+                // B à l'envers (fin -> début)
+                cost += longueurCheminEntre(cut2, cut1 + 1);
+                // début de B -> fin de C
+                cost += longueurEntre(currentTourIndexes.get(cut1 + 1), currentTourIndexes.get(cut3));
+                // C à l'envers (fin -> début)
+                cost += longueurCheminEntre(cut3, cut2 + 1);
+                // début de C -> début de D
+                cost += longueurEntre(currentTourIndexes.get(cut2 + 1), currentTourIndexes.get(cut3 + 1));
+                break;
+
+            case INVERT_ORDER:          // A - C - B - D
+                // fin de A -> début de C
+                cost += longueurEntre(currentTourIndexes.get(cut1), currentTourIndexes.get(cut2 + 1));
+                // C à l'endroit (début -> fin)
+                cost += longueurCheminEntre(cut2 + 1, cut3);
+                // fin de C -> début de B
+                cost += longueurEntre(currentTourIndexes.get(cut3), currentTourIndexes.get(cut1 + 1));
+                // B à l'endroit (début -> fin)
+                cost += longueurCheminEntre(cut1 + 1, cut2);
+                // fin de B -> début de D
+                cost += longueurEntre(currentTourIndexes.get(cut2), currentTourIndexes.get(cut3 + 1));
+                break;
+
+            case REVERSE_B:          // A - C - B à l'envers - D
+                // fin de A -> début de C
+                cost += longueurEntre(currentTourIndexes.get(cut1), currentTourIndexes.get(cut2 + 1));
+                // C à l'endroit (début -> fin)
+                cost += longueurCheminEntre(cut2 + 1, cut3);
+                // fin de C -> fin de B
+                cost += longueurEntre(currentTourIndexes.get(cut3), currentTourIndexes.get(cut2));
+                // B à l'envers (fin -> début)
+                cost += longueurCheminEntre(cut2, cut1 + 1);
+                // début de B -> début de D
+                cost += longueurEntre(currentTourIndexes.get(cut1 + 1), currentTourIndexes.get(cut3 + 1));
+                break;
+
+            case REVERSE_C:          // A - C à l'envers - B - D
+                // fin de A -> fin de C
+                cost += longueurEntre(currentTourIndexes.get(cut1), currentTourIndexes.get(cut3));
+                // C à l'envers (fin -> début)
+                cost += longueurCheminEntre(cut3, cut2 + 1);
+                // début de C -> début de B
+                cost += longueurEntre(currentTourIndexes.get(cut2 + 1), currentTourIndexes.get(cut1 + 1));
+                // B à l'endroit (début -> fin)
+                cost += longueurCheminEntre(cut1 + 1, cut2);
+                // fin de B -> début de D
+                cost += longueurEntre(currentTourIndexes.get(cut2), currentTourIndexes.get(cut3 + 1));
+                break;
+
+            case INVERT_REVERSE:          // A - C à l'envers - B à l'envers - D
+                // fin de A -> fin de C
+                cost += longueurEntre(currentTourIndexes.get(cut1), currentTourIndexes.get(cut3));
+                // C à l'envers (fin -> début)
+                cost += longueurCheminEntre(cut3, cut2 + 1);
+                // début de C -> fin de B
+                cost += longueurEntre(currentTourIndexes.get(cut2 + 1), currentTourIndexes.get(cut2));
+                // B à l'envers (fin -> début)
+                cost += longueurCheminEntre(cut2, cut1 + 1);
+                // début de B -> début de D
+                cost += longueurEntre(currentTourIndexes.get(cut1 + 1), currentTourIndexes.get(cut3 + 1));
+                break;
+
+        }
+
+
+        return cost;
+    }
+
+    /**
+     * @see PaperHeuristicTSP#ThreeOptCost(int, int, int, int, AssembleOrder)
+     */
+    void ApplyThreeOpt(int center, int cut1, int cut2, int cut3, AssembleOrder order) {
+
+
+    }
+
+    /**
      * Construit un objet Tournee utilisable par l'IHM à partir du trajet actuel
      *
      * @return L'objet complet et utilisable
@@ -263,8 +392,8 @@ public class PaperHeuristicTSP {
      * Renvoie la longueur du plus court chemin entre 2 points d'intérêt selon
      * la matrice d'adjacence
      *
-     * @param depart  Le point de départ du chemin
-     * @param arrivee Le point d'arrivée du chemin
+     * @param depart  L'indice dans matAdj du point de départ du chemin
+     * @param arrivee L'indice dans matAdj du point d'arrivée du chemin
      * @return La longueur du plus court chemin entre depart et arrivee
      */
     private float longueurEntre(int depart, int arrivee) {
@@ -273,6 +402,42 @@ public class PaperHeuristicTSP {
         } else {
             return 0;
         }
+    }
+
+    /**
+     * Calcule la longueur du sous-chemin dans le trajet actuel entre les points
+     * de départ et d'arrivée donnés, éventuellement en le parcourant à l'envers
+     * si arrivee < depart.
+     * Utilise longueurEntre(int, int) pour un sous-chemin constitué uniquement
+     * d'un départ et d'une arrivée.
+     *
+     * @param depart  L'indice dans le trajet actuel du point de départ du sous-
+     *                chemin dont on cherche à calculer la longueur
+     * @param arrivee L'indice dans le trajet du point d'arrivée du sous-chemin
+     * @return La longueur du chemin demandée
+     * @see PaperHeuristicTSP#longueurEntre(int, int)
+     */
+    private float longueurCheminEntre(int depart, int arrivee) {
+
+        if (depart == arrivee) {        // pas de chemin, points confondus
+            return 0;
+        } else if ((depart - arrivee == 1) || (depart - arrivee == -1)) {      // chemin trivial (depart, arrivee)
+            return longueurEntre(currentTourIndexes.get(depart), currentTourIndexes.get(arrivee));
+        }
+
+        // chemin non trivial composé d'au moins 3 points
+        float sum = 0;
+        if (arrivee > depart) {         // parcours dans le sens normal
+            for (int i = depart; i < arrivee; ++i) {
+                sum += longueurEntre(currentTourIndexes.get(i), currentTourIndexes.get(i + 1));
+            }
+        } else {                        // parcours dans le sens inverse
+            for (int i = depart; i > arrivee; --i) {
+                sum += longueurEntre(currentTourIndexes.get(i), currentTourIndexes.get(i - 1));
+            }
+        }
+
+        return sum;
     }
 
     @Override
