@@ -7,6 +7,9 @@ import sample.Controller;
 
 import java.util.ArrayList;
 
+/**
+ * Commande qui nous permet d'ajouter une requête à la tournée.
+ */
 public class AddRequestCommand implements Command {
 
     private Request newRequest;

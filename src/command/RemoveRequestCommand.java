@@ -7,6 +7,9 @@ import sample.Controller;
 
 import java.util.ArrayList;
 
+/**
+ * Commande qui nous permet de supprimer une requête de la tournée.
+ */
 public class RemoveRequestCommand implements Command {
 
     private int removedRequestIndex;
