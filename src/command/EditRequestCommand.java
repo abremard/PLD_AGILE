@@ -3,6 +3,9 @@ package command;
 import controller.MVCController;
 import objects.Request;
 
+/**
+ * Commande qui nous permet de modifier une requête de la tournée.
+ */
 public class EditRequestCommand implements Command {
 
     private Request oldRequest;
