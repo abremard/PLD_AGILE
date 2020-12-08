@@ -83,6 +83,9 @@ public class Controller {
     @FXML
     private Text requestText;
 
+    @FXML
+    private Text infoText;
+
     private boolean addingRequest;
     private boolean editingRequest = false;
     private int addedReqCount;
@@ -414,6 +417,8 @@ public class Controller {
         undoButton.setVisible(false);
         redoButton.setVisible(false);
 
+        infoText.setText("Click on the map to place the Pickup location");
+
         mainButton.setText("Cancel");
         secondButton.setText("Add");
         list.getChildren().remove(list.getChildren().size() -1);
@@ -442,17 +447,22 @@ public class Controller {
 
         if( type.equals("Pickup") ){
             mapText.setText("Pickup Duration");
+            requestText.setText("Click on the map to change the Pickup location");
             mapField.setText(Double.toString(item.request.getPickupDur()));
         } else if( type.equals("Delivery") ){
             mapText.setText("Delivery Duration");
+            requestText.setText("Click on the map to change the Delivery location");
             mapField.setText(Double.toString(item.request.getDeliveryDur()));
         }
+
+
 
         mainButton.setText("Cancel");
         secondButton.setText("Done");
         list.getChildren().remove(list.getChildren().size() -1);
         mapText.setVisible(true);
         mapField.setVisible(true);
+        requestText.setVisible(true);
 
 
         editingRequest = true;
@@ -642,10 +652,12 @@ public class Controller {
         if( addedReqCount%2 == 0){
             tempRequest.setPickup(newIntersection);
             tempRequest.getPickup().setMarkerId(newMarker.getId());
+            infoText.setText("Click on the map to place the Delivery location");
             //tempRequest.setPickupDur(5);
         } else if ( addedReqCount%2 == 1){
             tempRequest.setDelivery(newIntersection);
             tempRequest.getDelivery().setMarkerId(newMarker.getId());
+            infoText.setText(" ");
             //tempRequest.setDelivery_dur(5);
         }
 
