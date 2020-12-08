@@ -1,19 +1,48 @@
+
 package objects;
 
 import java.time.LocalTime;
 import java.util.Objects;
 
+/**
+ * Classe métier représentant une requête, contenant les Intersections de récupération et de dépôt, ainsi que
+ * les durées de récupération et de dépôt.
+ * @author H4302
+ * @see Intersection
+ */
 public class Request {
 
+    /**
+     * Compte le nombre d'instances de Request qui ont été construites.
+     */
     static int nbInstances = 0;
 
+    /**
+     * L'intersection de récupération de la requête
+     */
     Intersection pickup;
+
+    /**
+     * L'intersection de dépôt de la requête
+     */
     Intersection delivery;
-    // les durées sont en secondes
+
+    /**
+     * La durée nécessaire pour compléter la récupération, en secondes.
+     */
     double pickupDur;
+
+    /**
+     * La durée nécessaire pour compléter le dépôt, en secondes.
+     */
     double deliveryDur;
-    LocalTime startTime;
+
+    /**
+     * L'ID de la requête.
+     */
     int id;
+
+    // Constructeur
 
     public Request(Intersection pickup, Intersection delivery, double pickupDur, double deliveryDur) {
         this.pickup = pickup;
@@ -25,16 +54,7 @@ public class Request {
         ++nbInstances;
     }
 
-    public Request(Intersection pickup, Intersection delivery, double pickupDur, double deliveryDur, LocalTime startTime) {
-        this.pickup = pickup;
-        this.delivery = delivery;
-        this.pickupDur = pickupDur;
-        this.deliveryDur = deliveryDur;
-        this.startTime = startTime;
-
-        this.id = nbInstances;
-        ++nbInstances;
-    }
+    // Getters et setters
 
     public Intersection getPickup() {
         return pickup;
@@ -68,6 +88,8 @@ public class Request {
         this.deliveryDur = deliveryDur;
     }
 
+    // Surcharges
+
     @Override
     public String toString() {
         return "Request{" +
@@ -76,7 +98,6 @@ public class Request {
                 ", delivery=" + delivery +
                 ", pickupDur=" + pickupDur +
                 ", deliveryDur=" + deliveryDur +
-                ", startTime=" + startTime +
                 '}';
     }
 
@@ -89,8 +110,7 @@ public class Request {
             } else {
                 return false;
             }
-        }
-        else{
+        } else {
             return false;
         }
     }

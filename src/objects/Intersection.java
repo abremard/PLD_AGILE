@@ -2,7 +2,7 @@
 package objects;
 
 /**
- * Classe métier représentant une intersection sur la carte, c'est-à-dire un noeud dans le graphe..
+ * Classe métier représentant une intersection sur la carte, c'est-à-dire un noeud dans le graphe.
  * @author H4302
  * @see Depot
  */
