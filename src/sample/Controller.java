@@ -637,8 +637,14 @@ public class Controller {
                 ArrayList<String> street = map.getSegmentNameFromIntersectionId(pt.getRequete().getDelivery().getId());
                 logger.info(street.toString());
                 street1 = street.get(0);
+                if (street1.length()>20) {
+                    street1 = street1.substring(0, 19) + "..";
+                }
                 if (street.size() >= 2) {
                     street2 = street.get(1);
+                    if (street2.length()>20) {
+                        street2 = street2.substring(0, 19) + "..";
+                    }
                 }
                 latitude = pt.getRequete().getDelivery().getLatitude();
                 longitude = pt.getRequete().getDelivery().getLongitude();
@@ -880,20 +886,28 @@ public class Controller {
             upButton.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
-                    // TODO : verify pickup before delivery
+
                     int index = cards.indexOf(getItem());
                     if(index > 0)
                     {
-                        // LocationTagContent temp = cards.get(index);
-                        // cards.set(index, cards.get(index-1));
-                        // cards.set(index-1, temp);
-                        logger.info(cards.toString());
-                        //call to refresh the content?
-                        mvcController.swapRequest(index, index-1, cards);
-                        refreshModel();
-                        logger.info(cards.toString());
-                        list.getChildren().remove(list.getChildren().size() -1);
-                        addCardsToScreen(true);
+
+                        if (Integer.parseInt(cards.get(index).getName().split(" ")[1]) == Integer.parseInt(cards.get(index-1).getName().split(" ")[1]))
+                        {
+                            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                            alert.setTitle("Attention!");
+                            alert.setHeaderText(null);
+                            alert.setContentText("You cannot place a delivery before the pickup for a request");
+
+                            alert.showAndWait();
+                        } else {
+                            logger.info(cards.toString());
+                            //call to refresh the content?
+                            mvcController.swapRequest(index, index - 1, cards);
+                            refreshModel();
+                            logger.info(cards.toString());
+                            list.getChildren().remove(list.getChildren().size() - 1);
+                            addCardsToScreen(true);
+                        }
                     }
                 }
             });
@@ -901,20 +915,29 @@ public class Controller {
             downButton.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
-                    // TODO : verify pickup before delivery
+
                     int index = cards.indexOf(getItem());
+
                     if(index < cards.size() -1) //or just size?
                     {
-                        // LocationTagContent temp = cards.get(index);
-                        // cards.set(index, cards.get(index+1));
-                        // cards.set(index+1, temp);
-                        logger.info(cards.toString());
-                        //call to refresh the content?
-                        mvcController.swapRequest(index, index+1, cards);
-                        refreshModel();
-                        logger.info(cards.toString());
-                        list.getChildren().remove(list.getChildren().size() -1);
-                        addCardsToScreen(true);
+                        if (Integer.parseInt(cards.get(index).getName().split(" ")[1]) == Integer.parseInt(cards.get(index+1).getName().split(" ")[1]))
+                        {
+                            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                            alert.setTitle("Attention!");
+                            alert.setHeaderText(null);
+                            alert.setContentText("You cannot place a delivery before the pickup for a request");
+
+                            alert.showAndWait();
+                        } else {
+                            logger.info(cards.toString());
+                            //call to refresh the content?
+                            mvcController.swapRequest(index, index+1, cards);
+                            refreshModel();
+                            logger.info(cards.toString());
+                            list.getChildren().remove(list.getChildren().size() -1);
+                            addCardsToScreen(true);
+                        }
+
                     }
                 }
             });
