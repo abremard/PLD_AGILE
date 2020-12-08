@@ -34,82 +34,201 @@ import java.util.ArrayList;
 import javafx.scene.paint.Color;
 import processing.TupleRequete;
 
+/**
+ * <h1>Controller Class</h1>
+ * The JavaFX controller helps display all the UI elements, and defines the interaction between the user and these
+ * elements.
+ * <p>
+ */
+
 public class Controller {
 
-    /** custom images*/
+    /**
+     * Marker for Pickup Location
+     */
     String pickupImageFile = "/images/pickupMarker.png";
+    /**
+     * Marker for Delivery location
+     */
     String deliveryImageFile = "/images/deliveryMarker.png";
+    /**
+     * Marker for Starting location
+     */
     String depotImageFile = "/images/depotMarker.png";
 
-    /** logger for the class. */
+    /**
+     * Logger for testing and debugging pursposes
+     */
     private static final Logger logger = LoggerFactory.getLogger(Controller.class);
 
+    /**
+     * The Map View displayed on screen
+     */
     @FXML
     private MapView mapView;
 
+    /**
+     * The List view of the side panel
+     */
     @FXML
     private ListView listView;
 
+    /**
+     * The side panel container
+     */
     @FXML
     private AnchorPane list;
 
+    /**
+     * First button of side panel
+     */
     @FXML
     private Button mainButton;
 
+    /**
+     * Second button of side panel
+     */
     @FXML
     private Button secondButton;
 
+    /**
+     * Button to load map file
+     */
     @FXML
     private Button mapButton;
 
+    /**
+     * Undo button
+     */
     @FXML
     private Button undoButton;
 
+    /**
+     * Redo button
+     */
     @FXML
     private Button redoButton;
 
+    /**
+     * Button to add request file
+     */
     @FXML
     private Button requestButton;
 
+    /**
+     * First text field in side panel
+     */
     @FXML
     private TextField mapField;
 
+    /**
+     * Second text field in side panel
+     */
     @FXML
     private TextField requestField;
 
+    /**
+     * First Static Text
+     */
     @FXML
     private Text mapText;
 
+    /**
+     * Second Static Text
+     */
     @FXML
     private Text requestText;
 
+    /**
+     * Third Static Text
+     */
     @FXML
     private Text infoText;
 
+    /**
+     * status indicator: are we adding a request
+     */
     private boolean addingRequest;
+    /**
+     * status indicator: are we editing a request
+     */
     private boolean editingRequest = false;
+    /**
+     * status indicator: how many locations are added in request
+     */
     private int addedReqCount;
+    /**
+     * temporary request
+     */
     private Request tempRequest;
 
+    /**
+     * List of coordinate lines of the map - MapView
+     */
     private ArrayList<CoordinateLine> coordLines;
+    /**
+     * List of coordinate lines of the tour - MapView
+     */
     private ArrayList<CoordinateLine> tourLines;
+    /**
+     * List of coordinate lines of the selected path of tour - MapView
+     */
     private ArrayList<CoordinateLine> selectedLines;
+    /**
+     * List of markers of the requests - MapView
+     */
     private ArrayList<Marker> markers;
+    /**
+     * List of cards of the side panel
+     */
     private ArrayList<LocationTagContent> cards;
 
+    /**
+     * Map to be displayed
+     */
     private Map map = null;
+    /**
+     * Planning of the requests to be added in the tour
+     */
     private PlanningRequest planningRequest;
+    /**
+     * Calculated tour
+     */
     private Tournee tour;
 
+    /**
+     * Color of map lines
+     */
     private Color mapColor = new Color(0.40,0.40,0.40, 1.0);
+    /**
+     * Color of tour lines
+     */
     private Color pathColor = new Color(0.2,0.6,1.0, 1.0);
+    /**
+     * Color of highlighted lines of tour
+     */
     private Color selectionColor = new Color(1.0,0.4,0.0, 1.0);
 
+    /**
+     * status indicator: timeline view
+     */
     private boolean isTimeline = false;
+    /**
+     * status indicator: modify view
+     */
     private boolean isModify = false;
+    /**
+     * status indicator: add request view
+     */
     private boolean isAddRequest = false;
+    /**
+     * status indicator: edit request view
+     */
     private boolean isEdit = false;
 
+    /**
+     * coordinates of Lyon for map initialisation
+     */
     private static final Coordinate coordLyon = new Coordinate(45.77087932755228, 4.863621380475198);
 
     /** default zoom value. */
@@ -125,9 +244,14 @@ public class Controller {
             .withAttributions(
                     "'Tiles &copy; <a href=\"https://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer\">ArcGIS</a>'");
 
+    /**
+     * MVC controller of the app
+     */
     private MVCController mvcController;
 
-    // CONSTRUCTOR
+    /**
+     * Constructor: initialises attributes of class to initial values
+     */
     public Controller()
     {
         mvcController = new MVCController();
@@ -142,6 +266,10 @@ public class Controller {
         tempRequest = new Request( new Intersection(0,0), new Intersection(0,0), 0,0);
     }
 
+    /**
+     * Initialise the Map and all of the buttons
+     * @param projection Projection of the window
+     */
     public void initMapAndControls(Projection projection) {
         logger.info("begin initialize");
 
@@ -190,6 +318,10 @@ public class Controller {
 
     }
 
+    /**
+     * Initialise the Button handlers
+     *
+     */
     public void initEventHandlers(){
 
         logger.info("Setting up event handlers");
@@ -315,11 +447,6 @@ public class Controller {
                     // reset MVC State
                     mvcController.Reset();
 
-                    //clear everything from map
-                    //tourLines.clear();
-                    //markers.clear();
-                    //coordLines.clear();
-
                     //change text of button
                     mainButton.setText("Calculate Tour");
 
@@ -413,6 +540,9 @@ public class Controller {
 
     }
 
+    /**
+     * Setup the view for adding a new request
+     */
     private void addRequestSetup() {
         undoButton.setVisible(false);
         redoButton.setVisible(false);
@@ -437,6 +567,9 @@ public class Controller {
         isEdit = false;
     }
 
+    /**
+     * Setup the view for editing a request
+     */
     private void editSetup( LocationTagContent item ) {
         undoButton.setVisible(false);
         redoButton.setVisible(false);
@@ -455,8 +588,6 @@ public class Controller {
             mapField.setText(Double.toString(item.request.getDeliveryDur()));
         }
 
-
-
         mainButton.setText("Cancel");
         secondButton.setText("Done");
         list.getChildren().remove(list.getChildren().size() -1);
@@ -472,7 +603,9 @@ public class Controller {
         isTimeline = false;
     }
 
-
+    /**
+     * Setup the view to modify the timeline
+     */
     private void modifySetup(boolean toDelete) {
         undoButton.setVisible(true);
         redoButton.setVisible(true);
@@ -487,7 +620,6 @@ public class Controller {
         if (toDelete)
         {
             list.getChildren().remove(list.getChildren().size() -1);
-
         }
         addCardsToScreen(true);
         isModify = true;
@@ -496,6 +628,9 @@ public class Controller {
         isEdit = false;
     }
 
+    /**
+     * Display the loaded Map file on the Map View
+     */
     private void displayMap() {
         removeFromMap(coordLines);
         removeFromMap(selectedLines);
@@ -524,6 +659,9 @@ public class Controller {
         }
     }
 
+    /**
+     * Display the calculated tour path on the Map View
+     */
     public void displayTour() {
         ArrayList<Segment> listSegments = tour.getSegmentList();
         ArrayList<Intersection> listIntersection = map.getIntersectionList();
@@ -544,6 +682,9 @@ public class Controller {
         }
     }
 
+    /**
+     * Display a highlighted path on the MapView
+     */
     public void displaySegmentTour(ArrayList<Segment> path)
     {
         removeFromMap(selectedLines);
@@ -566,6 +707,9 @@ public class Controller {
         }
     }
 
+    /**
+     * remove Cooddinate Lines from the Map View
+     */
     public void removeFromMap(ArrayList<CoordinateLine> list)
     {
         for (CoordinateLine cl: list) {
@@ -573,6 +717,9 @@ public class Controller {
         }
     }
 
+    /**
+     * Remove location markers from Map View
+     */
     public void removeFromMapMarker(ArrayList<Marker> list)
     {
         for (Marker m: list) {
@@ -580,6 +727,9 @@ public class Controller {
         }
     }
 
+    /**
+     * Display the location markers from the requests file
+     */
     public void displayRequests(){
 
         removeFromMap(selectedLines);
@@ -632,6 +782,9 @@ public class Controller {
 
     }
 
+    /**
+     * Event handler for a click on the Map View for adding a request
+     */
     public void handleNewRequestClick(MapViewEvent event){
 
         if( addedReqCount > 1){
@@ -668,6 +821,9 @@ public class Controller {
         }
     }
 
+    /**
+     * Event handler for click on the map view for editing a request
+     */
     public void handleEditRequestClick(MapViewEvent event){
 
         Intersection newIntersection = new Intersection( event.getCoordinate().getLatitude(), event.getCoordinate().getLongitude());
@@ -709,7 +865,9 @@ public class Controller {
         //editingRequest = false;
     }
 
-    //METHOD THAT CREATES CARDS
+    /**
+     * Creates LocationTagContent objects from the results of a calculated tour
+     */
     public void initCardContent() {
         cards.clear();
         int nbPickup = 1;
@@ -775,6 +933,10 @@ public class Controller {
 
     }
 
+    /**
+     * Displays the timeline cards on the screen
+     * @param isModify the format of the cards depending on the view (timeline or modify)
+     */
     public void addCardsToScreen(boolean isModify) {
         logger.info(list.getChildren().toString());
 
@@ -824,7 +986,9 @@ public class Controller {
         });
     }
 
-    //finishes setup after the mpa is initialzed
+    /**
+     * finishes setup after the map is initialised
+     */
     private void afterMapIsInitialized() {
         logger.info("map intialized");
         logger.info("setting center and enabling controls...");
@@ -834,29 +998,73 @@ public class Controller {
 
     }
 
-    //CLASS THAT MODELS CONTENT OF CARDS TO SHOW IN TIMELINE
+    /**
+     * <h1>Location Tag Content</h1>
+     * This class allows to format and prepare the Locations of a Request (Pickup or Delivery)
+     * into textual raw data to be displayed on the Timeline listview
+     *
+     */
     public static class LocationTagContent {
-        //ex. "Pickup 1", or "Delivery 3"
+        /**
+         * Name of the Location (ex. "Pickup 1" or "Delivery 3"
+         */
         private String name;
-        //streets of the intersection
+        /**
+         * First street of the intersection of the Pickup/Delivery request.
+         */
         private String streetOne;
+        /**
+         * Second street of the intersection of the Pickup/Delivery request.
+         */
         private String streetTwo;
-        //arrival time
+        /**
+         * Estimated Time of arrival at location
+         */
         private String arrivalTime;
-        //coordinates of location
+        /**
+         * Coordinates of the Pickup/Delivery location
+         */
         private Coordinate coordLocation;
+        /**
+         * The request that refers to the Pickup/Delivery Location
+         */
         private Request request;
+        /**
+         *  The path in the tour to get to this location from the previous location in the tour
+         */
         private ArrayList<Segment> chemin;
 
+        /**
+         * Get the name of the LTC
+         * @return name Name of the LTC
+         */
         public String getName() {
             return name;
         }
+        /**
+         * Get the intersection of the location
+         * @return intersectionName the names of the two streets of the intersection
+         */
         public String getIntersection() {
             return streetOne + "\n" + streetTwo;
         }
+        /**
+         * Get the Arrival time to the location
+         * @return arrivalTime
+         */
         public String getArrivalTime() {
             return arrivalTime;
         }
+        /**
+         * Constructor
+         * @param name Name of location (Pickup/Delivery)
+         * @param streetOne Street 1 of Intersection
+         * @param streetTwo Street 2 of Intersection
+         * @param arrivalTime Arrival Time of Intersection
+         * @param coordLocation Coordinates of location
+         * @param chemin Path to the location
+         * @param req The request of the location
+         */
         public LocationTagContent(String name, String streetOne, String streetTwo, String arrivalTime, Coordinate coordLocation, ArrayList<Segment> chemin, Request req) {
             super();
             this.name = name;
@@ -868,19 +1076,50 @@ public class Controller {
             this.request = req;
         }
 
+        /**
+         * Prints the name of the LTC
+         * @return name Name of LTC
+         */
         public String toString() {
             return name;
         }
+
+        public ArrayList<Segment> getChemin() {
+            return chemin;
+        }
     }
 
-    //CLASS THAT STYLES CONTENT OF CARD INTO A LIST CELL
+    /**
+     * <h1>Custom List Cell</h1>
+     * A Location Tag Content needs to be properly formatted as a JavaFX object
+     * in order to be displayed as cards on the timeline in the side panel of the app.
+     * Custom List cell creates the layout of the cards in the Timeline View
+     */
     private class CustomListCell extends ListCell<LocationTagContent> {
+        /**
+         *  Container of LTC content
+         */
         private HBox content;
+        /**
+         *  name of location
+         */
         private Text name;
+        /**
+         *  formatted address of location (Intersection)
+         */
         private Text address;
+        /**
+         *  formatted text for estimated arrival time
+         */
         private Text arrivalText;
+        /**
+         *  arrival time of the location
+         */
         private Text arrivalTime;
 
+        /**
+         *  Constructor of the Cell
+         */
         public CustomListCell() {
             super();
             name = new Text();
@@ -906,6 +1145,11 @@ public class Controller {
             content.setSpacing(10);
         }
 
+        /**
+         *  Sets the content of a LocationTagContent in the card
+         * @param item The Location Tag Content to be formatte in the card
+         * @param empty is parameter empty
+         */
         @Override
         protected void updateItem(LocationTagContent item, boolean empty) {
             super.updateItem(item, empty);
@@ -920,16 +1164,45 @@ public class Controller {
         }
     }
 
-    //CLASS THAT STYLES CONTENT OF CARD INTO A LIST CELL
+    /**
+     * <h1>Custom Modify List Cell</h1>
+     * A Location Tag Content needs to be properly formatted as a JavaFX object
+     * in order to be displayed as cards on the timeline in the side panel of the app.
+     * Custom List Modify Cell creates the layout of the cards in the Modify View
+     */
     private class CustomModifyListCell extends ListCell<LocationTagContent> {
+        /**
+         *  Container of LTC content
+         */
         private HBox content;
+        /**
+         *  name of location
+         */
         private Text name;
+        /**
+         *  formatted address of location (Intersection)
+         */
         private Text address;
+        /**
+         *  button to edit a LTC (change duration and choose location on map)
+         */
         private Button editButton;
+        /**
+         *  button to delete request from timeline
+         */
         private Button deleteButton;
+        /**
+         *  move the location up in the list
+         */
         private Button upButton;
+        /**
+         *  move the location down in the list
+         */
         private Button downButton;
 
+        /**
+         * Constructor for a Cell of the Custom Modify List View.
+         */
         public CustomModifyListCell() {
             super();
             name = new Text();
@@ -947,7 +1220,11 @@ public class Controller {
             downButton = new Button("");
             downButton.setGraphic(new ImageView("sample/down.png"));
 
+
             editButton.setOnAction(new EventHandler<ActionEvent>() {
+                /**
+                 * Event handler fot Editing a location
+                 */
                 @Override
                 public void handle(ActionEvent event) {
                     //call function to edit an item
@@ -958,6 +1235,9 @@ public class Controller {
             });
 
             deleteButton.setOnAction(new EventHandler<ActionEvent>() {
+                /**
+                 * Event handler fot Deleting a location
+                 */
                 @Override
                 public void handle(ActionEvent event) {
                     if (cards.size()>3)
@@ -997,6 +1277,9 @@ public class Controller {
             });
 
             upButton.setOnAction(new EventHandler<ActionEvent>() {
+                /**
+                 * Event handler fot Moving Up a location
+                 */
                 @Override
                 public void handle(ActionEvent event) {
 
@@ -1026,6 +1309,9 @@ public class Controller {
             });
 
             downButton.setOnAction(new EventHandler<ActionEvent>() {
+                /**
+                 * Event handler fot Moving Down a location
+                 */
                 @Override
                 public void handle(ActionEvent event) {
 
@@ -1056,6 +1342,9 @@ public class Controller {
             });
 
             undoButton.setOnAction(new EventHandler<ActionEvent>() {
+                /**
+                 * Event handler fot Undo an Action
+                 */
                 @Override
                 public void handle(ActionEvent event) {
                     logger.info("undo is clicked");
@@ -1068,6 +1357,9 @@ public class Controller {
             });
 
             redoButton.setOnAction(new EventHandler<ActionEvent>() {
+                /**
+                 * Event handler for Redo an Action
+                 */
                 @Override
                 public void handle(ActionEvent event) {
                     logger.info("redo is clicked");
@@ -1089,6 +1381,11 @@ public class Controller {
             content.setSpacing(10);
         }
 
+        /**
+         * Updates the contents of a LocationTagCOntent
+         * @param item the item to modify
+         * @param empty see if the paraeters are empty
+         */
         @Override
         protected void updateItem(LocationTagContent item, boolean empty) {
             super.updateItem(item, empty);
@@ -1102,6 +1399,10 @@ public class Controller {
         }
     }
 
+    /**
+     * Refresh the Model - show the new calculated tour on the map
+     *
+     */
     protected void refreshModel() {
         map = mvcController.getMap();
         planningRequest = mvcController.getPlanningRequest();

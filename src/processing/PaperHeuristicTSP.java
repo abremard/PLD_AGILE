@@ -6,7 +6,6 @@ import objects.Segment;
 import objects.Tournee;
 
 import java.util.*;
-import java.lang.Math.*;
 
 import static java.lang.StrictMath.*;
 
@@ -57,6 +56,28 @@ public class PaperHeuristicTSP {
             this.cost = cost;
             this.index1 = index;
             this.index2 = -1;
+        }
+    }
+
+    /**
+     * Classe servant de tuple de 3 entiers pour définir les points de coupure
+     * des arêtes dans l'optimisation 3-opt
+     */
+    private class ThreeOptCuts {
+
+        public int cut1;
+        public int cut2;
+        public int cut3;
+
+        ThreeOptCuts(int cut1, int cut2, int cut3) {
+            this.cut1 = cut1;
+            this.cut2 = cut2;
+            this.cut3 = cut3;
+        }
+
+        @Override
+        public String toString() {
+            return "ThreeOptCuts{" + cut1 + ", " + cut2 + ", " + cut3 + '}';
         }
     }
 
@@ -157,10 +178,58 @@ public class PaperHeuristicTSP {
             requestsToProcess.remove(bestChoice);
 //            System.err.println("Requests to process: " + requestsToProcess);
             System.err.println("Current tour indexes: " + currentTourIndexes);
-        }
 
-        // --------- Etape 1.4 : Optimisation locale (3-opt)
-        // TODO 3-opt UNIQUEMENT SI LE TRAJET EST ASSEZ LONG !!!
+
+            // --------- Etape 1.4 : Optimisation locale (3-opt)
+            if (currentTourIndexes.size() > 4) {        // 3-opt uniquement si + d'1 requête dans le trajet
+
+                // stocker les deux centres des chemins sur lesquels on applique le 3-opt
+                ArrayList<Integer> centers = new ArrayList<>();
+                // point de pickup
+                centers.add(minDeltaI.index1);
+                // delivery
+                if (minDeltaI.insertionMethod == InsertionMethod.CONSECUTIVE) {
+                    centers.add(minDeltaI.index1 + 1);
+                } else {
+                    centers.add(minDeltaI.index2 + 1);  // delivery (+1 car décalé après insertion du pickup)
+                }
+
+                float initialCost;
+                float newCost;
+
+                for (int center : centers) {        // 3-opt autour du pickup et du delivery
+
+                    // combinaisons possibles pour les "coupures" d'arêtes sur le chemin
+                    ArrayList<ThreeOptCuts> possibleCuts = AllPossibleCuts(minDeltaI.index1);
+                    boolean stop = false;
+
+                    // pour chaque possibilité de 3-opt, évaluer son coût, et la garder si meilleure que l'originale
+                    for (ThreeOptCuts cuts : possibleCuts) {
+                        initialCost = longueurCheminEntre(cuts.cut1, cuts.cut3 + 1);
+
+                        for (AssembleOrder order : AssembleOrder.values()) {
+                            newCost = threeOptCost(center, cuts.cut1, cuts.cut2, cuts.cut3, order);
+
+                            // si on trouve un meilleur trajet, on l'applique
+                            if (newCost > initialCost) {
+                                System.err.println("Found a better local optimization of cost " + newCost
+                                        + " (against " + initialCost +")");
+                                System.err.print("Old Tournee : " + this.currentTourIndexes);
+                                applyThreeOpt(center, cuts.cut1, cuts.cut2, cuts.cut3, order);
+                                System.err.println(" -> new Tournee : " + this.currentTourIndexes);
+                                stop = true;        // propage le break à la boucle du dessus
+                                break;
+                            }
+                        }
+
+                        // ne plus considérer les autres possibilités de cuts si on a déjà amélioré le chemin
+                        if (stop) {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -262,7 +331,7 @@ public class PaperHeuristicTSP {
      * @see InsertionMethod
      * @see PaperHeuristicTSP#doubleInsertionHeuristic()
      */
-    public float ThreeOptCost(int center, int cut1, int cut2, int cut3, AssembleOrder order) {
+    public float threeOptCost(int center, int cut1, int cut2, int cut3, AssembleOrder order) {
 
         float cost = 0;
 
@@ -342,16 +411,53 @@ public class PaperHeuristicTSP {
 
         }
 
-
         return cost;
     }
 
     /**
-     * @see PaperHeuristicTSP#ThreeOptCost(int, int, int, int, AssembleOrder)
+     * Applique la méthode de réarrangement choisie après calcul de son coût par
+     * 3-opt au trajet actuel
+     *
+     * @see PaperHeuristicTSP#threeOptCost(int, int, int, int, AssembleOrder)
      */
-    void ApplyThreeOpt(int center, int cut1, int cut2, int cut3, AssembleOrder order) {
+    void applyThreeOpt(int center, int cut1, int cut2, int cut3, AssembleOrder order) {
 
+        // todo
+    }
 
+    /**
+     * Méthode pour générer toutes les combinaisons possibles de 3 arêtes à
+     * enlever au chemin de longueur 2r+1 centré en center pour l'optimisation
+     * 3-opt
+     *
+     * @param center Le milieu du chemin sur lequel on applique l'optimisation
+     * @return La liste des ensembles de 3 points à partir desquels on peut
+     * "couper" une arête pour appliquer l'optimisation 3-opt
+     * @see PaperHeuristicTSP.ThreeOptCuts
+     */
+    ArrayList<ThreeOptCuts> AllPossibleCuts(int center) {
+
+        // prendre en compte les bounds du trajet pour ne pas dépasser
+        int first = max(0, center - r);
+        int last = min(currentTourIndexes.size() - 1, center + r);
+
+        // ne pas calculer si moins de 3 arêtes à couper
+        if (last - first < 3) {
+            System.err.println("WARNING: Asking for an optimization with a path too small!");
+            return null;
+        }
+
+        ArrayList<ThreeOptCuts> possibleCuts = new ArrayList<>();
+
+        for (int i = first; i < last - 2; ++i) {
+            for (int j = i + 1; j < last - 1; ++j) {
+                for (int k = j + 1; k < last; ++k) {
+                    possibleCuts.add(new ThreeOptCuts(i, j, k));
+                }
+            }
+        }
+
+        return possibleCuts;
     }
 
     /**
@@ -470,5 +576,5 @@ public class PaperHeuristicTSP {
         ajouterPointTournee(tupleRequete, currentTourIndexes.size());
     }
 
-    // todo supprimerPointTourner !
+    // todo supprimerPointTournee pour l'étape 2
 }
