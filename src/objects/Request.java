@@ -15,6 +15,8 @@ public class Request {
     LocalTime startTime;
     int id;
 
+
+
     public Request(Intersection pickup, Intersection delivery, double pickupDur, double deliveryDur) {
         this.pickup = pickup;
         this.delivery = delivery;
@@ -34,6 +36,10 @@ public class Request {
 
         this.id = nbInstances;
         ++nbInstances;
+    }
+
+    public int getId() {
+        return id;
     }
 
     public Intersection getPickup() {
