@@ -332,7 +332,7 @@ public class ComputeTour {
      * @param planning Le planning contenant la liste des requêtes à traiter ainsi que le dépôt
      */
     public static void recreateTimesTournee(Tournee tournee, PlanningRequest planning) {
-        LocalTime curTime = LocalTime.now();
+        LocalTime curTime = planning.getDepot().getDepartureTime();
         ArrayList<Segment> curChemin = new ArrayList<Segment>();
         // pool
         LinkedList<TupleRequete> pool = new LinkedList<TupleRequete>();
@@ -553,7 +553,7 @@ public class ComputeTour {
      * @return la tournée calculée
      */
     private static Tournee tourneeTriviale(Map map, PlanningRequest planning, HashMap<Long, Integer> intersecIdToIndex) {
-        LocalTime curTime = LocalTime.now();
+        LocalTime curTime = planning.getDepot().getDepartureTime();
         ArrayList<TupleRequete> ptsPassage = new ArrayList<TupleRequete>();
         ArrayList<Segment> chemin = new ArrayList<Segment>();
         ArrayList<Intersection> intersections = map.getIntersectionList();
@@ -650,7 +650,7 @@ public class ComputeTour {
          *    - si c'est un départ, ajouter son arrivée au pool
          */
 
-        LocalTime curTime = LocalTime.now();
+        LocalTime curTime = planning.getDepot().getDepartureTime();
         ArrayList<Segment> chemin = new ArrayList<Segment>();
         ArrayList<TupleRequete> ptsPassage = new ArrayList<TupleRequete>();
         ArrayList<Request> requests = planning.getRequestList();

@@ -19,11 +19,26 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Locale;
 
-
+/**
+ * Classe métier représentant un planning, c'est-à-dire une liste non ordonnée de requêtes à traiter ainsi que
+ * le dépôt duquel la tournée doit partir et où elle doit finir.
+ * @author H4302
+ * @see Depot
+ * @see Request
+ */
 public class PlanningRequest {
 
+    /**
+     * Le dépôt duquel la tournée doit partir et où elle doit finir.
+     */
     Depot depot;
+
+    /**
+     * La liste non ordonnée des requêtes à traiter.
+     */
     ArrayList<Request> requestList = new ArrayList<>();
+
+    // Constructeurs
 
     public PlanningRequest() {
     }
@@ -32,6 +47,8 @@ public class PlanningRequest {
         this.depot = copyOfPlanningRequest.depot;
         this.requestList = copyOfPlanningRequest.requestList;
     }
+
+    // Getters et setters
 
     public Depot getDepot() {
         return depot;
@@ -49,6 +66,15 @@ public class PlanningRequest {
         this.requestList = requestList;
     }
 
+    // Fonctions utilitaires
+
+    /**
+     * Charge les informations d'un fichier XML correspondant à un planning.
+     * @param requestFile   le chemin du fichier XML à charger
+     * @throws ParserConfigurationException en cas d'échec de la construction du DocumenBuilder
+     * @throws IOException                  en cas d'échec du parsing du fichier
+     * @throws SAXException                 en cas d'échec du parsing du fichier
+     */
     public void parseRequest(String requestFile) throws ParserConfigurationException, IOException, SAXException {
 
         File fXmlFile = new File(requestFile);
@@ -82,17 +108,31 @@ public class PlanningRequest {
         }
     }
 
-    public void addRequest(int index, Request newRequest){
+    /**
+     * Ajoute une requête à la liste des requêtes à traiter.
+     * @param index         L'index auquel ajouter la requête (sert pour undo/redo)
+     * @param newRequest    La requête à ajouter
+     */
+    public void addRequest(int index, Request newRequest) {
         requestList.add(index, newRequest);
     }
 
-    public void addRequest(Request newRequest){
+    /**
+     * Ajoute une requête à la liste des requêtes à traiter (en dernière position).
+     * @param newRequest    La requête à ajouter
+     */
+    public void addRequest(Request newRequest) {
         requestList.add(newRequest);
     }
 
-    public boolean removeRequest(Request requestToRemove){
-        for(Request request : requestList){
-            if(request == requestToRemove){
+    /**
+     * Retire une requête de la liste des requêtes à traiter.
+     * @param requestToRemove   La requête à retirer
+     * @return un booléen indiquant si la requête a bien été retirée.
+     */
+    public boolean removeRequest(Request requestToRemove) {
+        for (Request request : requestList) {
+            if (request == requestToRemove) {
                 requestList.remove(requestToRemove);
                 return true;
             }
@@ -100,11 +140,22 @@ public class PlanningRequest {
         return false;
     }
 
-    public void removeRequest(int index) { requestList.remove(index); }
+    /**
+     * Retire une requête de la liste des requêtes à traiter.
+     * @param index     l'indice de la liste de requêtes auquel retirer une requête
+     */
+    public void removeRequest(int index) {
+        requestList.remove(index);
+    }
 
-    public void modifyRequest(Request requestToRemove, Request requestToAdd){
-        for(Request request : requestList){
-            if(request == requestToRemove){
+    /**
+     * Remplace une requête par une autre dans la liste
+     * @param requestToRemove   la requête à remplacer
+     * @param requestToAdd      la requête par laquelle elle doit être remplacée
+     */
+    public void modifyRequest(Request requestToRemove, Request requestToAdd) {
+        for (Request request : requestList) {
+            if (request == requestToRemove) {
                 requestList.remove(requestToRemove);
                 requestList.add(requestToAdd);
             }
