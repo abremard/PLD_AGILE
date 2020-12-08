@@ -210,8 +210,9 @@ public class PaperHeuristicTSP {
                         for (AssembleOrder order : AssembleOrder.values()) {
                             newCost = threeOptCost(center, cuts.cut1, cuts.cut2, cuts.cut3, order);
 
-                            // si on trouve un meilleur trajet, on l'applique
+                            // si on trouve un meilleur trajet et qu'il respecte les contraintes de précédence, on l'applique
                             if (newCost > initialCost) {
+                                // TODO VERIFIER SI LE CHEMIN RESPECTE LES CONTRAINTES D ORDRE 
                                 System.err.println("Found a better local optimization of cost " + newCost
                                         + " (against " + initialCost +")");
                                 System.err.print("Old Tournee : " + this.currentTourIndexes);
@@ -422,7 +423,100 @@ public class PaperHeuristicTSP {
      */
     void applyThreeOpt(int center, int cut1, int cut2, int cut3, AssembleOrder order) {
 
-        // todo
+        // indices dans le trajet initial du début de chacun des sous-chemins A et B
+        int firstB = cut1 + 1;
+        int firstC = cut2 + 1;
+        int lgB = cut2 - cut1;
+        int lgC = cut3 - cut2;
+        int i, j;
+
+        // tableaux qui contiendront la portion de chemin modifiée
+        int[] newPathIndexes = new int[lgB + lgC];
+        ArrayList<TupleRequete> newPathPoints = new ArrayList<>();
+
+        for (i = 0; i < lgB + lgC; ++i) {
+            newPathPoints.add(new TupleRequete(null, false));
+        }
+
+        /*
+         * Ordres possibles :
+         * - DOUBLE_REVERSE : A - B à l'envers - C à l'envers - D
+         * - INVERT-ORDER : A - C - B - D
+         * - REVERSE_B : A - C - B à l'envers - D
+         * - REVERSE_C : A - C à l'envers - B - D
+         * - INVERT_REVERSE : A - C à l'envers - B à l'envers - D
+         * */
+        switch (order) {
+            case DOUBLE_REVERSE:        // A - B à l'envers - C à l'envers - D
+                // B à l'envers (fin -> début)
+                for (i = 0; i < lgB; ++i) {
+                    newPathIndexes[i] = currentTourIndexes.get(cut2 - i);
+                    newPathPoints.get(i).setFrom(currentTourPoints.get(cut2 - i));
+                }
+                // C à l'envers (fin -> début)
+                for (j = 0; i < lgB + lgC; ++i, ++j) {
+                    newPathIndexes[i] = currentTourIndexes.get(cut3 - j);
+                    newPathPoints.get(i).setFrom(currentTourPoints.get(cut3 - j));
+                }
+                break;
+
+            case INVERT_ORDER:          // A - C - B - D
+                // C à l'endroit (début -> fin)
+                for (i = 0; i < lgC; ++i) {
+                    newPathIndexes[i] = currentTourIndexes.get(firstC + i);
+                    newPathPoints.get(i).setFrom(currentTourPoints.get(firstC + i));
+                }
+                // B à l'endroit (début -> fin)
+                for (j = 0 ; i < lgB + lgC; ++i, ++j) {
+                    newPathIndexes[i] = currentTourIndexes.get(firstB + j);
+                    newPathPoints.get(i).setFrom(currentTourPoints.get(firstB + j));
+                }
+                break;
+
+            case REVERSE_B:          // A - C - B à l'envers - D
+                // C à l'endroit (début -> fin)
+                for (i = 0; i < lgC; ++i) {
+                    newPathIndexes[i] = currentTourIndexes.get(firstC + i);
+                    newPathPoints.get(i).setFrom(currentTourPoints.get(firstC + i));
+                }
+                // B à l'envers (fin -> début)
+                for (j = 0; i < lgB + lgC; ++i, ++j) {
+                    newPathIndexes[i] = currentTourIndexes.get(cut2 - j);
+                    newPathPoints.get(i).setFrom(currentTourPoints.get(cut2 - j));
+                }
+                break;
+
+            case REVERSE_C:          // A - C à l'envers - B - D
+                // C à l'envers (fin -> début)
+                for (i = 0; i < lgC; ++i) {
+                    newPathIndexes[i] = currentTourIndexes.get(cut3 - i);
+                }
+                // B à l'endroit (début -> fin)
+                for (j = 0 ; i < lgB + lgC; ++i, ++j) {
+                    newPathIndexes[i] = currentTourIndexes.get(firstB + j);
+                    newPathPoints.get(i).setFrom(currentTourPoints.get(firstB + j));
+                }
+                break;
+
+            case INVERT_REVERSE:          // A - C à l'envers - B à l'envers - D
+                // C à l'envers (fin -> début)
+                for (i = 0; i < lgC; ++i) {
+                    newPathIndexes[i] = currentTourIndexes.get(cut3 - i);
+                    newPathPoints.get(i).setFrom(currentTourPoints.get(cut3 - i));
+                }
+                // B à l'envers (fin -> début)
+                for (j = 0 ; i < lgB + lgC; ++i, ++j) {
+                    newPathIndexes[i] = currentTourIndexes.get(cut2 - j);
+                    newPathPoints.get(i).setFrom(currentTourPoints.get(cut2 - j));
+                }
+                break;
+        }
+
+        System.err.println("Old path: " + this.currentTourIndexes);
+
+        for (i = 0; i < newPathIndexes.length; ++i) {
+            // todo
+        }
     }
 
     /**

@@ -55,6 +55,11 @@ public class TupleRequete {
         this.time = time;
     }
 
+    public void setFrom(TupleRequete tupleRequete) {
+        this.setRequete(tupleRequete.requete);
+        this.setDepart(tupleRequete.isDepart());
+    }
+
     public TupleRequete(Request requete, boolean isDepart) {
         this.requete = requete;
         this.isDepart = isDepart;
