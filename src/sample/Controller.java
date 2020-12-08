@@ -375,7 +375,7 @@ public class Controller {
                 mvcController.LoadRequestPlan(file.getAbsolutePath());
                 refreshModel();
 
-                displayRequests();
+                displayRequests(true);
 
                 mainButton.setDisable(false);
 
@@ -411,8 +411,18 @@ public class Controller {
                     //call method that places results on timeline
                     initCardContent();
 
+                    undoButton.setVisible(false);
+                    redoButton.setVisible(false);
+                    //change text of buttons
+
+
+                    //get files, pass them to the algo, calculate path, get results
+                    logger.info(map.toString());
+                    logger.info(planningRequest.toString());
+                    //call method that places results on the map
+
                     //update button position
-                    isTimeline = false; //--> will execute the else of isTimeline, and will pas to isTimeine true
+                    isTimeline = true;
                     isAddRequest = false;
                     isModify = false;
                 }
@@ -730,13 +740,17 @@ public class Controller {
     /**
      * Display the location markers from the requests file
      */
-    public void displayRequests(){
+    public void displayRequests(boolean toRemoveTour){
 
         removeFromMap(selectedLines);
-        removeFromMap(tourLines);
+        if (toRemoveTour)
+        {
+            removeFromMap(tourLines);
+            tourLines.clear();
+        }
         removeFromMapMarker(markers);
         selectedLines.clear();
-        tourLines.clear();
+
         markers.clear();
 
         ArrayList<Intersection> listIntersection = map.getIntersectionList();
@@ -1262,6 +1276,7 @@ public class Controller {
                         refreshModel();
                         logger.info(cards.toString());
                         list.getChildren().remove(list.getChildren().size() -1);
+                        displayRequests(false);
                         addCardsToScreen(true);
                     } else {
                         Alert alert = new Alert(Alert.AlertType.INFORMATION);
