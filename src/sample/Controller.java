@@ -637,8 +637,14 @@ public class Controller {
                 ArrayList<String> street = map.getSegmentNameFromIntersectionId(pt.getRequete().getDelivery().getId());
                 logger.info(street.toString());
                 street1 = street.get(0);
+                if (street1.length()>20) {
+                    street1 = street1.substring(0, 19) + "..";
+                }
                 if (street.size() >= 2) {
                     street2 = street.get(1);
+                    if (street2.length()>20) {
+                        street2 = street2.substring(0, 19) + "..";
+                    }
                 }
                 latitude = pt.getRequete().getDelivery().getLatitude();
                 longitude = pt.getRequete().getDelivery().getLongitude();
