@@ -11,19 +11,20 @@ import objects.Map;
 import sample.Controller;
 
 /*
-* TODO
-*  - arrêter Dijsktra quand on a traité tous les points d'intérêt
-*  - heuristique du paper
-*  - JavaDoc
-*
-* FIXME
+ * TODO
+ *  - arrêter Dijsktra quand on a traité tous les points d'intérêt
+ *  - heuristique du paper
+ *  - JavaDoc
+ *
+ * FIXME
  *  - B&B : pas optimal ?
  *  - random passe pas par tous les points :'( (notamment largeMap + requestsLarge9)
-* */
+ * */
 
 /**
  * Classe regroupant les algorithmes de calcul de tournée.
  * Utiliser planTour() pour récupérer une tournée.
+ *
  * @author H4302
  * @see command.ComputeTourCommand
  */
@@ -32,9 +33,10 @@ public class ComputeTour {
     /**
      * Fonction principale de ComputeTour, permet de calculer une tournée d'après les informations des fichiers XML
      * de map et de liste de requêtes, ainsi que d'un choix d'heuristique.
-     * @param map           La carte représentant le graphe sur lequel on effectue le parcours
-     * @param planning      Le planning contenant la liste des requêtes à traiter ainsi que le dépôt
-     * @param heuristique   L'heuristique à utiliser (conditionne la qualité du résultat et la vitesse d'exécution)
+     *
+     * @param map         La carte représentant le graphe sur lequel on effectue le parcours
+     * @param planning    Le planning contenant la liste des requêtes à traiter ainsi que le dépôt
+     * @param heuristique L'heuristique à utiliser (conditionne la qualité du résultat et la vitesse d'exécution)
      * @return la tournée calculée
      */
     public static Tournee planTour(Map map, PlanningRequest planning, Heuristique heuristique) {
@@ -43,20 +45,20 @@ public class ComputeTour {
         SuperArete[][] matAdj;
 
         switch (heuristique) {
-            case TRIVIALE :
+            case TRIVIALE:
                 // version triviale
                 return tourneeTriviale(map, planning, intersecIdToIndex);
-            case RANDOM :
+            case RANDOM:
                 // version random
                 return tourneeRandom(map, planning, intersecIdToIndex);
-            case GREEDY :
+            case GREEDY:
                 // version greedy
                 matAdj = getOptimalFullGraph(map, planning, intersecIdToIndex);
                 return greedy(matAdj, planning, intersecIdToIndex);
-            case GENETIQUE :
+            case GENETIQUE:
                 // version genetique
                 return null;
-            case BRANCHANDBOUND :
+            case BRANCHANDBOUND:
                 // version greedy
                 matAdj = getOptimalFullGraph(map, planning, intersecIdToIndex);
                 return branchAndBoundOpti(matAdj, planning);
@@ -80,9 +82,10 @@ public class ComputeTour {
 
     /**
      * Calcule la tournée passant par les points de récupération et de dépôt dans un ordre spécifique.
-     * @param map           La carte représentant le graphe sur lequel on effectue le parcours
-     * @param planning      Le planning contenant la liste des requêtes à traiter ainsi que le dépôt
-     * @param order         Les points par lesquelles la tournée doit passer, dans l'ordre chronologique.
+     *
+     * @param map      La carte représentant le graphe sur lequel on effectue le parcours
+     * @param planning Le planning contenant la liste des requêtes à traiter ainsi que le dépôt
+     * @param order    Les points par lesquelles la tournée doit passer, dans l'ordre chronologique.
      * @return la tournée calculée
      */
     public static Tournee recreateTourneeWithOrder(Map map, PlanningRequest planning, ArrayList<Controller.LocationTagContent> order) {
@@ -92,9 +95,9 @@ public class ComputeTour {
 
         ArrayList<Segment> chemin = new ArrayList<Segment>();
         int previousInd = 0;
-        for (int i=0; i<order.size(); i++) {
-            chemin.addAll(matAdj[previousInd][indexPtsInterets.get(order.get(i).getChemin().get(order.get(i).getChemin().size()-1).getDestination())].getChemin());
-            previousInd = indexPtsInterets.get(order.get(i).getChemin().get(order.get(i).getChemin().size()-1).getDestination());
+        for (int i = 0; i < order.size(); i++) {
+            chemin.addAll(matAdj[previousInd][indexPtsInterets.get(order.get(i).getChemin().get(order.get(i).getChemin().size() - 1).getDestination())].getChemin());
+            previousInd = indexPtsInterets.get(order.get(i).getChemin().get(order.get(i).getChemin().size() - 1).getDestination());
         }
 
         Tournee tournee = new Tournee(chemin, planning.getRequestList());
@@ -112,6 +115,7 @@ public class ComputeTour {
     /**
      * Dijkstra sur la map donnée en entrée depuis le point de départ vers tous les points d'intérêts (plus les points
      * sur le chemin)
+     *
      * @param map        La carte représentant le graphe sur lequel on effectue le parcours
      * @param depart     Le point de départ du parcours
      * @param ptsInteret La liste des points d'intérêt, c'est-à-dire les points vers lesquels on veut connaître le plus
@@ -158,7 +162,7 @@ public class ComputeTour {
                 // relâcher l'arc
                 if (distVoisin == -1 || distVoisin > curNoeud.distance + seg.getLength()) {     // meilleur chemin qu'avant
                     TupleDijkstra voisin = dist.get(indexArrivee);
-                    if(pQueue.contains(voisin)) {
+                    if (pQueue.contains(voisin)) {
                         pQueue.remove(voisin);
                         voisin.distance = curNoeud.distance + seg.getLength();      // màj distance
                         pQueue.add(voisin);
@@ -178,11 +182,11 @@ public class ComputeTour {
         return pred;
     }
 
-    // SuperArete[depart][arrivee]
     /**
      * Calcule le graphe complet dont les sommets sont les points où il y a un pickup ou une delivery,
      * ainsi que le dépôt (points d'intérêt), et dont les arêtes sont les plus courts chemins sur la map entre ces
      * points d'intérêt.
+     *
      * @param map               La carte représentant le graphe sur lequel on effectue le parcours
      * @param planning          Le planning contenant la liste des requêtes à traiter ainsi que le dépôt
      * @param intersecIdToIndex Le dictionnaire donnant l'indice d'une intersection dans la liste d'intersections de
@@ -201,23 +205,23 @@ public class ComputeTour {
         for (Request req : requests) {
             found = false;
             for (Intersection node : ptsInteret) {
-                if(req.getPickup().getId() == node.getId()){
+                if (req.getPickup().getId() == node.getId()) {
                     found = true;
                     break;
                 }
             }
-            if(!found) {
+            if (!found) {
                 ptsInteret.add(req.getPickup());
             }
 
             found = false;
             for (Intersection node : ptsInteret) {
-                if(req.getDelivery().getId() == node.getId()){
+                if (req.getDelivery().getId() == node.getId()) {
                     found = true;
                     break;
                 }
             }
-            if(!found) {
+            if (!found) {
                 ptsInteret.add(req.getDelivery());
             }
 
@@ -232,10 +236,10 @@ public class ComputeTour {
         int nInodes = ptsInteret.size();
         SuperArete[][] adjMatrix = new SuperArete[nInodes][nInodes];
 
-        for(int i=0; i<nInodes; i++) {
+        for (int i = 0; i < nInodes; i++) {
             ArrayList<Segment> predList = dijkstra(map, ptsInteret.get(i), ptsInteret, intersecIdToIndex);
-            for(int j=0; j<nInodes; j++) {
-                if(i != j) {
+            for (int j = 0; j < nInodes; j++) {
+                if (i != j) {
                     ArrayList<Segment> chemin = recreateChemin(predList, ptsInteret.get(i), ptsInteret.get(j), intersections, intersecIdToIndex);
                     adjMatrix[i][j] = new SuperArete(chemin, intersections, intersecIdToIndex);
                 }
@@ -248,6 +252,7 @@ public class ComputeTour {
     /**
      * Renvoie la liste d'adjacence correspondant au graphe construit à partir des segments & intersections de la map
      * passée en paramètre.
+     *
      * @param map               La carte représentant le graphe sur lequel on effectue le parcours
      * @param intersecIdToIndex Le dictionnaire donnant l'indice d'une intersection dans la liste d'intersections de
      *                          la map, à partir de son ID
@@ -275,7 +280,8 @@ public class ComputeTour {
     /**
      * Crée un dictionnaire donnant l'indice d'une intersection dans la liste d'intersections de la map,
      * à partir de son ID.
-     * @param map       La carte représentant le graphe sur lequel on effectue le parcours
+     *
+     * @param map La carte représentant le graphe sur lequel on effectue le parcours
      * @return Le dictionnaire
      */
     private static HashMap<Long, Integer> indexationIntersections(Map map) {
@@ -284,7 +290,7 @@ public class ComputeTour {
         HashMap<Long, Integer> intersecIdToIndex = new HashMap<Long, Integer>();
         ArrayList<Intersection> intersections = map.getIntersectionList();
 
-        for(int i = 0; i < map.getNoOfIntersections(); ++i){
+        for (int i = 0; i < map.getNoOfIntersections(); ++i) {
             intersecIdToIndex.put(intersections.get(i).getId(), i);
         }
 
@@ -294,6 +300,7 @@ public class ComputeTour {
     /**
      * Recree un chemin (en tant que liste de Segments) a partir d'une liste de predecesseurs,
      * d'un depart et d'une arrivee.
+     *
      * @param predList          La liste d'arêtes prédécesseures : à chaque indice, le Segment menant du point précédent
      *                          vers ce point
      * @param depart            L'intersection au départ du chemin
@@ -307,7 +314,7 @@ public class ComputeTour {
         ArrayList<Segment> chemin = new ArrayList<Segment>();
         Intersection curNode = arrivee;
 
-        while(curNode.getId() != depart.getId()) {
+        while (curNode.getId() != depart.getId()) {
             Segment boutChemin = predList.get(intersecIdToIndex.get(curNode.getId()));
             chemin.add(0, boutChemin);
             curNode = intersections.get(intersecIdToIndex.get(boutChemin.getOrigin()));
@@ -320,8 +327,9 @@ public class ComputeTour {
      * Calcule les heures d'arrivée à chaque point de pickup/delivery, ainsi que les fragments de chemins associés.
      * Utilisé lorsque le traitement de calcul de la tournée serait plus compliqué si il fallait calculer
      * ces attributs en même temps.
-     * @param tournee           La tournée à modifier (pas de return, modifie directement le paramètre)
-     * @param planning          Le planning contenant la liste des requêtes à traiter ainsi que le dépôt
+     *
+     * @param tournee  La tournée à modifier (pas de return, modifie directement le paramètre)
+     * @param planning Le planning contenant la liste des requêtes à traiter ainsi que le dépôt
      */
     public static void recreateTimesTournee(Tournee tournee, PlanningRequest planning) {
         LocalTime curTime = LocalTime.now();
@@ -336,30 +344,30 @@ public class ComputeTour {
         ArrayList<TupleRequete> ptsPassage = new ArrayList<TupleRequete>();
 
         for (Segment seg : tournee.getSegmentList()) {
-            curTime = curTime.plusSeconds((long)(seg.getLength()*3600/15000.0));
+            curTime = curTime.plusSeconds((long) (seg.getLength() * 3600 / 15000.0));
             curChemin.add(seg);
 
             LinkedList<TupleRequete> aDelete = new LinkedList<TupleRequete>();
             boolean found = false;
             for (TupleRequete req : pool) {
-                if(req.isDepart && req.requete.getPickup().getId() == seg.getDestination()) {
+                if (req.isDepart && req.requete.getPickup().getId() == seg.getDestination()) {
                     req.isDepart = false;
-                    curTime = curTime.plusSeconds((long)(req.getRequete().getPickupDur()));
+                    curTime = curTime.plusSeconds((long) (req.getRequete().getPickupDur()));
                     System.out.println("Pickup a " + req.getRequete().getPickup().getId() + " pendant " + req.getRequete().getPickupDur());
                     ptsPassage.add(new TupleRequete(req.getRequete(), true, curTime, curChemin));
                     found = true;
                 }
-                if(!req.isDepart && req.requete.getDelivery().getId() == seg.getDestination()) {
+                if (!req.isDepart && req.requete.getDelivery().getId() == seg.getDestination()) {
                     aDelete.add(req);
-                    curTime = curTime.plusSeconds((long)(req.getRequete().getDeliveryDur()));
+                    curTime = curTime.plusSeconds((long) (req.getRequete().getDeliveryDur()));
                     System.out.println("Delivery a " + req.getRequete().getDelivery().getId() + " pendant " + req.getRequete().getDeliveryDur());
                     ptsPassage.add(new TupleRequete(req.getRequete(), false, curTime, curChemin));
                     found = true;
                 }
             }
             pool.removeAll(aDelete);
-            if(found) {
-                System.out.println("On va de " + curChemin.get(0).getOrigin() + " a " + curChemin.get(curChemin.size()-1).getDestination());
+            if (found) {
+                System.out.println("On va de " + curChemin.get(0).getOrigin() + " a " + curChemin.get(curChemin.size() - 1).getDestination());
                 curChemin = new ArrayList<Segment>();
             }
         }
@@ -369,7 +377,7 @@ public class ComputeTour {
 
     private static float longueurChemin(ArrayList<Segment> chemin) {
         float longueur = 0;
-        for (Segment seg: chemin) {
+        for (Segment seg : chemin) {
             longueur += seg.getLength();
         }
         return longueur;
@@ -377,6 +385,7 @@ public class ComputeTour {
 
     /**
      * Choisit un élément aléatoire dans une ArrayList de type quelconque
+     *
      * @param arrayList La liste dans laquelle l'élément est choisi
      * @return L'élément de la liste choisi
      */
@@ -387,17 +396,17 @@ public class ComputeTour {
 
     /**
      * Indexe les points de départ, d'arrivée de chaque requête + le dépôt de la façon suivante :
-     *      * indice 0 : dépot
-     *      * indices 1 à nb de pts d'intérêt : chaque point d'intérêt hors dépôt, indexé selon ptsIdToIndex
+     * * indice 0 : dépot
+     * * indices 1 à nb de pts d'intérêt : chaque point d'intérêt hors dépôt, indexé selon ptsIdToIndex
      * FIXME pas sûr que ça marche avec les points confondus
-     * */
+     */
     private static HashMap<Long, Integer> indexerPtsInteret(PlanningRequest planningRequest) {
         HashMap<Long, Integer> ptsIdToIndex = new HashMap<>();
 
         ptsIdToIndex.put(planningRequest.getDepot().getAdresse().getId(), 0);
 
         int index = 1;
-        for (Request req: planningRequest.getRequestList()) {
+        for (Request req : planningRequest.getRequestList()) {
             if (!ptsIdToIndex.containsKey(req.getPickup().getId())) {     // pas sûr que c'est nécessaire
                 ptsIdToIndex.put(req.getPickup().getId(), index);
                 ++index;
@@ -413,6 +422,7 @@ public class ComputeTour {
 
     /**
      * Reconstruit un objet Tournee à partir d'un chemin entier et des requêtes demandées
+     *
      * @param chemin Le chemin à utiliser pour la tournée
      * @return La tournée qui en résulte
      */
@@ -429,15 +439,16 @@ public class ComputeTour {
     /**
      * Crée un chemin aléatoire valide, c'est-à-dire qui passe par tous les points de pickup et de delivery,
      * et que tous les pickups sont réalisés avant les deliveries associées.
-     * @param matAdj            Le sous-graphe complet optimal de la map sous forme d'une matrice d'adjacence
-     * @param planning          Le planning contenant la liste des requêtes à traiter ainsi que le dépôt
+     *
+     * @param matAdj       Le sous-graphe complet optimal de la map sous forme d'une matrice d'adjacence
+     * @param planning     Le planning contenant la liste des requêtes à traiter ainsi que le dépôt
      * @param ptsIdToIndex Le dictionnaire donnant l'indice d'une intersection dans la matrice d'adjacence du
-     *                          sous-graphe optimal, à partir de son ID
+     *                     sous-graphe optimal, à partir de son ID
      * @return le chemin sous forme de liste de SuperAretes, représentant chacune le chemin entre deux points d'intérêt
      * consécutifs.
      * Contrat : matAdj est indexé de la façon suivante :
-     *           indice 0 : dépot
-     *           indices 1 à nb de pts d'intérêt : chaque point d'intérêt hors dépôt, indexé selon ptsIdToIndex
+     * indice 0 : dépot
+     * indices 1 à nb de pts d'intérêt : chaque point d'intérêt hors dépôt, indexé selon ptsIdToIndex
      */
     private static ArrayList<SuperArete> cheminAleatoire(SuperArete[][] matAdj, PlanningRequest planning, HashMap<Long, Integer> ptsIdToIndex) {
 
@@ -459,7 +470,7 @@ public class ComputeTour {
         // initialisation du pool
         ArrayList<TupleRequete> pool = new ArrayList<>(planning.getRequestList().size());
 //        Set<TupleRequete> poolset = new HashSet<>();      // todo tester avec le set pour optimiser les suppressions
-        for (Request req: planning.getRequestList()) {
+        for (Request req : planning.getRequestList()) {
             pool.add(new TupleRequete(req, true));
         }
 
@@ -471,7 +482,7 @@ public class ComputeTour {
         int indexActuel = ptsIdToIndex.get(pick.requete.getPickup().getId());
         // ajout de la nouvelle portion de chemin
         if (indexActuel != indexDernierPt) {
-            if (matAdj[indexDernierPt][indexActuel] != null){
+            if (matAdj[indexDernierPt][indexActuel] != null) {
                 chemin.add(matAdj[indexDernierPt][indexActuel]);  // dépôt -> premier départ
             } else {
                 System.err.println("null found where it should not be ! (" + indexDernierPt + " -> " + indexActuel + ")");
@@ -482,7 +493,7 @@ public class ComputeTour {
         pick.isDepart = false;
 
         // debug
-        if (matAdj[indexDernierPt][indexActuel] == null){
+        if (matAdj[indexDernierPt][indexActuel] == null) {
             if (indexActuel == indexDernierPt) {
                 System.err.println("null added to chemin at " + indexDernierPt + ", " + indexActuel);
             }
@@ -496,7 +507,7 @@ public class ComputeTour {
 
             // ajout de la nouvelle portion de chemin
             if (indexActuel != indexDernierPt) {
-                if (matAdj[indexDernierPt][indexActuel] != null){
+                if (matAdj[indexDernierPt][indexActuel] != null) {
                     chemin.add(matAdj[indexDernierPt][indexActuel]);  // dépôt -> premier départ
                 } else {
                     System.err.println("null found where it should not be ! (" + indexDernierPt + " -> " + indexActuel + ")");
@@ -517,7 +528,7 @@ public class ComputeTour {
         indexActuel = 0;
         // ajout de la nouvelle portion de chemin
         if (indexActuel != indexDernierPt) {
-            if (matAdj[indexDernierPt][indexActuel] != null){
+            if (matAdj[indexDernierPt][indexActuel] != null) {
                 chemin.add(matAdj[indexDernierPt][indexActuel]);  // dépôt -> premier départ
             } else {
                 System.err.println("null found where it should not be ! (" + indexDernierPt + " -> " + indexActuel + ")");
@@ -534,6 +545,7 @@ public class ComputeTour {
     /**
      * Calcule une tournée de la manière la plus rapide, en reliant de manière itérative le pickup d'une requête
      * avec sa delivery, puis avec le pickup de la requête suivante.
+     *
      * @param map               La carte représentant le graphe sur lequel on effectue le parcours
      * @param planning          Le planning contenant la liste des requêtes à traiter ainsi que le dépôt
      * @param intersecIdToIndex Le dictionnaire donnant l'indice d'une intersection dans la liste d'intersections de
@@ -560,12 +572,12 @@ public class ComputeTour {
             for (Segment seg : curChemin) {
                 travelDur += seg.getLength();
             }
-            travelDur *= 3600.0/15000.0; // conversion de metres vers secondes
-            curTime = curTime.plusSeconds((long)travelDur);
+            travelDur *= 3600.0 / 15000.0; // conversion de metres vers secondes
+            curTime = curTime.plusSeconds((long) travelDur);
 
             ptsPassage.add(new TupleRequete(request, true, curTime, curChemin));
 
-            curTime = curTime.plusSeconds((long)request.getPickupDur());
+            curTime = curTime.plusSeconds((long) request.getPickupDur());
 
 
             ptsInteret = new LinkedList<Intersection>();
@@ -578,12 +590,12 @@ public class ComputeTour {
             for (Segment seg : curChemin) {
                 travelDur += seg.getLength();
             }
-            travelDur *= 3600.0/15000.0; // conversion de metres vers secondes
-            curTime = curTime.plusSeconds((long)travelDur);
+            travelDur *= 3600.0 / 15000.0; // conversion de metres vers secondes
+            curTime = curTime.plusSeconds((long) travelDur);
 
             ptsPassage.add(new TupleRequete(request, false, curTime, curChemin));
 
-            curTime = curTime.plusSeconds((long)request.getPickupDur());
+            curTime = curTime.plusSeconds((long) request.getPickupDur());
 
             previousDelivery = request.getDelivery();
         }
@@ -597,8 +609,8 @@ public class ComputeTour {
         for (Segment seg : lastChemin) {
             travelDur += seg.getLength();
         }
-        travelDur *= 3600.0/15000.0; // conversion de metres vers secondes
-        curTime = curTime.plusSeconds((long)travelDur);
+        travelDur *= 3600.0 / 15000.0; // conversion de metres vers secondes
+        curTime = curTime.plusSeconds((long) travelDur);
         chemin.addAll(lastChemin);
         ptsPassage.add(new TupleRequete(new Request(previousDelivery, planning.getDepot().getAdresse(), 0, 0), false, curTime, lastChemin));
 
@@ -607,8 +619,9 @@ public class ComputeTour {
 
     /**
      * Todo : pas encore implémentée
-     * @param matAdj            Le sous-graphe complet optimal de la map sous forme d'une matrice d'adjacence
-     * @param planning          Le planning contenant la liste des requêtes à traiter ainsi que le dépôt
+     *
+     * @param matAdj   Le sous-graphe complet optimal de la map sous forme d'une matrice d'adjacence
+     * @param planning Le planning contenant la liste des requêtes à traiter ainsi que le dépôt
      * @return la tournée calculée
      */
     private static Tournee geneticATSP(SuperArete[][] matAdj, PlanningRequest planning) {
@@ -619,6 +632,7 @@ public class ComputeTour {
     /**
      * Calcule une tournée en utilisant un algorithme glouton, qui se dirige à chaque itération vers le point
      * d'intérêt restant le plus proche de la position actuelle.
+     *
      * @param matAdj            Le sous-graphe complet optimal de la map sous forme d'une matrice d'adjacence
      * @param planning          Le planning contenant la liste des requêtes à traiter ainsi que le dépôt
      * @param intersecIdToIndex Le dictionnaire donnant l'indice d'une intersection dans la liste d'intersections de
@@ -648,17 +662,17 @@ public class ComputeTour {
         //pool.add(new TupleRequete(new Request(planning.getDepot().getAdresse(), planning.getDepot().getAdresse(), 0, 0), true));
 
         int curDepartInd = 0;
-        for(TupleRequete req : pool) {
-            if(req.requete.getPickup().getId() == matAdj[curDepartInd][1].depart.getId()) {
+        for (TupleRequete req : pool) {
+            if (req.requete.getPickup().getId() == matAdj[curDepartInd][1].depart.getId()) {
 //                System.out.println("Pickup, attente de " + req.requete.getPickupDur() + " s");
-                curTime = curTime.plusSeconds((long)req.requete.getPickupDur());
+                curTime = curTime.plusSeconds((long) req.requete.getPickupDur());
                 req.isDepart = false;
             }
         }
         SuperArete curChemin;
         int curArriveeInd = 0;
 
-        while(!pool.isEmpty()) {
+        while (!pool.isEmpty()) {
             // trouver le plus proche
             //     choper l'indice de curDepartInd dans matAdj
             //     parcourir matAdj[index] et chercher le min -> minNode
@@ -678,20 +692,20 @@ public class ComputeTour {
             curChemin = null;
             curArriveeInd = 0;
             for (int i = 0; i < matAdj.length; i++) {
-                if(matAdj[curDepartInd][i] != null && (curChemin == null || matAdj[curDepartInd][i].longueur < curChemin.longueur)) {
+                if (matAdj[curDepartInd][i] != null && (curChemin == null || matAdj[curDepartInd][i].longueur < curChemin.longueur)) {
 
                     boolean found = false;
                     for (TupleRequete req : pool) {
-                        if(req.isDepart && req.getRequete().getPickup().getId() == matAdj[curDepartInd][i].arrivee.getId()) {
+                        if (req.isDepart && req.getRequete().getPickup().getId() == matAdj[curDepartInd][i].arrivee.getId()) {
                             found = true;
                             break;
                         }
-                        if(!req.isDepart && req.getRequete().getDelivery().getId() == matAdj[curDepartInd][i].arrivee.getId()) {
+                        if (!req.isDepart && req.getRequete().getDelivery().getId() == matAdj[curDepartInd][i].arrivee.getId()) {
                             found = true;
                             break;
                         }
                     }
-                    if(found) {
+                    if (found) {
                         curChemin = matAdj[curDepartInd][i];
                         curArriveeInd = i;
                     }
@@ -705,25 +719,25 @@ public class ComputeTour {
             for (Segment seg : curChemin.chemin) {
                 travelDur += seg.getLength();
             }
-            travelDur *= 3600.0/15000.0; // conversion de metres vers secondes
+            travelDur *= 3600.0 / 15000.0; // conversion de metres vers secondes
 //            System.out.println("On va aller de " + curChemin.depart.getId() + " à " + curIDarrivee + " en " + travelDur + " s");
-            curTime = curTime.plusSeconds((long)travelDur);
+            curTime = curTime.plusSeconds((long) travelDur);
 
             // parcourir pool, pour chaque requete où il faut actuellement aller à minNode :
             //      si c'est un départ : transformer en arrivee
             //      si c'est une arrivee : virer du pool
             LinkedList<TupleRequete> aDelete = new LinkedList<TupleRequete>();
             for (TupleRequete dest : pool) {
-                if(dest.isDepart && dest.requete.getPickup().getId() == curIDarrivee) {
+                if (dest.isDepart && dest.requete.getPickup().getId() == curIDarrivee) {
                     ptsPassage.add(new TupleRequete(dest.requete, true, curTime, curChemin.chemin));
 //                    System.out.println("Pickup, attente de " + dest.requete.getPickupDur() + " s");
-                    curTime = curTime.plusSeconds((long)dest.requete.getPickupDur());
+                    curTime = curTime.plusSeconds((long) dest.requete.getPickupDur());
                     dest.isDepart = false;
                 }
-                if(!dest.isDepart && dest.requete.getDelivery().getId() == curIDarrivee) {
+                if (!dest.isDepart && dest.requete.getDelivery().getId() == curIDarrivee) {
                     ptsPassage.add(new TupleRequete(dest.requete, false, curTime, curChemin.chemin));
 //                    System.out.println("Delivery, attente de " + dest.requete.getDeliveryDur() + " s");
-                    curTime = curTime.plusSeconds((long)dest.requete.getDeliveryDur());
+                    curTime = curTime.plusSeconds((long) dest.requete.getDeliveryDur());
                     aDelete.add(dest);
                 }
             }
@@ -759,9 +773,9 @@ public class ComputeTour {
         for (Segment seg : curChemin.chemin) {
             travelDur += seg.getLength();
         }
-        travelDur *= 3600.0/15000.0; // conversion de metres vers secondes
+        travelDur *= 3600.0 / 15000.0; // conversion de metres vers secondes
 //        System.out.println("On va aller de " + curChemin.depart.getId() + " au depot " + curIDarrivee + " en " + travelDur + " s");
-        curTime = curTime.plusSeconds((long)travelDur);
+        curTime = curTime.plusSeconds((long) travelDur);
 
         chemin.addAll(curChemin.chemin);
         ptsPassage.add(new TupleRequete(new Request(planning.getDepot().getAdresse(), planning.getDepot().getAdresse(), 0, 0), false, curTime, curChemin.chemin));
@@ -777,6 +791,7 @@ public class ComputeTour {
      * Génère une tournée aléatoire respectant les contraintes d'ordre pickup -> delivery avec les requêtes et la map*
      * passées en paramètre
      * FIXME apparemment passe pas par tous les points nécessaires
+     *
      * @param map               La carte représentant le graphe sur lequel on effectue le parcours
      * @param planning          Le planning contenant la liste des requêtes à traiter ainsi que le dépôt
      * @param intersecIdToIndex Le dictionnaire donnant l'indice d'une intersection dans la liste d'intersections de
@@ -801,7 +816,6 @@ public class ComputeTour {
     }
 
     /**
-     *
      * @param map               La carte représentant le graphe sur lequel on effectue le parcours
      * @param planning          Le planning contenant la liste des requêtes à traiter ainsi que le dépôt
      * @param intersecIdToIndex Le dictionnaire donnant l'indice d'une intersection dans la liste d'intersections de
@@ -818,14 +832,15 @@ public class ComputeTour {
         PaperHeuristicTSP heuristicTSP = new PaperHeuristicTSP(matAdj, planning, ptsIdToIndex);
 
         // TODO
-		return null;
-	}
+        return null;
+    }
 
     /**
      * Calcule une tournée en utilisant le principe du Branch and Bound. La tournée calculée est optimale : son chemin
      * est le plus court possible. Le temps d'exécution peut en revanche être plus long que pour les autres heuristiques.
-     * @param matAdj            Le sous-graphe complet optimal de la map sous forme d'une matrice d'adjacence
-     * @param planning          Le planning contenant la liste des requêtes à traiter ainsi que le dépôt
+     *
+     * @param matAdj   Le sous-graphe complet optimal de la map sous forme d'une matrice d'adjacence
+     * @param planning Le planning contenant la liste des requêtes à traiter ainsi que le dépôt
      * @return la tournée calculée
      */
     private static Tournee branchAndBoundOpti(SuperArete[][] matAdj, PlanningRequest planning) {
@@ -837,9 +852,9 @@ public class ComputeTour {
         ArrayList<Segment> chemin = new ArrayList<Segment>();
 
         for (int i = 1; i < solution.length; i++) {
-            chemin.addAll(matAdj[solution[i-1]][solution[i]].getChemin());
+            chemin.addAll(matAdj[solution[i - 1]][solution[i]].getChemin());
         }
-        chemin.addAll(matAdj[solution[solution.length-1]][0].getChemin());
+        chemin.addAll(matAdj[solution[solution.length - 1]][0].getChemin());
         Tournee tournee = new Tournee(chemin, planning.getRequestList());
         recreateTimesTournee(tournee, planning);
 
