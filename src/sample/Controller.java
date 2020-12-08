@@ -1134,9 +1134,12 @@ public class Controller {
         public void setIsPickup(boolean state) {
             this.isPickup = state;
         }
-        public Boolean getIsPickup() {
-            return isPickup;
+
+        public Intersection getDestination() {
+            if(isPickup) return request.getPickup();
+            else return request.getDelivery();
         }
+
         /**
          * Constructor
          * @param name Name of location (Pickup/Delivery)
@@ -1165,10 +1168,6 @@ public class Controller {
          */
         public String toString() {
             return name;
-        }
-
-        public ArrayList<Segment> getChemin() {
-            return chemin;
         }
     }
 

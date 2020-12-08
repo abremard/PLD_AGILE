@@ -96,8 +96,8 @@ public class ComputeTour {
         ArrayList<Segment> chemin = new ArrayList<Segment>();
         int previousInd = 0;
         for (int i = 0; i < order.size(); i++) {
-            chemin.addAll(matAdj[previousInd][indexPtsInterets.get(order.get(i).getChemin().get(order.get(i).getChemin().size() - 1).getDestination())].getChemin());
-            previousInd = indexPtsInterets.get(order.get(i).getChemin().get(order.get(i).getChemin().size() - 1).getDestination());
+            chemin.addAll(matAdj[previousInd][indexPtsInterets.get(order.get(i).getDestination().getId())].getChemin());
+            previousInd = indexPtsInterets.get(order.get(i).getDestination().getId());
         }
 
         Tournee tournee = new Tournee(chemin, planning.getRequestList());
