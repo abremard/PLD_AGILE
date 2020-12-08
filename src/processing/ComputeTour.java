@@ -1,7 +1,6 @@
 
 package processing;
 
-import java.lang.reflect.Array;
 import java.time.LocalTime;
 import java.util.*;
 
@@ -22,6 +21,12 @@ import sample.Controller;
  *  - random passe pas par tous les points :'( (notamment largeMap + requestsLarge9)
 * */
 
+/**
+ * Classe regroupant les algorithmes de calcul de tournée.
+ * Utiliser planTour() pour récupérer une tournée.
+ * @author H4302
+ * @see command.ComputeTourCommand
+ */
 public class ComputeTour {
 
     /**
@@ -54,7 +59,7 @@ public class ComputeTour {
             case BRANCHANDBOUND :
                 // version greedy
                 matAdj = getOptimalFullGraph(map, planning, intersecIdToIndex);
-                return branchAndBoundOpti(matAdj, planning, intersecIdToIndex);
+                return branchAndBoundOpti(matAdj, planning);
             case DOUBLEINSERTION:
                 // version double-insertion heuristic
                 matAdj = getOptimalFullGraph(map, planning, intersecIdToIndex);
@@ -311,6 +316,13 @@ public class ComputeTour {
         return chemin;
     }
 
+    /**
+     * Calcule les heures d'arrivée à chaque point de pickup/delivery, ainsi que les fragments de chemins associés.
+     * Utilisé lorsque le traitement de calcul de la tournée serait plus compliqué si il fallait calculer
+     * ces attributs en même temps.
+     * @param tournee           La tournée à modifier (pas de return, modifie directement le paramètre)
+     * @param planning          Le planning contenant la liste des requêtes à traiter ainsi que le dépôt
+     */
     public static void recreateTimesTournee(Tournee tournee, PlanningRequest planning) {
         LocalTime curTime = LocalTime.now();
         ArrayList<Segment> curChemin = new ArrayList<Segment>();
@@ -415,9 +427,17 @@ public class ComputeTour {
     }
 
     /**
+     * Crée un chemin aléatoire valide, c'est-à-dire qui passe par tous les points de pickup et de delivery,
+     * et que tous les pickups sont réalisés avant les deliveries associées.
+     * @param matAdj            Le sous-graphe complet optimal de la map sous forme d'une matrice d'adjacence
+     * @param planning          Le planning contenant la liste des requêtes à traiter ainsi que le dépôt
+     * @param ptsIdToIndex Le dictionnaire donnant l'indice d'une intersection dans la matrice d'adjacence du
+     *                          sous-graphe optimal, à partir de son ID
+     * @return le chemin sous forme de liste de SuperAretes, représentant chacune le chemin entre deux points d'intérêt
+     * consécutifs.
      * Contrat : matAdj est indexé de la façon suivante :
-     * indice 0 : dépot
-     * indices 1 à nb de pts d'intérêt : chaque point d'intérêt hors dépôt, indexé selon ptsIdToIndex
+     *           indice 0 : dépot
+     *           indices 1 à nb de pts d'intérêt : chaque point d'intérêt hors dépôt, indexé selon ptsIdToIndex
      */
     private static ArrayList<SuperArete> cheminAleatoire(SuperArete[][] matAdj, PlanningRequest planning, HashMap<Long, Integer> ptsIdToIndex) {
 
@@ -511,6 +531,15 @@ public class ComputeTour {
 
     // ----------------------------- Heuristiques
 
+    /**
+     * Calcule une tournée de la manière la plus rapide, en reliant de manière itérative le pickup d'une requête
+     * avec sa delivery, puis avec le pickup de la requête suivante.
+     * @param map               La carte représentant le graphe sur lequel on effectue le parcours
+     * @param planning          Le planning contenant la liste des requêtes à traiter ainsi que le dépôt
+     * @param intersecIdToIndex Le dictionnaire donnant l'indice d'une intersection dans la liste d'intersections de
+     *                          la map, à partir de son ID
+     * @return la tournée calculée
+     */
     private static Tournee tourneeTriviale(Map map, PlanningRequest planning, HashMap<Long, Integer> intersecIdToIndex) {
         LocalTime curTime = LocalTime.now();
         ArrayList<TupleRequete> ptsPassage = new ArrayList<TupleRequete>();
@@ -576,11 +605,26 @@ public class ComputeTour {
         return new Tournee(chemin, planning.getRequestList(), ptsPassage);
     }
 
+    /**
+     * Todo : pas encore implémentée
+     * @param matAdj            Le sous-graphe complet optimal de la map sous forme d'une matrice d'adjacence
+     * @param planning          Le planning contenant la liste des requêtes à traiter ainsi que le dépôt
+     * @return la tournée calculée
+     */
     private static Tournee geneticATSP(SuperArete[][] matAdj, PlanningRequest planning) {
         HashMap<Long, Integer> ptIdToIndex = new HashMap<>();       // !! pas les mêmes index qu'avant
         return null;
     }
 
+    /**
+     * Calcule une tournée en utilisant un algorithme glouton, qui se dirige à chaque itération vers le point
+     * d'intérêt restant le plus proche de la position actuelle.
+     * @param matAdj            Le sous-graphe complet optimal de la map sous forme d'une matrice d'adjacence
+     * @param planning          Le planning contenant la liste des requêtes à traiter ainsi que le dépôt
+     * @param intersecIdToIndex Le dictionnaire donnant l'indice d'une intersection dans la liste d'intersections de
+     *                          la map, à partir de son ID
+     * @return la tournée calculée
+     */
     private static Tournee greedy(SuperArete[][] matAdj, PlanningRequest planning, HashMap<Long, Integer> intersecIdToIndex) {
 
         /* Principe :
@@ -733,6 +777,11 @@ public class ComputeTour {
      * Génère une tournée aléatoire respectant les contraintes d'ordre pickup -> delivery avec les requêtes et la map*
      * passées en paramètre
      * FIXME apparemment passe pas par tous les points nécessaires
+     * @param map               La carte représentant le graphe sur lequel on effectue le parcours
+     * @param planning          Le planning contenant la liste des requêtes à traiter ainsi que le dépôt
+     * @param intersecIdToIndex Le dictionnaire donnant l'indice d'une intersection dans la liste d'intersections de
+     *                          la map, à partir de son ID
+     * @return la tournée calculée
      */
     private static Tournee tourneeRandom(Map map, PlanningRequest planning, HashMap<Long, Integer> intersecIdToIndex) {
 
@@ -751,6 +800,14 @@ public class ComputeTour {
         return tournee;
     }
 
+    /**
+     *
+     * @param map               La carte représentant le graphe sur lequel on effectue le parcours
+     * @param planning          Le planning contenant la liste des requêtes à traiter ainsi que le dépôt
+     * @param intersecIdToIndex Le dictionnaire donnant l'indice d'une intersection dans la liste d'intersections de
+     *                          la map, à partir de son ID
+     * @return la tournée calculée
+     */
     private static Tournee tourneePaper(Map map, PlanningRequest planning, HashMap<Long, Integer> intersecIdToIndex) {
 
         // dijkstra pour le graphe complet des plus courts chemins entre les points d'intérêt
@@ -764,7 +821,14 @@ public class ComputeTour {
 		return null;
 	}
 
-    private static Tournee branchAndBoundOpti(SuperArete[][] matAdj, PlanningRequest planning, HashMap<Long, Integer> intersecIdToIndex) {
+    /**
+     * Calcule une tournée en utilisant le principe du Branch and Bound. La tournée calculée est optimale : son chemin
+     * est le plus court possible. Le temps d'exécution peut en revanche être plus long que pour les autres heuristiques.
+     * @param matAdj            Le sous-graphe complet optimal de la map sous forme d'une matrice d'adjacence
+     * @param planning          Le planning contenant la liste des requêtes à traiter ainsi que le dépôt
+     * @return la tournée calculée
+     */
+    private static Tournee branchAndBoundOpti(SuperArete[][] matAdj, PlanningRequest planning) {
 
         TSP tsp = new TSP1();
         tsp.searchSolution(20000, matAdj, planning.getRequestList());
