@@ -120,13 +120,13 @@ public class MVCController {
 
     public void swapRequest(int a, int b, ArrayList<Controller.LocationTagContent> ltcList){currentState.swapRequest(l, this, a, b,ltcList);}
 
-    public void addDone(PlanningRequest p, Map m, ArrayList<Controller.LocationTagContent> ltcList, Request r){currentState.addDone(l, this, p, m, ltcList, r);}
+    public void addDone(PlanningRequest p, Map m, ArrayList<Controller.LocationTagContent> ltcList, Request newRequest, Controller.LocationTagContent newPickupLtc, Controller.LocationTagContent newDeliveryLtc){currentState.addDone(l, this, p, m, ltcList, newRequest, newPickupLtc, newDeliveryLtc);}
 
     public void removeDone(PlanningRequest oldPlanningRequest, ArrayList<Controller.LocationTagContent> ltcList, int removedRequestIndex, int removedCardIndex1, int removedCardIndex2){currentState.removeDone(l, this, oldPlanningRequest, ltcList, removedRequestIndex, removedCardIndex1, removedCardIndex2);}
 
-    public void modifyRequestDone(Request oldRequest, Request newRequest){currentState.modifyRequestDone(l, this, oldRequest, newRequest);}
+    public void modifyRequestDone(Request oldRequest, Request newRequest, Map m, PlanningRequest p, ArrayList<Controller.LocationTagContent> ltcList){currentState.modifyRequestDone(l, this, oldRequest, newRequest, m, p, ltcList);}
 
-    public void applyModificationDone(Map m, PlanningRequest p, ArrayList<Intersection> order){currentState.applyModificationDone(l, this, m, p, order);}
+    public void applyModificationDone(Map m, PlanningRequest p, ArrayList<Controller.LocationTagContent> ltcList){currentState.applyModificationDone(l, this, m, p, ltcList);}
 
     public void cancel(){currentState.cancel(this);}
 

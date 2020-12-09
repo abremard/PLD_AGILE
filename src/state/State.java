@@ -114,7 +114,7 @@ public interface State {
      * @param ltcList La liste des request/delivery ordonnée de façon temporelle.
      * @param r Requête que l'on veut ajouter au planning de requêtes.
      */
-    default void addDone(ListOfCommands l, MVCController c, PlanningRequest p, Map m, ArrayList<Controller.LocationTagContent> ltcList, Request r) {}
+    default void addDone(ListOfCommands l, MVCController c, PlanningRequest p, Map m, ArrayList<Controller.LocationTagContent> ltcList, Request newRequest, Controller.LocationTagContent newPickupLtc, Controller.LocationTagContent newDeliveryLtc) {}
 
     /**
      * On valide la suppression d'une requête de la tournée.
@@ -137,7 +137,7 @@ public interface State {
      * @param oldRequest Requête que l'on cherche à remplacer.
      * @param newRequest Requête avec laquelle on remplace l'ancienne.
      */
-    default void modifyRequestDone(ListOfCommands l, MVCController c, Request oldRequest, Request newRequest) {}
+    default void modifyRequestDone(ListOfCommands l, MVCController c, Request oldRequest, Request newRequest, Map m, PlanningRequest p, ArrayList<Controller.LocationTagContent> ltcList) {}
 
     /**
      * On valide toutes les modifications apportées à la tournée.
@@ -148,7 +148,7 @@ public interface State {
      * @param m Objet symbolisant les données nécessaires à l'affichage de la carte sur l'IHM.
      * @param order A CHANGER
      */
-    default void applyModificationDone(ListOfCommands l, MVCController c, Map m, PlanningRequest p, ArrayList<Intersection> order) {}
+    default void applyModificationDone(ListOfCommands l, MVCController c, Map m, PlanningRequest p, ArrayList<Controller.LocationTagContent> ltcList) {}
 
     /**
      * On annule les modifications apportées.

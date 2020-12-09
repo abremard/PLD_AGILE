@@ -13,25 +13,15 @@ import java.util.ArrayList;
 public class AddRequestCommand implements Command {
 
     private Request newRequest;
-    private ArrayList<Controller.LocationTagContent> oldLtcList;
-
-    public ArrayList<Controller.LocationTagContent> getNewLtcList() {
-        return newLtcList;
-    }
+    private Controller.LocationTagContent newPickupLtc;
+    private Controller.LocationTagContent newDeliveryLtc;
+    private PlanningRequest newPlanningRequest;
 
     public void setNewLtcList(ArrayList<Controller.LocationTagContent> newLtcList) {
         this.newLtcList = newLtcList;
     }
 
     private ArrayList<Controller.LocationTagContent> newLtcList;
-
-    public Request getNewRequest() {
-        return newRequest;
-    }
-
-    public void setNewRequest(Request newRequest) {
-        this.newRequest = newRequest;
-    }
 
     public PlanningRequest getNewPlanningRequest() {
         return newPlanningRequest;
@@ -41,29 +31,30 @@ public class AddRequestCommand implements Command {
         this.newPlanningRequest = newPlanningRequest;
     }
 
-    private PlanningRequest newPlanningRequest;
-
-    public AddRequestCommand(PlanningRequest oldPlanningRequest, ArrayList<Controller.LocationTagContent> ltcList, Request newRequest) {
+    public AddRequestCommand(PlanningRequest oldPlanningRequest, ArrayList<Controller.LocationTagContent> ltcList, Request newRequest, Controller.LocationTagContent newPickupLtc, Controller.LocationTagContent newDeliveryLtc) {
         this.newRequest = newRequest;
+        this.newPickupLtc = newPickupLtc;
+        this.newDeliveryLtc = newDeliveryLtc;
         this.newPlanningRequest = new PlanningRequest(oldPlanningRequest);
-        this.oldLtcList = new ArrayList<>(ltcList);
-        this.newLtcList = null;
+        this.newLtcList = new ArrayList<>(ltcList);
     }
 
     @Override
     public void doCommand(MVCController c) {
         this.newPlanningRequest.addRequest(newPlanningRequest.getRequestList().size()-1, newRequest);
         c.setPlanningRequest(newPlanningRequest);
-        if (newLtcList != null) {
-            c.setLtcList(newLtcList);
-        }
+        this.newLtcList.add(newLtcList.size()-1, newPickupLtc);
+        this.newLtcList.add(newLtcList.size()-1, newDeliveryLtc);
+        c.setLtcList(this.newLtcList);
     }
 
     @Override
     public void undoCommand(MVCController c) {
         this.newPlanningRequest.removeRequest(newPlanningRequest.getRequestList().size()-1);
         c.setPlanningRequest(newPlanningRequest);
-        c.setLtcList(this.oldLtcList);
+        this.newLtcList.remove(newLtcList.size()-1);
+        this.newLtcList.remove(newLtcList.size()-1);
+        c.setLtcList(this.newLtcList);
     }
 
 }

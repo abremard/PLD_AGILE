@@ -161,7 +161,9 @@ public class Controller {
      * temporary request
      */
     private Request tempRequest;
-
+    private LocationTagContent tempItem;
+    private LocationTagContent NewPickupLtc;
+    private LocationTagContent NewDeliveryLtc;
     /**
      * List of coordinate lines of the map - MapView
      */
@@ -276,7 +278,7 @@ public class Controller {
         double longitude = 0.0;
         if (isPickup == true)
         {
-            int index = (cards.size() - 1)/2;
+            int index = ((cards.size() - 1)/2)+1;
             name = "Pickup "+ Integer.toString(index);
             ArrayList<String> street = map.getSegmentNameFromIntersectionId(request.getPickup().getId());
             logger.info(street.toString());
@@ -294,7 +296,7 @@ public class Controller {
             longitude = request.getPickup().getLongitude();
         } else
         {
-            int index = (cards.size() - 1)/2;
+            int index = ((cards.size() - 1)/2)+1;
             name = "Delivery "+ Integer.toString(index);
             ArrayList<String> street = map.getSegmentNameFromIntersectionId(request.getDelivery().getId());
             logger.info(street.toString());
@@ -317,8 +319,11 @@ public class Controller {
 
         Coordinate location = new Coordinate(latitude, longitude);
 
-        LocationTagContent item = new LocationTagContent(name, street1, street2, time.format(formatter), location, null, request);
+        logger.info("jusque lÃ ?");
+        LocationTagContent item = new LocationTagContent(name, street1, street2, null, location, null, request);
+        logger.info("aprÃ¨s la crÃ©ation du LTC");
         item.setIsPickup(isPickup);
+        logger.info("fin de la transformation");
         return item;
     }
     /**
@@ -460,7 +465,8 @@ public class Controller {
                     secondButton.setVisible(true);
 
                     ArrayList<Intersection> order = new ArrayList<>(); // TODO : MODIFY ORDER
-                    mvcController.applyModificationDone(map, planningRequest, order);
+                    // mvcController.applyModificationDone(map, planningRequest, order);
+                    mvcController.applyModificationDone(map, planningRequest, cards);
                     refreshModel();
                     displayTour();
                     //call method that places results on timeline
@@ -558,17 +564,17 @@ public class Controller {
                     tempRequest.setPickupDur(60*Double.parseDouble(mapField.getText()));
                     tempRequest.setDeliveryDur(60*Double.parseDouble(requestField.getText()));
 
-                    mvcController.addDone(planningRequest, map, cards, tempRequest);
-                    AddRequestCommand cmd = (AddRequestCommand) mvcController.getL().getL().get(mvcController.getL().getI());
-                    refreshModel();
-
                     // planningRequest.addRequest(planningRequest.getRequestList().size(), tempRequest);
                     // System.out.println(planningRequest.toString());
 
-                    displayTour();
+                    // displayTour();
                     //call method that places results on timeline
-                    initCardContent();
-                    cmd.setNewLtcList(new ArrayList<>(cards));
+                    // initCardContent();
+                    // cmd.setNewLtcList(new ArrayList<>(cards));
+
+                    mvcController.addDone(planningRequest, map, cards, tempRequest, NewPickupLtc, NewDeliveryLtc);
+                    AddRequestCommand cmd = (AddRequestCommand) mvcController.getL().getL().get(mvcController.getL().getI());
+                    refreshModel();
                     list.getChildren().remove(list.getChildren().size() -1);
                     //compute tour
                     //back to modify
@@ -583,15 +589,22 @@ public class Controller {
                 else if ( isEdit){
                     //mvcController.modifyRequestDone();
                     Request editedRequest = tempRequest;
+                    LocationTagContent editedLtc = tempItem;
+                    int editedCardIndex = cards.indexOf(tempItem);
 
                     Request newRequest = new Request(tempRequest.getPickup(),tempRequest.getDelivery(), tempRequest.getPickupDur(), tempRequest.getDeliveryDur());
-                    if( mapText.getText().equals("Pickup Duration")){
+                    if( mapText.getText().equals("Pickup Duration (min)")){
                         newRequest.setPickupDur(Double.parseDouble(mapField.getText()));
-                    } else if( mapText.getText().equals("Delivery Duration")){
+                        editedLtc.request.setPickupDur(Double.parseDouble(mapField.getText()));
+                        // set editedLtc with new duration value
+                    } else if( mapText.getText().equals("Delivery Duration (min)")){
                         newRequest.setDeliveryDur(Double.parseDouble(mapField.getText()));
+                        editedLtc.request.setDeliveryDur(Double.parseDouble(mapField.getText()));
                     }
-
-
+                    planningRequest.removeRequest(tempRequest);
+                    planningRequest.addRequest(newRequest);
+                    mvcController.modifyRequestDone(tempRequest, newRequest, map, planningRequest, cards);
+                    refreshModel();
 
                     list.getChildren().remove(list.getChildren().size() -1);
                     modifySetup(false);
@@ -643,6 +656,7 @@ public class Controller {
         String type = item.getName().split(" ")[0];
 
         tempRequest = item.request;
+        tempItem = item;
 
         if( type.equals("Pickup") ){
             mapText.setText("Pickup Duration");
@@ -861,10 +875,8 @@ public class Controller {
             return;
         }
 
-
         Intersection newIntersection = new Intersection( event.getCoordinate().getLatitude(), event.getCoordinate().getLongitude());
         newIntersection = map.findClosestIntersection(newIntersection);
-        logger.info(" adding new intersection @" + newIntersection.toString());
 
         String file = ( addedReqCount%2 == 0)? pickupImageFile : deliveryImageFile;
         Coordinate coordIntersection = new Coordinate(newIntersection.getLatitude(), newIntersection.getLongitude());
@@ -872,21 +884,23 @@ public class Controller {
         markers.add(newMarker);
         mapView.addMarker(newMarker);
 
-        if( addedReqCount%2 == 0){
+        if( addedReqCount == 0){
             tempRequest.setPickup(newIntersection);
             tempRequest.getPickup().setMarkerId(newMarker.getId());
+            NewPickupLtc = convertRequestToLTC(tempRequest, true);
             infoText.setText("Click on the map to place the Delivery location");
             //tempRequest.setPickupDur(5);
-        } else if ( addedReqCount%2 == 1){
+        } else {
             tempRequest.setDelivery(newIntersection);
             tempRequest.getDelivery().setMarkerId(newMarker.getId());
+            NewDeliveryLtc = convertRequestToLTC(tempRequest, false);
             infoText.setText(" ");
             //tempRequest.setDelivery_dur(5);
         }
 
         addedReqCount++;
-        if( addedReqCount == 2 ){
 
+        if( addedReqCount == 2 ){
             //secondButton.setDisable(false);
         }
     }
