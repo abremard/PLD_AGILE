@@ -11,7 +11,7 @@ import sample.Controller;
 import java.util.ArrayList;
 
 public interface State {
-    boolean debug = false;
+    boolean debug = true;
 
     /**
      * Appel au parseur de la carte .xml
@@ -112,7 +112,6 @@ public interface State {
      * @param p Le planning des différentes requêtes à effectuer lors de la tournée.
      * @param m Objet symbolisant les données nécessaires à l'affichage de la carte sur l'IHM.
      * @param ltcList La liste des request/delivery ordonnée de façon temporelle.
-     * @param r Requête que l'on veut ajouter au planning de requêtes.
      */
     default void addDone(ListOfCommands l, MVCController c, PlanningRequest p, Map m, ArrayList<Controller.LocationTagContent> ltcList, Request newRequest, Controller.LocationTagContent newPickupLtc, Controller.LocationTagContent newDeliveryLtc) {}
 
@@ -134,10 +133,8 @@ public interface State {
      *
      * @param l Liste des commandes effectuées jusqu'à maintenant.
      * @param c Controlleur dont on met à jour l'état.
-     * @param oldRequest Requête que l'on cherche à remplacer.
-     * @param newRequest Requête avec laquelle on remplace l'ancienne.
      */
-    default void modifyRequestDone(ListOfCommands l, MVCController c, Request oldRequest, Request newRequest, Map m, PlanningRequest p, ArrayList<Controller.LocationTagContent> ltcList) {}
+    default void modifyRequestDone(ListOfCommands l, MVCController c, PlanningRequest p, int editedRequestIndex, int editedCardIndex, double newDuration, boolean isPickup) {}
 
     /**
      * On valide toutes les modifications apportées à la tournée.
@@ -146,7 +143,6 @@ public interface State {
      * @param c Controlleur dont on met à jour l'état.
      * @param p Le planning des différentes requêtes à effectuer lors de la tournée.
      * @param m Objet symbolisant les données nécessaires à l'affichage de la carte sur l'IHM.
-     * @param order A CHANGER
      */
     default void applyModificationDone(ListOfCommands l, MVCController c, Map m, PlanningRequest p, ArrayList<Controller.LocationTagContent> ltcList) {}
 

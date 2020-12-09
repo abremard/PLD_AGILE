@@ -490,9 +490,11 @@ public class Controller {
                 //detect on which view we are - File Picker or Timeline
                 else if (isAddRequest) {
                     //CANCEL ADD REQUEST OPERATION, BACK TO MODIFY VIEW
+                    mvcController.cancel();
                     modifySetup(false);
                 }
                 else if(isEdit){
+                    mvcController.cancel();
                     modifySetup(false);
                     editingRequest = false;
                 }
@@ -587,30 +589,26 @@ public class Controller {
                     mvcController.addRequest();
                 }
                 else if ( isEdit){
-                    //mvcController.modifyRequestDone();
-                    Request editedRequest = tempRequest;
-                    LocationTagContent editedLtc = tempItem;
+
                     int editedCardIndex = cards.indexOf(tempItem);
+                    double newDuration = Double.parseDouble(mapField.getText());
+                    boolean isPickup = false;
 
-                    Request newRequest = new Request(tempRequest.getPickup(),tempRequest.getDelivery(), tempRequest.getPickupDur(), tempRequest.getDeliveryDur());
                     if( mapText.getText().equals("Pickup Duration (min)")){
-                        newRequest.setPickupDur(Double.parseDouble(mapField.getText()));
-                        editedLtc.request.setPickupDur(Double.parseDouble(mapField.getText()));
-                        // set editedLtc with new duration value
-                    } else if( mapText.getText().equals("Delivery Duration (min)")){
-                        newRequest.setDeliveryDur(Double.parseDouble(mapField.getText()));
-                        editedLtc.request.setDeliveryDur(Double.parseDouble(mapField.getText()));
+                        isPickup = true;
                     }
-                    planningRequest.removeRequest(tempRequest);
-                    planningRequest.addRequest(newRequest);
-                    mvcController.modifyRequestDone(tempRequest, newRequest, map, planningRequest, cards);
-                    refreshModel();
 
+                    int editedRequestIndex = planningRequest.getRequestList().indexOf(tempRequest);
+                    mvcController.modifyRequestDone(planningRequest, editedRequestIndex, editedCardIndex, newDuration, isPickup);
+                    refreshModel();
                     list.getChildren().remove(list.getChildren().size() -1);
                     modifySetup(false);
+
                 } else {
+
                     modifySetup(true);
                     mvcController.ModifyRequestList();
+
                 }
             }
         });
@@ -626,7 +624,7 @@ public class Controller {
         undoButton.setVisible(false);
         redoButton.setVisible(false);
 
-        infoText.setText("Click on the map to place the Pickup location");
+        // infoText.setText("Click on the map to place the Pickup location");
 
         mainButton.setText("Cancel");
         secondButton.setText("Add");
@@ -650,6 +648,9 @@ public class Controller {
      * Setup the view for editing a request
      */
     private void editSetup( LocationTagContent item ) {
+
+        mvcController.modifyRequest();
+
         undoButton.setVisible(false);
         redoButton.setVisible(false);
 
@@ -659,11 +660,11 @@ public class Controller {
         tempItem = item;
 
         if( type.equals("Pickup") ){
-            mapText.setText("Pickup Duration");
+            mapText.setText("Pickup Duration (min)");
             requestText.setText("Click on the map to change the Pickup location");
             mapField.setText(Double.toString(item.request.getPickupDur()));
         } else if( type.equals("Delivery") ){
-            mapText.setText("Delivery Duration");
+            mapText.setText("Delivery Duration (min)");
             requestText.setText("Click on the map to change the Delivery location");
             mapField.setText(Double.toString(item.request.getDeliveryDur()));
         }
@@ -888,7 +889,7 @@ public class Controller {
             tempRequest.setPickup(newIntersection);
             tempRequest.getPickup().setMarkerId(newMarker.getId());
             NewPickupLtc = convertRequestToLTC(tempRequest, true);
-            infoText.setText("Click on the map to place the Delivery location");
+            // infoText.setText("Click on the map to place the Delivery location");
             //tempRequest.setPickupDur(5);
         } else {
             tempRequest.setDelivery(newIntersection);
@@ -919,7 +920,7 @@ public class Controller {
         Marker newMarker = null;
 
         String file = "";
-        if(mapText.getText().equals("Pickup Duration")){
+        if(mapText.getText().equals("Pickup Duration (min)")){
             for( Marker m : markers){
                 if( m.getId().equals(tempRequest.getPickup().getMarkerId()) ){
                     mapView.removeMarker(m);
@@ -928,10 +929,11 @@ public class Controller {
                 }
             }
             file = pickupImageFile;
+
             tempRequest.setPickup(newIntersection);
             newMarker = new Marker( getClass().getResource(file),-12,-12).setPosition(coordIntersection).setVisible(true);
             tempRequest.getPickup().setMarkerId(newMarker.getId());
-        } else if (mapText.getText().equals("Delivery Duration")){
+        } else if (mapText.getText().equals("Delivery Duration (min)")){
             for( Marker m : markers){
                 if( m.getId().equals(tempRequest.getDelivery().getMarkerId()) ){
                     mapView.removeMarker(m);
@@ -1121,6 +1123,7 @@ public class Controller {
         private ArrayList<Segment> chemin;
         private boolean isPickup;
 
+        public Request getRequest() { return request; }
         /**
          * Get the name of the LTC
          * @return name Name of the LTC
