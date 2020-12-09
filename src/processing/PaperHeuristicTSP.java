@@ -212,10 +212,6 @@ public class PaperHeuristicTSP {
 
                             // si on trouve un meilleur trajet et qu'il respecte les contraintes de précédence, on l'applique
                             if (newCost < initialCost) {
-//                                System.err.println("Found a better local optimization of cost " + newCost
-//                                        + " (against " + initialCost + ")");
-//                                System.err.print("Old Tournee : " + this.currentTourIndexes);
-
                                 // on applique l'optimisation si elle est valide
                                 if (applyThreeOptIfValid(center, cuts.cut1, cuts.cut2, cuts.cut3, order)) {
                                     System.err.println("Optimized path from cost " + initialCost + " to " + newCost);
@@ -553,19 +549,19 @@ public class PaperHeuristicTSP {
 
         if (isValid) {
 
-            System.err.println("Found a valid local optimisation !!");
-            System.err.println("Old path: " + this.currentTourIndexes);
+            System.err.println("Found a valid local optimization !!");
+            System.err.println("- Old path: " + this.currentTourIndexes);
 
             for (i = 0; i < newPathIndexes.length; ++i) {
                 this.currentTourIndexes.set(firstB + i, newPathIndexes[i]);
                 this.currentTourPoints.set(firstB + i, newPathPoints.get(i));
             }
 
-            System.err.println("New path: " + this.currentTourIndexes);
+            System.err.println("- New path: " + this.currentTourIndexes);
 
             return true;
         } else {
-            System.err.println("Local optimization found was invalid and not applied");
+//            System.err.println("Local optimization found was invalid and not applied");
             return false;
         }
     }
@@ -614,7 +610,13 @@ public class PaperHeuristicTSP {
 
         // initialisation des éléments à passer au constructeur de Tournee
         ArrayList<Request> requestList = planning.getRequestList();
-        ArrayList<TupleRequete> ptsPassage = new ArrayList<>(this.currentTourPoints);
+
+        ArrayList<TupleRequete> ptsPassage = new ArrayList<>();
+        for (TupleRequete tupleRequete: this.currentTourPoints) {
+            if (tupleRequete != null) {     // on enlève le dépôt qui est null
+                ptsPassage.add(tupleRequete);
+            }
+        }
 
         // initialisation de la liste des segments avec le chemin dépôt -> premier pickup
         ArrayList<Segment> segmentList = new ArrayList<>(matAdj[0][currentTourIndexes.get(1)].chemin);

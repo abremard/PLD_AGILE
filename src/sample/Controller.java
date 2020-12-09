@@ -956,7 +956,7 @@ public class Controller {
         cards.clear();
         int nbDelivery = 1;
         ArrayList<TupleRequete> points = tour.getPtsPassage();
-        if(points != null) logger.info("Retrouve un objet nulllllllllll");
+        if(points == null) logger.info("Retrouve un objet nulllllllllll");
         for (TupleRequete pt: points) {
             String name = "";
             String street1 = "";

@@ -33,7 +33,7 @@ public class ComputeTourCommand implements Command {
     @Override
     public void doCommand(MVCController c) {
         c.setTour(ComputeTour.planTour(map, planningRequest, Heuristique.BRANCHANDBOUND));
-        // tournee = ComputeTour.planTour(map, planningRequest, Heuristique.DOUBLEINSERTION);      // EXPERIMENTAL
+//        c.setTour(ComputeTour.planTour(map, planningRequest, Heuristique.DOUBLEINSERTION));      // EXPERIMENTAL
     }
 
     @Override
