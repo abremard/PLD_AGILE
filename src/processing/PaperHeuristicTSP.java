@@ -613,9 +613,7 @@ public class PaperHeuristicTSP {
 
         ArrayList<TupleRequete> ptsPassage = new ArrayList<>();
         for (TupleRequete tupleRequete: this.currentTourPoints) {
-            if (tupleRequete != null) {     // on enlève le dépôt qui est null
-                ptsPassage.add(tupleRequete);
-            }
+            ptsPassage.add(tupleRequete);       // laisser les null ! ils sont traités après !
         }
 
         // initialisation de la liste des segments avec le chemin dépôt -> premier pickup
@@ -634,6 +632,16 @@ public class PaperHeuristicTSP {
                         matAdj[ptsIdToIndex.get(pt1.getCurrentGoal().getId())][0].chemin);
             }
         }
+
+        // debug : vérification de la continuité du chemin (liste de segments)
+        boolean isCorrect = true;
+        for (int i = 0; i < segmentList.size() - 1; ++i) {
+            if (segmentList.get(i).getDestination() != segmentList.get(i+1).getOrigin()) {
+                System.err.println("-_-_-_-_- BAH ALORS ON SAIT PAS CODER ?????? REGARDE DONC A L INDICE " + i);
+                isCorrect = false;
+            }
+        }
+        if (isCorrect) System.err.println("WOLA C PA MOA");
 
         // ajout des heures d'arrivée à chaque point de passage + le chemin qui y mène
         Tournee tournee = new Tournee(segmentList, requestList);
