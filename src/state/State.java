@@ -109,11 +109,8 @@ public interface State {
      *
      * @param l Liste des commandes effectuées jusqu'à maintenant.
      * @param c Controlleur dont on met à jour l'état.
-     * @param p Le planning des différentes requêtes à effectuer lors de la tournée.
-     * @param m Objet symbolisant les données nécessaires à l'affichage de la carte sur l'IHM.
-     * @param ltcList La liste des request/delivery ordonnée de façon temporelle.
      */
-    default void addDone(ListOfCommands l, MVCController c, PlanningRequest p, Map m, ArrayList<Controller.LocationTagContent> ltcList, Request newRequest, Controller.LocationTagContent newPickupLtc, Controller.LocationTagContent newDeliveryLtc) {}
+    default void addDone(ListOfCommands l, MVCController c, Request newRequest, Controller.LocationTagContent newPickupLtc, Controller.LocationTagContent newDeliveryLtc) {}
 
     /**
      * On valide la suppression d'une requête de la tournée.

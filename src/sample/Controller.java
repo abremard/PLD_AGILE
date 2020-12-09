@@ -574,7 +574,7 @@ public class Controller {
                     // initCardContent();
                     // cmd.setNewLtcList(new ArrayList<>(cards));
 
-                    mvcController.addDone(planningRequest, map, cards, tempRequest, NewPickupLtc, NewDeliveryLtc);
+                    mvcController.addDone(tempRequest, NewPickupLtc, NewDeliveryLtc);
                     AddRequestCommand cmd = (AddRequestCommand) mvcController.getL().getL().get(mvcController.getL().getI());
                     refreshModel();
                     list.getChildren().remove(list.getChildren().size() -1);
@@ -629,8 +629,8 @@ public class Controller {
         mainButton.setText("Cancel");
         secondButton.setText("Add");
         list.getChildren().remove(list.getChildren().size() -1);
-        mapText.setText("Pickup Duration");
-        requestText.setText("Delivery Duration");
+        mapText.setText("Pickup Duration (min)");
+        requestText.setText("Delivery Duration (min)");
         mapField.setText("0");
         requestField.setText("0");
         mapText.setVisible(true);
