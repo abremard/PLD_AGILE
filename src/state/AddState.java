@@ -14,9 +14,8 @@ import sample.Controller;
 import java.util.ArrayList;
 
 public class AddState implements State {
-    public void addDone(ListOfCommands l, MVCController c, PlanningRequest p, Map m, ArrayList<Controller.LocationTagContent> ltcList, Request r) {
-        l.Add(new AddRequestCommand(p, ltcList, r), c);
-        c.setTour(ComputeTour.planTour(m, p, Heuristique.GREEDY));
+    public void addDone(ListOfCommands l, MVCController c, PlanningRequest p, Map m, ArrayList<Controller.LocationTagContent> ltcList, Request newRequest, Controller.LocationTagContent newPickupLtc, Controller.LocationTagContent newDeliveryLtc) {
+        l.Add(new AddRequestCommand(p, ltcList, newRequest, newPickupLtc, newDeliveryLtc), c);
         c.setCurrentState(c.getModifyState());
 
         if (debug) {

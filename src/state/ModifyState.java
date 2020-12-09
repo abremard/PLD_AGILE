@@ -42,8 +42,8 @@ public class ModifyState implements State {
         }
     }
 
-    public void applyModificationDone(ListOfCommands l, MVCController c, Map m, PlanningRequest p, ArrayList<Intersection> order) {
-        l.Add(new ApplyModificationCommand(m, p, order), c);
+    public void applyModificationDone(ListOfCommands l, MVCController c, Map m, PlanningRequest p, ArrayList<Controller.LocationTagContent> ltcList) {
+        l.Add(new ApplyModificationCommand(m, p, ltcList), c);
         c.setCurrentState(c.getTourState());
         if (debug) {
             System.out.println(l.getI()+" - Adding ApplyModificationCommand from ModifyState to TourState");
