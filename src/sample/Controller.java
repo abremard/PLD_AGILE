@@ -665,7 +665,7 @@ public class Controller {
                     double newDuration = Double.parseDouble(mapField.getText());
                     boolean isPickup = false;
                     oldDuration = oldRequest.getDeliveryDur();
-                    if( mapText.getText().equals("Pickup Duration (min)")){
+                    if( mapText.getText().equals("Pickup Duration (sec)")){
                         isPickup = true;
                         oldDuration = oldRequest.getPickupDur();
                     }
