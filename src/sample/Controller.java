@@ -475,7 +475,11 @@ public class Controller {
                     //PASS NEW ORDER AND SETUP TO CALCULATE TOUR
 
                     //remove previous timeline
-                    list.getChildren().remove(list.getChildren().size() -1);
+                    if ( list.getChildren().get(list.getChildren().size() -1) instanceof ListView )
+                    {
+                        list.getChildren().remove(list.getChildren().size() -1);
+                    }
+
 
                     //change text of buttons
                     mainButton.setText("New Tour");
@@ -510,9 +514,11 @@ public class Controller {
                     mvcController.cancel();
                     displayRequests(false);
                     modifySetup(false);
+                    //addingRequest = false !!!!!!????????
                 }
                 else if(isEdit){
                     mvcController.cancel();
+                    displayRequests(false);
                     modifySetup(false);
                     editingRequest = false;
                 }
@@ -521,7 +527,10 @@ public class Controller {
                     undoButton.setVisible(false);
                     redoButton.setVisible(false);
                     //delete list of timeline
-                    logger.info(String.valueOf(list.getChildren().remove(list.getChildren().size() -1)));
+                    if ( list.getChildren().get(list.getChildren().size() -1) instanceof ListView )
+                    {
+                        list.getChildren().remove(list.getChildren().size() -1);
+                    }
                     //remove selected path from timeline
                     removeFromMap(selectedLines);
 
@@ -596,7 +605,10 @@ public class Controller {
                     mvcController.addDone(tempRequest, NewPickupLtc, NewDeliveryLtc);
                     AddRequestCommand cmd = (AddRequestCommand) mvcController.getL().getL().get(mvcController.getL().getI());
                     refreshModel();
-                    list.getChildren().remove(list.getChildren().size() -1);
+                    if ( list.getChildren().get(list.getChildren().size() -1) instanceof ListView )
+                    {
+                        list.getChildren().remove(list.getChildren().size() -1);
+                    }
                     //compute tour
                     //back to modify
                     modifySetup(false);
@@ -621,7 +633,10 @@ public class Controller {
                     int editedRequestIndex = planningRequest.getRequestList().indexOf(tempRequest);
                     mvcController.modifyRequestDone(planningRequest, editedRequestIndex, editedCardIndex, newDuration, isPickup);
                     refreshModel();
-                    list.getChildren().remove(list.getChildren().size() -1);
+                    if ( list.getChildren().get(list.getChildren().size() -1) instanceof ListView )
+                    {
+                        list.getChildren().remove(list.getChildren().size() -1);
+                    }
                     modifySetup(false);
 
                 } else {
@@ -648,7 +663,11 @@ public class Controller {
 
         mainButton.setText("Cancel");
         secondButton.setText("Add");
-        list.getChildren().remove(list.getChildren().size() -1);
+        secondButton.setDisable(true);
+        if ( list.getChildren().get(list.getChildren().size() -1) instanceof ListView )
+        {
+            list.getChildren().remove(list.getChildren().size() -1);
+        }
         mapText.setText("Pickup Duration (min)");
         requestText.setText("Delivery Duration (min)");
         mapField.setText("0");
@@ -691,7 +710,10 @@ public class Controller {
 
         mainButton.setText("Cancel");
         secondButton.setText("Done");
-        list.getChildren().remove(list.getChildren().size() -1);
+        if ( list.getChildren().get(list.getChildren().size() -1) instanceof ListView )
+        {
+            list.getChildren().remove(list.getChildren().size() -1);
+        }
         mapText.setVisible(true);
         mapField.setVisible(true);
         requestText.setVisible(true);
@@ -720,7 +742,10 @@ public class Controller {
         secondButton.setText("New Request");
         if (toDelete)
         {
-            list.getChildren().remove(list.getChildren().size() -1);
+            if ( list.getChildren().get(list.getChildren().size() -1) instanceof ListView )
+            {
+                list.getChildren().remove(list.getChildren().size() -1);
+            }
         }
         addCardsToScreen(true);
         isModify = true;
@@ -922,7 +947,7 @@ public class Controller {
         addedReqCount++;
 
         if( addedReqCount == 2 ){
-            //secondButton.setDisable(false);
+            secondButton.setDisable(false);
         }
     }
 
@@ -1378,7 +1403,10 @@ public class Controller {
                         mvcController.removeDone(planningRequest, cards, requestIndex, removedCardIndex1, cursor);
                         refreshModel();
                         logger.info(cards.toString());
-                        list.getChildren().remove(list.getChildren().size() -1);
+                        if ( list.getChildren().get(list.getChildren().size() -1) instanceof ListView )
+                        {
+                            list.getChildren().remove(list.getChildren().size() -1);
+                        }
                         displayRequests(false);
                         addCardsToScreen(true);
                     } else {
@@ -1419,7 +1447,10 @@ public class Controller {
                             mvcController.swapRequest(index, index - 1, cards);
                             refreshModel();
                             logger.info(cards.toString());
-                            list.getChildren().remove(list.getChildren().size() - 1);
+                            if ( list.getChildren().get(list.getChildren().size() -1) instanceof ListView )
+                            {
+                                list.getChildren().remove(list.getChildren().size() -1);
+                            }
                             addCardsToScreen(true);
                         }
                     }
@@ -1451,7 +1482,10 @@ public class Controller {
                             mvcController.swapRequest(index, index+1, cards);
                             refreshModel();
                             logger.info(cards.toString());
-                            list.getChildren().remove(list.getChildren().size() -1);
+                            if ( list.getChildren().get(list.getChildren().size() -1) instanceof ListView )
+                            {
+                                list.getChildren().remove(list.getChildren().size() -1);
+                            }
                             addCardsToScreen(true);
                         }
 
@@ -1469,7 +1503,10 @@ public class Controller {
                     mvcController.Undo();
                     refreshModel();
                     logger.info(cards.toString());
-                    list.getChildren().remove(list.getChildren().size() -1);
+                    if ( list.getChildren().get(list.getChildren().size() -1) instanceof ListView )
+                    {
+                        list.getChildren().remove(list.getChildren().size() -1);
+                    }
                     addCardsToScreen(true);
                     displayRequests(false);
                 }
@@ -1485,7 +1522,10 @@ public class Controller {
                     mvcController.Redo();
                     refreshModel();
                     logger.info(cards.toString());
-                    list.getChildren().remove(list.getChildren().size() -1);
+                    if ( list.getChildren().get(list.getChildren().size() -1) instanceof ListView )
+                    {
+                        list.getChildren().remove(list.getChildren().size() -1);
+                    }
                     addCardsToScreen(true);
                     displayRequests(false);
                 }
