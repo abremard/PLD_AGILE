@@ -425,8 +425,8 @@ public class Controller {
         mapButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
+                mapField.setText("Loading...");
                 File file = fileChooser.showOpenDialog(new Stage());
-                mapField.setText(file.getAbsolutePath());
                 mapFile = file.getAbsolutePath();
                 mvcController.LoadMap(file.getAbsolutePath());
                 refreshModel();
@@ -441,11 +441,16 @@ public class Controller {
                         alert.setContentText("There seems to be a problem with your Map file. Please make sure it is properly formatted");
 
                         alert.showAndWait();
+                    mapField.setText("Please choose a file");
                 } else {
                     requestButton.setDisable(false);
                     requestField.setDisable(false);
                     secondButton.setDisable(false);
+
+                    mapField.setText(file.getAbsolutePath());
                 }
+
+
             }
 
         });
@@ -454,8 +459,8 @@ public class Controller {
         requestButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
+                requestField.setText("Loading...");
                 File file = fileChooser.showOpenDialog(new Stage());
-                requestField.setText(file.getAbsolutePath());
                 requestFile = file.getAbsolutePath();
                 logger.info(file.getAbsolutePath());
                 System.out.println(file.getAbsolutePath());
@@ -466,14 +471,17 @@ public class Controller {
 
                     displayRequests(true);
                     mainButton.setDisable(false);
+                    requestField.setText(file.getAbsolutePath());
                 } catch (NullPointerException nullPointerException) {
                     Alert alert = new Alert(Alert.AlertType.INFORMATION);
                     alert.setTitle("Attention!");
                     alert.setHeaderText(null);
                     alert.setContentText("There seems to be a problem with your Requests file. Please make sure it is properly formatted and that is corresponds to the Map file you've imported.");
-
                     alert.showAndWait();
+                    mapField.setText("Please choose a file");
                 }
+
+
 
             }
         });
