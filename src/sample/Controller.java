@@ -564,6 +564,7 @@ public class Controller {
                     mvcController.cancel();
                     displayRequests(false);
                     modifySetup(false);
+                    secondButton.setDisable(false);
                     addingRequest = false;
                 }
                 else if(isEdit){
