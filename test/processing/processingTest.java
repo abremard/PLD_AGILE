@@ -35,8 +35,11 @@ public class processingTest {
 //        String mapPath = "data/mediumMap.xml";
 //        String reqPath = "data/requestsMedium5.xml";
 
+//        String mapPath = "data/largeMap.xml";
+//        String reqPath = "data/requestsLarge9.xml";
+
         String mapPath = "data/largeMap.xml";
-        String reqPath = "data/requestsLarge9.xml";
+        String reqPath = "data/requestsLarge-dupesTest.xml";
 
         // ------------ chargement & parsing des données de test
         Map map = new Map(mapPath);
@@ -51,8 +54,8 @@ public class processingTest {
         System.out.println("Liste de requetes chargee, nombre de requetes : " + planning.getRequestList().size() + "\n");
 
         // ------------ calcul du chemin selon l'heuristique choisie
-        Tournee tournee = ComputeTour.planTour(map, planning, Heuristique.BRANCHANDBOUND);
-//        Tournee tournee = ComputeTour.planTour(map, planning, Heuristique.DOUBLEINSERTION);
+//        Tournee tournee = ComputeTour.planTour(map, planning, Heuristique.BRANCHANDBOUND);
+        Tournee tournee = ComputeTour.planTour(map, planning, Heuristique.DOUBLEINSERTION);
 
         // ------------ outputs
         /*

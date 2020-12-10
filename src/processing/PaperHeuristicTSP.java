@@ -624,24 +624,19 @@ public class PaperHeuristicTSP {
             TupleRequete pt1 = ptsPassage.get(i);
             TupleRequete pt2 = ptsPassage.get(i + 1);
 
-            if (pt2 != null) {
-                segmentList.addAll(
-                        matAdj[ptsIdToIndex.get(pt1.getCurrentGoal().getId())][ptsIdToIndex.get(pt2.getCurrentGoal().getId())].chemin);
-            } else {        // dernier delivery -> dépôt
-                segmentList.addAll(
-                        matAdj[ptsIdToIndex.get(pt1.getCurrentGoal().getId())][0].chemin);
+            if (pt1 != null && pt2 != null) {        // attention aux null
+                if (pt1.getCurrentGoal().getId() != pt2.getCurrentGoal().getId()) {
+                    segmentList.addAll(matAdj[ptsIdToIndex.get(pt1.getCurrentGoal().getId())][ptsIdToIndex.get(pt2.getCurrentGoal().getId())].chemin);
+                } else {
+                    System.err.println("Not adding path with identical pickup & delivery");
+                }
+            } else if (i == ptsPassage.size() - 2) {      // dernier delivery -> dépôt
+                segmentList.addAll(matAdj[ptsIdToIndex.get(pt1.getCurrentGoal().getId())][0].chemin);
+            } else {
+                System.err.println("AAAATTENTION AUX NUUUUUUUUUUUUUUUUUUL(L)S !! i = " + i);
+                System.err.println(pt1 + ", " + pt2);
             }
         }
-
-        // debug : vérification de la continuité du chemin (liste de segments)
-        boolean isCorrect = true;
-        for (int i = 0; i < segmentList.size() - 1; ++i) {
-            if (segmentList.get(i).getDestination() != segmentList.get(i+1).getOrigin()) {
-                System.err.println("-_-_-_-_- BAH ALORS ON SAIT PAS CODER ?????? REGARDE DONC A L INDICE " + i);
-                isCorrect = false;
-            }
-        }
-        if (isCorrect) System.err.println("WOLA C PA MOA");
 
         // ajout des heures d'arrivée à chaque point de passage + le chemin qui y mène
         Tournee tournee = new Tournee(segmentList, requestList);

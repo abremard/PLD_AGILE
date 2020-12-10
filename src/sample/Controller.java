@@ -6,6 +6,8 @@ import com.sothawo.mapjfx.event.MarkerEvent;
 import com.sothawo.mapjfx.offline.OfflineCache;
 import command.*;
 import controller.MVCController;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -192,6 +194,7 @@ public class Controller {
      * List of markers of the requests - MapView
      */
     private ArrayList<Marker> markers;
+    private ArrayList<Marker> markersWithLabels;
     /**
      * List of cards of the side panel
      */
@@ -273,6 +276,7 @@ public class Controller {
         coordLines = new ArrayList<>();
         tourLines = new ArrayList<CoordinateLine>();
         markers = new ArrayList<Marker>();
+        markersWithLabels = new ArrayList<Marker>();
         cards = new ArrayList<LocationTagContent>();
         selectedLines = new ArrayList<CoordinateLine>();
 
@@ -416,8 +420,26 @@ public class Controller {
         });
 
         mapView.addEventHandler(MarkerEvent.MARKER_CLICKED, event -> {
-            event.consume();
-            logger.info(" clicked on a marker ");
+            if (!(isAddRequest || isEdit))
+            {
+                event.consume();
+                removeFromMapMarker(markersWithLabels);
+                displayRequests(false);
+                markersWithLabels.clear();
+                logger.info(" clicked on a marker ");
+                logger.info(String.valueOf(event.getMarker().getPosition()));
+                for (LocationTagContent c : cards) {
+                    if (c.coordLocation.equals(event.getMarker().getPosition())  )
+                    {
+                        logger.info(" found match ");
+                        markersWithLabels.add(event.getMarker().attachLabel(new MapLabel(c.getName(), 10, 10)));
+                        mapView.addMarker(markersWithLabels.get(0));
+                        listView.scrollTo(c);
+                        listView.getSelectionModel().select(c);
+                    }
+                }
+            }
+
         });
 
         final FileChooser fileChooser = new FileChooser();
@@ -1116,6 +1138,25 @@ public class Controller {
 
         list.getChildren().add(l);
 
+        l.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<LocationTagContent>() {
+            @Override
+            public void changed(ObservableValue<? extends LocationTagContent> observable, LocationTagContent oldValue, LocationTagContent newValue) {
+                try {
+                    removeFromMap(selectedLines);
+                    selectedLines.clear();
+                    LocationTagContent lt = l.getSelectionModel().getSelectedItem();
+                    int index = cards.indexOf(lt);
+                    for (int i = 0; i<index; i++) {
+                        displaySegmentTour(cards.get(i).chemin, false);
+                    }
+                    //mapView.setCenter(lt.coordLocation);
+                    displaySegmentTour(lt.chemin, true);
+                } catch (NullPointerException nullPointerException){
+                    logger.info("Clicked on segment that does not exist");
+                }
+            }
+        });
+
         l.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
@@ -1134,6 +1175,8 @@ public class Controller {
                 }
             }
         });
+
+        listView = l;
     }
 
     /**
