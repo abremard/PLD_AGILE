@@ -44,6 +44,7 @@ public class ComputeTour {
      */
     public static Tournee planTour(Map map, PlanningRequest planning, Heuristique heuristique) {
 
+        Tournee tournee;
         HashMap<Long, Integer> intersecIdToIndex = indexationIntersections(map);
         SuperArete[][] matAdj;
 
@@ -57,7 +58,7 @@ public class ComputeTour {
             case GREEDY:
                 // version greedy
                 matAdj = getOptimalFullGraph(map, planning, intersecIdToIndex);
-                Tournee tournee = greedy(matAdj, planning, intersecIdToIndex);
+                tournee = greedy(matAdj, planning, intersecIdToIndex);
                 recreateTimesTournee(tournee, planning);
                 return tournee;
             case GENETIQUE:
@@ -66,7 +67,9 @@ public class ComputeTour {
             case BRANCHANDBOUND:
                 // version greedy
                 matAdj = getOptimalFullGraph(map, planning, intersecIdToIndex);
-                return branchAndBoundOpti(matAdj, planning);
+                tournee = branchAndBoundOpti(matAdj, planning);
+                recreateTimesTournee(tournee, planning);
+                return tournee;
             case DOUBLEINSERTION:
                 // version double-insertion heuristic
                 matAdj = getOptimalFullGraph(map, planning, intersecIdToIndex);
@@ -337,6 +340,9 @@ public class ComputeTour {
      * @param planning Le planning contenant la liste des requêtes à traiter ainsi que le dépôt
      */
     public static void recreateTimesTournee(Tournee tournee, PlanningRequest planning) {
+
+        boolean verbose = false;
+
         LocalTime curTime = planning.getDepot().getDepartureTime();
         ArrayList<Segment> curChemin = new ArrayList<Segment>();
         // pool
@@ -358,21 +364,21 @@ public class ComputeTour {
                 if (req.isDepart && req.requete.getPickup().getId() == seg.getDestination()) {
                     req.isDepart = false;
                     curTime = curTime.plusSeconds((long) (req.getRequete().getPickupDur()));
-                    System.out.println("Pickup a " + req.getRequete().getPickup().getId() + " pendant " + req.getRequete().getPickupDur());
+                    if(verbose) System.out.println("Pickup a " + req.getRequete().getPickup().getId() + " pendant " + req.getRequete().getPickupDur());
                     ptsPassage.add(new TupleRequete(req.getRequete(), true, curTime, curChemin));
                     found = true;
                 }
                 if (!req.isDepart && req.requete.getDelivery().getId() == seg.getDestination()) {
                     aDelete.add(req);
                     curTime = curTime.plusSeconds((long) (req.getRequete().getDeliveryDur()));
-                    System.out.println("Delivery a " + req.getRequete().getDelivery().getId() + " pendant " + req.getRequete().getDeliveryDur());
+                    if(verbose) System.out.println("Delivery a " + req.getRequete().getDelivery().getId() + " pendant " + req.getRequete().getDeliveryDur());
                     ptsPassage.add(new TupleRequete(req.getRequete(), false, curTime, curChemin));
                     found = true;
                 }
             }
             pool.removeAll(aDelete);
             if (found) {
-                System.out.println("On va de " + curChemin.get(0).getOrigin() + " a " + curChemin.get(curChemin.size() - 1).getDestination());
+                if(verbose) System.out.println("On va de " + curChemin.get(0).getOrigin() + " a " + curChemin.get(curChemin.size() - 1).getDestination());
                 curChemin = new ArrayList<Segment>();
             }
         }
@@ -852,7 +858,7 @@ public class ComputeTour {
 
         TSP tsp = new TSP4();
         tsp.searchSolution(20000, matAdj, planning.getRequestList());
-        System.out.println("Solution trouvee en " + tsp.getExecTime() + " secondes");
+//        System.out.println("Solution trouvee en " + tsp.getExecTime() + " secondes");
         Integer[] solution = tsp.getSolution();
 
         ArrayList<Segment> chemin = new ArrayList<Segment>();
@@ -861,10 +867,7 @@ public class ComputeTour {
             chemin.addAll(matAdj[solution[i - 1]][solution[i]].getChemin());
         }
         chemin.addAll(matAdj[solution[solution.length - 1]][0].getChemin());
-        Tournee tournee = new Tournee(chemin, planning.getRequestList());
-        recreateTimesTournee(tournee, planning);
-
-        return tournee;
+        return new Tournee(chemin, planning.getRequestList());
     }
 
 }

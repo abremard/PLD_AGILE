@@ -3,12 +3,28 @@ package processing;
 
 import objects.*;
 
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.PriorityQueue;
+import java.io.File;  // Import the File class
+import java.io.IOException;  // Import the IOException class to handle errors
 
 public class processingTest {
 
+    static FileWriter myWriter = null;
+
     public static void main(String[] args) {
+        initFile();
+
+        String mapPath = "data/largeMap.xml";
+        String reqPath = "data/requestsLarge9.xml";
+
+        testBatch(mapPath, reqPath, Heuristique.BRANCHANDBOUND, 10);
+
+        closeFile();
+    }
+
+    static void randomTests() {
 
 //        String mapPath = "data/map_test.xml";
 //        String reqPath = "data/requests_test.xml";
@@ -82,6 +98,70 @@ public class processingTest {
 //        tournee = recreateTourneeWithOrder(map, planning, tournee.getPtsPassage());
 
 
+    }
+
+    static void testBatch(String mapPath, String reqPath, Heuristique heuristique, int repetitions) {
+
+        // ------------ chargement & parsing des données de test
+        Map map = new Map(mapPath);
+        PlanningRequest planning = new PlanningRequest();
+        try {
+            planning.parseRequest(reqPath);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // ------------ calcul de la tournee
+        float moyDureeExec = 0;
+        for(int i=0; i<repetitions; i++) {
+            float startTime = System.currentTimeMillis();
+            Tournee tournee = ComputeTour.planTour(map, planning, heuristique);
+            float dureeExec = System.currentTimeMillis() - startTime;
+
+            float dureeTournee = tournee.getPtsPassage().get(tournee.getPtsPassage().size() - 1).getTime().minusHours(8).toSecondOfDay();
+            writeToFile(String.valueOf(dureeExec) + " " + String.valueOf(dureeTournee));
+            moyDureeExec += dureeExec;
+        }
+
+        writeToFile("Moyenne : " + String.valueOf(moyDureeExec/(float)repetitions));
+    }
+
+    static void initFile() {
+        try {
+            File myObj = new File("results.txt");
+            if (myObj.createNewFile()) {
+                System.out.println("File created: " + myObj.getName());
+            } else {
+                System.out.println("File already exists.");
+            }
+            myWriter = new FileWriter("results.txt");
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+    }
+
+    static void writeToFile(String line) {
+        try {
+            if (myWriter != null) {
+//                System.out.println(line);
+                myWriter.write(line + "\n");
+            }
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+    }
+
+    static void closeFile() {
+        try {
+            if (myWriter != null) {
+                myWriter.close();
+            }
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
     }
 
 }
