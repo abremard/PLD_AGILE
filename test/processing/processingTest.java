@@ -41,7 +41,8 @@ public class processingTest {
 //        String reqPath = "data/requestsLarge9.xml";
 
         String mapPath = "data/largeMap.xml";
-        String reqPath = "data/requestsLarge-dupesTest.xml";
+//        String reqPath = "data/requestsLarge-dupesTest.xml";
+        String reqPath = "data/requestsLarge-veryLarge.xml";
 
         // ------------ chargement & parsing des données de test
         Map map = new Map(mapPath);
