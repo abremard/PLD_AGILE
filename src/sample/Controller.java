@@ -222,6 +222,7 @@ public class Controller {
      * Color of highlighted lines of tour
      */
     private Color selectionColor = new Color(1.0,0.4,0.0, 1.0);
+    private Color selectionColorLite = new Color(1.0,0.55,0.0, 1.0);
 
     /**
      * status indicator: timeline view
@@ -813,10 +814,10 @@ public class Controller {
     /**
      * Display a highlighted path on the MapView
      */
-    public void displaySegmentTour(ArrayList<Segment> path)
+    public void displaySegmentTour(ArrayList<Segment> path, boolean isFinal)
     {
-        removeFromMap(selectedLines);
-        selectedLines.clear();
+        //removeFromMap(selectedLines);
+        //selectedLines.clear();
         ArrayList<Intersection> listIntersection = map.getIntersectionList();
         for (Segment segment : path) {
             long idOrigin = segment.getOrigin();
@@ -826,7 +827,11 @@ public class Controller {
             Coordinate coordOrigin = new Coordinate(ptOrigin.getLatitude(), ptOrigin.getLongitude());
             Coordinate coordDestination = new Coordinate(ptDestination.getLatitude(), ptDestination.getLongitude());
             CoordinateLine cl = new CoordinateLine(coordOrigin, coordDestination);
-            cl.setVisible(true).setColor(selectionColor).setWidth(6);
+            if (isFinal) {
+                cl.setVisible(true).setColor(selectionColor).setWidth(6);
+            } else {
+                cl.setVisible(true).setColor(selectionColorLite).setWidth(4);
+            }
             selectedLines.add(cl);
             mapView.addCoordinateLine(cl);
         }
@@ -1115,9 +1120,15 @@ public class Controller {
             @Override
             public void handle(MouseEvent event) {
                 try {
+                    removeFromMap(selectedLines);
+                    selectedLines.clear();
                     LocationTagContent lt = l.getSelectionModel().getSelectedItem();
+                    int index = cards.indexOf(lt);
+                    for (int i = 0; i<index; i++) {
+                        displaySegmentTour(cards.get(i).chemin, false);
+                    }
                     //mapView.setCenter(lt.coordLocation);
-                    displaySegmentTour(lt.chemin);
+                    displaySegmentTour(lt.chemin, true);
                 } catch (NullPointerException nullPointerException){
                     logger.info("Clicked on segment that does not exist");
                 }
