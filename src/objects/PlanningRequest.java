@@ -45,7 +45,7 @@ public class PlanningRequest {
 
     public PlanningRequest(PlanningRequest copyOfPlanningRequest) {
         this.depot = copyOfPlanningRequest.depot;
-        this.requestList = copyOfPlanningRequest.requestList;
+        this.requestList = new ArrayList<>(copyOfPlanningRequest.requestList);
     }
 
     // Getters et setters

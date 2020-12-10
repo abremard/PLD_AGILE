@@ -18,6 +18,8 @@ public class RemoveRequestCommand implements Command {
     private Controller.LocationTagContent removedCard1;
     private Controller.LocationTagContent removedCard2;
     private ArrayList<Request> oldRequestList;
+    private PlanningRequest oldPlanningRequest;
+    private PlanningRequest newPlanningRequest;
 
     public Request getRemovedRequestIndex() {
         return requestToRemove;
@@ -30,6 +32,8 @@ public class RemoveRequestCommand implements Command {
     public RemoveRequestCommand(PlanningRequest oldPlanningRequest, ArrayList<Controller.LocationTagContent> ltcList, Request requestToRemove, int removedCardIndex1, int removedCardIndex2) {
         this.requestToRemove = requestToRemove;
         this.oldRequestList = new ArrayList<>(oldPlanningRequest.getRequestList());
+        this.oldPlanningRequest = new PlanningRequest(oldPlanningRequest);
+        this.newPlanningRequest = new PlanningRequest(oldPlanningRequest);
         this.removedCardIndex1 = removedCardIndex1;
         this.removedCardIndex2 = removedCardIndex2;
         this.removedCard1 = ltcList.get(removedCardIndex1);
@@ -46,7 +50,8 @@ public class RemoveRequestCommand implements Command {
             c.getLtcList().remove(removedCardIndex1);
             c.getLtcList().remove(removedCardIndex2);
         }
-        c.getPlanningRequest().removeRequest(requestToRemove);
+        this.newPlanningRequest.removeRequest(requestToRemove);
+        c.setPlanningRequest(this.newPlanningRequest);
         c.getPlanningRequest().resetIndexOfRequestList();
     }
 
@@ -60,7 +65,7 @@ public class RemoveRequestCommand implements Command {
             c.getLtcList().add(removedCardIndex2, removedCard2);
             c.getLtcList().add(removedCardIndex1, removedCard1);
         }
-        c.getPlanningRequest().setRequestList(oldRequestList);
+        c.setPlanningRequest(this.oldPlanningRequest);
     }
 
     public Controller.LocationTagContent getRemovedCard1() {
