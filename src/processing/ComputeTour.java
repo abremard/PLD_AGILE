@@ -6,6 +6,9 @@ import java.util.*;
 
 import Branch_And_Bound_TSP.TSP;
 import Branch_And_Bound_TSP.TSP1;
+import Branch_And_Bound_TSP.TSP2;
+import Branch_And_Bound_TSP.TSP3;
+import Branch_And_Bound_TSP.TSP4;
 import objects.*;
 import objects.Map;
 import sample.Controller;
@@ -54,7 +57,9 @@ public class ComputeTour {
             case GREEDY:
                 // version greedy
                 matAdj = getOptimalFullGraph(map, planning, intersecIdToIndex);
-                return greedy(matAdj, planning, intersecIdToIndex);
+                Tournee tournee = greedy(matAdj, planning, intersecIdToIndex);
+                recreateTimesTournee(tournee, planning);
+                return tournee;
             case GENETIQUE:
                 // version genetique
                 return null;
@@ -845,8 +850,9 @@ public class ComputeTour {
      */
     private static Tournee branchAndBoundOpti(SuperArete[][] matAdj, PlanningRequest planning) {
 
-        TSP tsp = new TSP1();
+        TSP tsp = new TSP4();
         tsp.searchSolution(20000, matAdj, planning.getRequestList());
+        System.out.println("Solution trouvee en " + tsp.getExecTime() + " secondes");
         Integer[] solution = tsp.getSolution();
 
         ArrayList<Segment> chemin = new ArrayList<Segment>();

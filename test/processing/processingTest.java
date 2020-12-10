@@ -35,8 +35,8 @@ public class processingTest {
         System.out.println("Liste de requetes chargee, nombre de requetes : " + planning.getRequestList().size() + "\n");
 
         // ------------ calcul du chemin selon l'heuristique choisie
-//        Tournee tournee = ComputeTour.planTour(map, planning, Heuristique.GREEDY);
-        Tournee tournee = ComputeTour.planTour(map, planning, Heuristique.DOUBLEINSERTION);
+        Tournee tournee = ComputeTour.planTour(map, planning, Heuristique.BRANCHANDBOUND);
+//        Tournee tournee = ComputeTour.planTour(map, planning, Heuristique.DOUBLEINSERTION);
 
         // ------------ outputs
         /*
@@ -61,6 +61,9 @@ public class processingTest {
         }
 
          */
+
+        System.out.println("Durée de la tournée : " + tournee.getPtsPassage().get(tournee.getPtsPassage().size()-1).getTime().minusHours(8));
+
 
         // test code pour recreateTourneeWithOrder
 //        matAdj = getOptimalFullGraph(map, planning, intersecIdToIndex);

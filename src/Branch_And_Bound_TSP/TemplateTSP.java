@@ -14,8 +14,11 @@ public abstract class TemplateTSP implements TSP {
     private float bestSolCost;
     private int timeLimit;
     private long startTime;
+    private int nbIter, nbSol;
 
     public void searchSolution(int timeLimit, SuperArete[][] g, ArrayList<Request> listeRequetes) {
+        nbIter = nbSol = 0;
+
         if (timeLimit <= 0) return;
         startTime = System.currentTimeMillis();
         this.timeLimit = timeLimit;
@@ -43,6 +46,7 @@ public abstract class TemplateTSP implements TSP {
     }
 
     public Integer[] getSolution() {
+        System.out.println("Nombre d'iterations : " + nbIter + ", comparé " + nbSol + " solutions");
         return bestSol;
     }
 
@@ -50,6 +54,10 @@ public abstract class TemplateTSP implements TSP {
         if (g != null)
             return bestSolCost;
         return -1;
+    }
+
+    public float getExecTime() {
+        return (System.currentTimeMillis() - startTime)/(float)1000;
     }
 
     public void setIndexDico() {
@@ -88,10 +96,16 @@ public abstract class TemplateTSP implements TSP {
      * @param currentCost   the cost of the path corresponding to <code>visited</code>
      */
     private void branchAndBound(int currentVertex, int leftTodo, ArrayList<Integer> visited, float currentCost, ArrayList<TupleRequete> requetes) {
+        nbIter ++;
 
-        if (System.currentTimeMillis() - startTime > timeLimit) return;
+//        if (System.currentTimeMillis() - startTime > timeLimit) {
+//            System.out.println("Hit time limit");
+//            return;
+//        }
         if (leftTodo == 0) {
             if (g[currentVertex][0] != null) {
+                nbSol ++;
+
                 if (currentCost + g[currentVertex][0].getLongueur() < bestSolCost) {
                     bestSol = new Integer[visited.size()];
                     visited.toArray(bestSol);
