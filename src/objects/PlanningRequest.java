@@ -172,6 +172,14 @@ public class PlanningRequest {
         return index;
     }
 
+    public void resetIndexOfRequestList() {
+        int index = 0;
+        for (Request request: requestList) {
+            request.setId(index);
+            ++index;
+        }
+    }
+
     public String toString(){
         String myString = "";
         myString += "Depot : " + depot.toString();
