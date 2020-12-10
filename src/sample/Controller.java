@@ -57,6 +57,17 @@ public class Controller {
     String depotImageFile = "/images/depotMarker.png";
 
     /**
+     * Marker for Starting location
+     */
+    String mapFile = "Please choose a file";
+
+    /**
+     * Marker for Starting location
+     */
+    String requestFile = "Please choose a file";
+
+
+    /**
      * Logger for testing and debugging pursposes
      */
     private static final Logger logger = LoggerFactory.getLogger(Controller.class);
@@ -375,6 +386,9 @@ public class Controller {
         mainButton.setDisable(true);
         secondButton.setVisible(false);
 
+        mapField.setText(mapFile);
+        requestField.setText(requestFile);
+
         secondButton.setText("Modify");
 
         logger.info("initialization finished");
@@ -413,8 +427,7 @@ public class Controller {
             public void handle(ActionEvent event) {
                 File file = fileChooser.showOpenDialog(new Stage());
                 mapField.setText(file.getAbsolutePath());
-
-
+                mapFile = file.getAbsolutePath();
                 mvcController.LoadMap(file.getAbsolutePath());
                 refreshModel();
 
@@ -443,6 +456,7 @@ public class Controller {
             public void handle(ActionEvent event) {
                 File file = fileChooser.showOpenDialog(new Stage());
                 requestField.setText(file.getAbsolutePath());
+                requestFile = file.getAbsolutePath();
                 logger.info(file.getAbsolutePath());
                 System.out.println(file.getAbsolutePath());
 
@@ -518,7 +532,7 @@ public class Controller {
                     mvcController.cancel();
                     displayRequests(false);
                     modifySetup(false);
-                    //addingRequest = false !!!!!!????????
+                    addingRequest = false;
                 }
                 else if(isEdit){
                     mvcController.cancel();
@@ -543,9 +557,9 @@ public class Controller {
                     requestText.setText("Import Request File");
                     mapButton.setVisible(true);
                     requestButton.setVisible(true);
-                    mapField.setText(" ");
+                    mapField.setText(mapFile);
                     mapField.setVisible(true);
-                    requestField.setText(" ");
+                    requestField.setText(requestFile);
                     requestField.setVisible(true);
                     requestText.setVisible(true);
                     mapText.setVisible(true);
@@ -602,6 +616,7 @@ public class Controller {
                         list.getChildren().remove(list.getChildren().size() -1);
                     }
                     modifySetup(false);
+                    addingRequest = false;
                 }
                 else if (isModify) {
                     addingRequest = true;
@@ -628,6 +643,7 @@ public class Controller {
                         list.getChildren().remove(list.getChildren().size() -1);
                     }
                     modifySetup(false);
+                    editingRequest = false;
                 } else {
                     modifySetup(true);
                     mvcController.ModifyRequestList();
@@ -980,7 +996,7 @@ public class Controller {
         cards.clear();
         int nbDelivery = 1;
         ArrayList<TupleRequete> points = tour.getPtsPassage();
-        if(points == null) logger.info("Retrouve un objet nulllllllllll");
+        if(points == null) logger.info("Retrouve un objet nul");
         for (TupleRequete pt: points) {
             String name = "";
             String street1 = "";
