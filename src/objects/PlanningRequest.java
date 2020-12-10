@@ -100,7 +100,7 @@ public class PlanningRequest {
                 Element requestElement = (Element) requestNode;
                 Intersection pickupIntersection = new Intersection(Long.parseLong(requestElement.getAttribute("pickupAddress")));
                 Intersection deliveryIntersection = new Intersection(Long.parseLong(requestElement.getAttribute("deliveryAddress")));
-                Request requestParsed = new Request(pickupIntersection, deliveryIntersection, Double.parseDouble(requestElement.getAttribute("pickupDuration")), Double.parseDouble(requestElement.getAttribute("deliveryDuration")));
+                Request requestParsed = new Request(this.getRequestList().size(),pickupIntersection, deliveryIntersection, Double.parseDouble(requestElement.getAttribute("pickupDuration")), Double.parseDouble(requestElement.getAttribute("deliveryDuration")));
                 // for debugging purposes
                 // System.out.println(requestParsed.toString());
                 requestList.add(requestParsed);

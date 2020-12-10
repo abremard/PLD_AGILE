@@ -605,7 +605,7 @@ public class Controller {
                     addingRequest = true;
                     addedReqCount = 0;
                     addRequestSetup();
-                    tempRequest = new Request(new Intersection(0,0), new Intersection(0,0), 0,0);
+                    tempRequest = new Request(planningRequest.getRequestList().size(), new Intersection(0,0), new Intersection(0,0), 0,0);
                     mvcController.addRequest();
                 }
                 else if ( isEdit){

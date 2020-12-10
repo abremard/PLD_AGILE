@@ -15,7 +15,7 @@ public class Request {
     /**
      * Compte le nombre d'instances de Request qui ont été construites.
      */
-    static int nbInstances = 0;
+    // static int nbInstances = 0;
 
     /**
      * L'intersection de récupération de la requête
@@ -44,6 +44,7 @@ public class Request {
 
     // Constructeur
 
+    /* CE CONSTRUCTEUR EST MAUVAIS! IL FAUT EVITER D'UTILISER UNE VARIABLE STATIQUE!!!
     public Request(Intersection pickup, Intersection delivery, double pickupDur, double deliveryDur) {
         this.pickup = pickup;
         this.delivery = delivery;
@@ -52,6 +53,15 @@ public class Request {
 
         this.id = nbInstances;
         ++nbInstances;
+    }
+     */
+
+    public Request(int id, Intersection pickup, Intersection delivery, double pickupDur, double deliveryDur) {
+        this.pickup = pickup;
+        this.delivery = delivery;
+        this.pickupDur = pickupDur;
+        this.deliveryDur = deliveryDur;
+        this.id = id;
     }
 
     // Getters et setters
