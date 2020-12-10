@@ -1112,9 +1112,13 @@ public class Controller {
         l.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                LocationTagContent lt = l.getSelectionModel().getSelectedItem();
-                //mapView.setCenter(lt.coordLocation);
-                displaySegmentTour(lt.chemin);
+                try {
+                    LocationTagContent lt = l.getSelectionModel().getSelectedItem();
+                    //mapView.setCenter(lt.coordLocation);
+                    displaySegmentTour(lt.chemin);
+                } catch (NullPointerException nullPointerException){
+                    logger.info("Clicked on segment that does not exist");
+                }
             }
         });
     }
