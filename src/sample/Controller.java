@@ -561,6 +561,7 @@ public class Controller {
                 //detect on which view we are - File Picker or Timeline
                 else if (isAddRequest) {
                     //CANCEL ADD REQUEST OPERATION, BACK TO MODIFY VIEW
+                    infoText.setText(" ");
                     mvcController.cancel();
                     displayRequests(false);
                     modifySetup(false);
@@ -702,6 +703,8 @@ public class Controller {
         }
         mapText.setText("Pickup Duration (min)");
         requestText.setText("Delivery Duration (min)");
+
+        infoText.setText("Click on the map to place the Pickup location.");
         mapField.setText("0");
         requestField.setText("0");
         mapText.setVisible(true);
@@ -961,6 +964,7 @@ public class Controller {
             tempRequest.getPickup().setMarkerId(newMarker.getId());
             System.out.println("tempRequest ID : " + tempRequest.getId());
             NewPickupLtc = convertRequestToLTC(tempRequest, true);
+            infoText.setText("Click on the map to place the Delivery location.");
         } else if (addedReqCount == 1) {
             tempRequest.setDelivery(newIntersection);
             tempRequest.getDelivery().setMarkerId(newMarker.getId());
