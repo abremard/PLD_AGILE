@@ -12,23 +12,23 @@ import java.util.ArrayList;
  */
 public class RemoveRequestCommand implements Command {
 
-    private int removedRequestIndex;
+    private Request requestToRemove;
     private int removedCardIndex1;
     private int removedCardIndex2;
     private Controller.LocationTagContent removedCard1;
     private Controller.LocationTagContent removedCard2;
     private ArrayList<Request> oldRequestList;
 
-    public int getRemovedRequestIndex() {
-        return removedRequestIndex;
+    public Request getRemovedRequestIndex() {
+        return requestToRemove;
     }
 
-    public void setRemovedRequestIndex(int removedRequestIndex) {
-        this.removedRequestIndex = removedRequestIndex;
+    public void setRemovedRequestIndex(Request request) {
+        this.requestToRemove = request;
     }
 
-    public RemoveRequestCommand(PlanningRequest oldPlanningRequest, ArrayList<Controller.LocationTagContent> ltcList, int removedRequestIndex, int removedCardIndex1, int removedCardIndex2) {
-        this.removedRequestIndex = removedRequestIndex;
+    public RemoveRequestCommand(PlanningRequest oldPlanningRequest, ArrayList<Controller.LocationTagContent> ltcList, Request requestToRemove, int removedCardIndex1, int removedCardIndex2) {
+        this.requestToRemove = requestToRemove;
         this.oldRequestList = new ArrayList<>(oldPlanningRequest.getRequestList());
         this.removedCardIndex1 = removedCardIndex1;
         this.removedCardIndex2 = removedCardIndex2;
@@ -46,7 +46,7 @@ public class RemoveRequestCommand implements Command {
             c.getLtcList().remove(removedCardIndex1);
             c.getLtcList().remove(removedCardIndex2);
         }
-        c.getPlanningRequest().removeRequest(removedRequestIndex);
+        c.getPlanningRequest().removeRequest(requestToRemove);
         c.getPlanningRequest().resetIndexOfRequestList();
     }
 

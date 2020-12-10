@@ -119,11 +119,10 @@ public interface State {
      * @param c Controlleur dont on met à jour l'état.
      * @param oldPlanningRequest Le planning des différentes requêtes à effectuer lors de la tournée.
      * @param ltcList La liste des request/delivery ordonnée de façon temporelle.
-     * @param removedRequestIndex Index de la requête supprimée dans le planning des requêtes.
      * @param removedCardIndex1 Index du premier request/delivery dans la liste associée
      * @param removedCardIndex2 Index du deuxième request/delivery dans la liste associée
      */
-    default void removeDone(ListOfCommands l, MVCController c, PlanningRequest oldPlanningRequest, ArrayList<Controller.LocationTagContent> ltcList, int removedRequestIndex, int removedCardIndex1, int removedCardIndex2) {}
+    default void removeDone(ListOfCommands l, MVCController c, PlanningRequest oldPlanningRequest, ArrayList<Controller.LocationTagContent> ltcList, Request request, int removedCardIndex1, int removedCardIndex2) {}
 
     /**
      * On valide la modification d'une requête de la tournée.
