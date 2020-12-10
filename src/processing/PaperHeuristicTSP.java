@@ -227,7 +227,7 @@ public class PaperHeuristicTSP {
                         }
                     }
                 }
-            }
+            }   // fin 3-opt
         }
     }
 
