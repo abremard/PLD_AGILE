@@ -1472,6 +1472,8 @@ public class Controller {
                         {
                             list.getChildren().remove(list.getChildren().size() -1);
                         }
+                        removeFromMapMarker(markersWithLabels);
+                        markersWithLabels.clear();
                         displayRequests(false);
                         addCardsToScreen(true);
                     } else {
