@@ -194,6 +194,7 @@ public class Controller {
      * List of markers of the requests - MapView
      */
     private ArrayList<Marker> markers;
+    private ArrayList<Marker> markersWithLabels;
     /**
      * List of cards of the side panel
      */
@@ -275,6 +276,7 @@ public class Controller {
         coordLines = new ArrayList<>();
         tourLines = new ArrayList<CoordinateLine>();
         markers = new ArrayList<Marker>();
+        markersWithLabels = new ArrayList<Marker>();
         cards = new ArrayList<LocationTagContent>();
         selectedLines = new ArrayList<CoordinateLine>();
 
@@ -418,8 +420,25 @@ public class Controller {
         });
 
         mapView.addEventHandler(MarkerEvent.MARKER_CLICKED, event -> {
-            event.consume();
-            logger.info(" clicked on a marker ");
+            if (!(isAddRequest || isEdit))
+            {
+                event.consume();
+                removeFromMapMarker(markersWithLabels);
+                displayRequests(false);
+                markersWithLabels.clear();
+                logger.info(" clicked on a marker ");
+                logger.info(String.valueOf(event.getMarker().getPosition()));
+                for (LocationTagContent c : cards) {
+                    if (c.coordLocation.equals(event.getMarker().getPosition())  )
+                    {
+                        logger.info(" found match ");
+                        markersWithLabels.add(event.getMarker().attachLabel(new MapLabel(c.getName(), 10, 10)));
+                        mapView.addMarker(markersWithLabels.get(0));
+                        listView.getSelectionModel().select(c);
+                    }
+                }
+            }
+
         });
 
         final FileChooser fileChooser = new FileChooser();
@@ -1155,6 +1174,8 @@ public class Controller {
                 }
             }
         });
+
+        listView = l;
     }
 
     /**
