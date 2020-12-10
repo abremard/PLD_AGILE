@@ -988,7 +988,7 @@ public class Controller {
             boolean isPickup = false;
             if (pt.isDepart())
             {
-                name = "Pickup "+pt.getRequete().getId();
+                name = "Pickup "+(pt.getRequete().getId()+1);
                 ArrayList<String> street = map.getSegmentNameFromIntersectionId(pt.getRequete().getPickup().getId());
                 logger.info(street.toString());
                 street1 = street.get(0);
@@ -1006,7 +1006,7 @@ public class Controller {
                 isPickup = true;
             } else
             {
-                name = "Delivery "+pt.getRequete().getId();
+                name = "Delivery "+(pt.getRequete().getId()+1);
                 if(nbDelivery == (int)((points.size()+1)/2)) { name = "Back to shop"; }
                 nbDelivery++;
                 ArrayList<String> street = map.getSegmentNameFromIntersectionId(pt.getRequete().getDelivery().getId());

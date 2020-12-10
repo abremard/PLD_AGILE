@@ -28,13 +28,15 @@ public class AddRequestCommand implements Command {
         c.getPlanningRequest().addRequest(c.getPlanningRequest().getRequestList().size(), newRequest);
         c.getLtcList().add(c.getLtcList().size()-1, newPickupLtc);
         c.getLtcList().add(c.getLtcList().size()-1, newDeliveryLtc);
+        System.out.println(c.getLtcList());
     }
 
     @Override
     public void undoCommand(MVCController c) {
-        c.getPlanningRequest().removeRequest(c.getPlanningRequest().getRequestList().size());
-        c.getLtcList().remove(c.getLtcList().size()-1);
-        c.getLtcList().remove(c.getLtcList().size()-1);
+        c.getPlanningRequest().removeRequest(newRequest);
+        c.getLtcList().remove(c.getLtcList().size()-2);
+        c.getLtcList().remove(c.getLtcList().size()-2);
+        System.out.println(c.getLtcList());
     }
 
 }
