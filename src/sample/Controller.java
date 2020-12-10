@@ -6,6 +6,8 @@ import com.sothawo.mapjfx.event.MarkerEvent;
 import com.sothawo.mapjfx.offline.OfflineCache;
 import command.*;
 import controller.MVCController;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -1115,6 +1117,25 @@ public class Controller {
         list.setBottomAnchor(l, 0.0);
 
         list.getChildren().add(l);
+
+        l.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<LocationTagContent>() {
+            @Override
+            public void changed(ObservableValue<? extends LocationTagContent> observable, LocationTagContent oldValue, LocationTagContent newValue) {
+                try {
+                    removeFromMap(selectedLines);
+                    selectedLines.clear();
+                    LocationTagContent lt = l.getSelectionModel().getSelectedItem();
+                    int index = cards.indexOf(lt);
+                    for (int i = 0; i<index; i++) {
+                        displaySegmentTour(cards.get(i).chemin, false);
+                    }
+                    //mapView.setCenter(lt.coordLocation);
+                    displaySegmentTour(lt.chemin, true);
+                } catch (NullPointerException nullPointerException){
+                    logger.info("Clicked on segment that does not exist");
+                }
+            }
+        });
 
         l.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
