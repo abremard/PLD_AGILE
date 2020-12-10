@@ -434,6 +434,7 @@ public class Controller {
                         logger.info(" found match ");
                         markersWithLabels.add(event.getMarker().attachLabel(new MapLabel(c.getName(), 10, 10)));
                         mapView.addMarker(markersWithLabels.get(0));
+                        listView.getSelectionModel().select(c);
                     }
                 }
             }
@@ -1173,6 +1174,8 @@ public class Controller {
                 }
             }
         });
+
+        listView = l;
     }
 
     /**
