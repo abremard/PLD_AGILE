@@ -50,6 +50,7 @@ public class EditRequestCommand implements Command {
             c.getPlanningRequest().getRequestList().get(editedRequestIndex).setDeliveryDur(this.newDuration);
             c.getLtcList().get(editedCardIndex).getRequest().setDeliveryDur(this.newDuration);
         }
+        System.out.println(c.getPlanningRequest());
     }
 
     @Override
@@ -63,6 +64,7 @@ public class EditRequestCommand implements Command {
             c.getPlanningRequest().getRequestList().get(editedRequestIndex).setDeliveryDur(this.oldDuration);
             c.getLtcList().get(editedCardIndex).getRequest().setDeliveryDur(this.oldDuration);
         }
+        System.out.println(c.getPlanningRequest());
     }
 
 }
