@@ -1454,7 +1454,7 @@ public class Controller {
                     if (cards.size()>3)
                     {
                         logger.info(cards.toString());
-                        int requestIndex = planningRequest.getRequestList().indexOf(getItem().request);
+                        Request requestToRemove = getItem().request;
                         int removedCardIndex1 = cards.indexOf(getItem());
                         int cursor = 0;
 
@@ -1468,7 +1468,7 @@ public class Controller {
 
                         // Change from ModifyState to RemoveState
                         mvcController.removeRequest();
-                        mvcController.removeDone(planningRequest, cards, requestIndex, removedCardIndex1, cursor);
+                        mvcController.removeDone(planningRequest, cards, requestToRemove, removedCardIndex1, cursor);
                         refreshModel();
                         logger.info(cards.toString());
                         if ( list.getChildren().get(list.getChildren().size() -1) instanceof ListView )
