@@ -16,10 +16,12 @@ public class processingTest {
     public static void main(String[] args) {
         initFile();
 
+        Heuristique[] heuristiques = {Heuristique.TRIVIALE, Heuristique.GREEDY, Heuristique.DOUBLEINSERTION, Heuristique.BRANCHANDBOUND};
+
         String mapPath = "data/largeMap.xml";
         String reqPath = "data/requestsLarge9.xml";
 
-        testBatch(mapPath, reqPath, Heuristique.BRANCHANDBOUND, 10);
+        testBatch(mapPath, reqPath, Heuristique.GREEDY, 10);
 
         closeFile();
     }
@@ -105,6 +107,8 @@ public class processingTest {
 
     static void testBatch(String mapPath, String reqPath, Heuristique heuristique, int repetitions) {
 
+        writeToFile(repetitions + " runs sur " + reqPath + " avec " + heuristique);
+
         // ------------ chargement & parsing des données de test
         Map map = new Map(mapPath);
         PlanningRequest planning = new PlanningRequest();
@@ -116,17 +120,19 @@ public class processingTest {
 
         // ------------ calcul de la tournee
         float moyDureeExec = 0;
+        float moyDureeTournee = 0;
         for(int i=0; i<repetitions; i++) {
-            float startTime = System.currentTimeMillis();
+            float startTime = System.nanoTime();
             Tournee tournee = ComputeTour.planTour(map, planning, heuristique);
-            float dureeExec = System.currentTimeMillis() - startTime;
+            float dureeExec = (System.nanoTime() - startTime) / (float)1000000000;
 
             float dureeTournee = tournee.getPtsPassage().get(tournee.getPtsPassage().size() - 1).getTime().minusHours(8).toSecondOfDay();
             writeToFile(String.valueOf(dureeExec) + " " + String.valueOf(dureeTournee));
             moyDureeExec += dureeExec;
+            moyDureeTournee += dureeTournee;
         }
 
-        writeToFile("Moyenne : " + String.valueOf(moyDureeExec/(float)repetitions));
+        writeToFile("Moyennes : exec=" + moyDureeExec/(float)repetitions + ", tournee=" + moyDureeTournee/(float)repetitions + "\n");
     }
 
     static void initFile() {
