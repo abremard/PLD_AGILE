@@ -166,7 +166,7 @@ public class PlanningRequest {
         String myString = "";
         myString += "Depot : " + depot.toString();
         for (int i=0; i<requestList.size(); i++){
-            myString += " request numéro " + i + ": " + requestList.get(i).toString();
+            myString += " request numéro " + i + ": " + requestList.get(i).toString() + "\r\n";
         }
         return myString;
     }

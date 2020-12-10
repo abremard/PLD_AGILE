@@ -265,7 +265,6 @@ public class Controller {
 
         addingRequest = false;
         addedReqCount = 0;
-        tempRequest = new Request( new Intersection(0,0), new Intersection(0,0), 0,0);
     }
 
 
@@ -466,7 +465,8 @@ public class Controller {
 
                     ArrayList<Intersection> order = new ArrayList<>(); // TODO : MODIFY ORDER
                     // mvcController.applyModificationDone(map, planningRequest, order);
-                    logger.info("planningRequest ->" + planningRequest.toString());
+                    System.out.println(planningRequest.toString());
+                    // logger.info("planningRequest ->" + planningRequest.toString());
                     logger.info("cards ->" + cards.toString());
                     mvcController.applyModificationDone(map, planningRequest, cards);
                     refreshModel();
@@ -559,6 +559,7 @@ public class Controller {
                 if (isAddRequest) {
                     System.out.println("Clicked on add ");
                     // clicked on add in adding request phase
+                    tempRequest.setId(planningRequest.getRequestList().size());
                     tempRequest.setPickupDur(60*Double.parseDouble(mapField.getText()));
                     tempRequest.setDeliveryDur(60*Double.parseDouble(requestField.getText()));
 
@@ -582,6 +583,7 @@ public class Controller {
                     addingRequest = true;
                     addedReqCount = 0;
                     addRequestSetup();
+                    tempRequest = new Request(new Intersection(0,0), new Intersection(0,0), 0,0);
                     mvcController.addRequest();
                 }
                 else if ( isEdit){
@@ -872,9 +874,9 @@ public class Controller {
             return;
         }
 
+        System.out.println("added request count "+addedReqCount);
         Intersection newIntersection = new Intersection( event.getCoordinate().getLatitude(), event.getCoordinate().getLongitude());
         newIntersection = map.findClosestIntersection(newIntersection);
-
         String file = ( addedReqCount%2 == 0)? pickupImageFile : deliveryImageFile;
         Coordinate coordIntersection = new Coordinate(newIntersection.getLatitude(), newIntersection.getLongitude());
         Marker newMarker = new Marker( getClass().getResource(file),-12,-12).setPosition(coordIntersection).setVisible(true);

@@ -60,6 +60,8 @@ public class Request {
         return id;
     }
 
+    public void setId(int id) { this.id = id; }
+
     public Intersection getPickup() {
         return pickup;
     }
