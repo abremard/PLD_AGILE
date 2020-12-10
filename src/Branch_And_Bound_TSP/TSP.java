@@ -24,6 +24,8 @@ public interface TSP {
 	public Integer getSolution(int i);
 
 	public Integer[] getSolution();
+
+	public float getExecTime();
 	
 	/** 
 	 * @return the total cost of the solution computed by <code>searchSolution</code> 
