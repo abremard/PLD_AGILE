@@ -11,8 +11,8 @@ import sample.Controller;
 import java.util.ArrayList;
 
 public class ModifyRequestState implements State {
-    public void modifyRequestDone(ListOfCommands l, MVCController c, Request oldRequest, Request newRequest, Map map, PlanningRequest p, ArrayList<Controller.LocationTagContent> ltcList) {
-        l.Add(new EditRequestCommand(oldRequest, newRequest, map, p, ltcList), c);
+    public void modifyRequestDone(ListOfCommands l, MVCController c, Request oldRequest, Request newRequest, int editedRequestIndex, int editedCardIndex, double oldDuration, double newDuration, boolean isPickup) {
+        l.Add(new EditRequestCommand(oldRequest, newRequest, editedRequestIndex, editedCardIndex, oldDuration, newDuration, isPickup), c);
         c.setCurrentState(c.getModifyState());
         if (debug) {
             System.out.println(l.getI()+" - Confirming modification of a request of the request list ");

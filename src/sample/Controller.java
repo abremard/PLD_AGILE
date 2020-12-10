@@ -57,6 +57,17 @@ public class Controller {
     String depotImageFile = "/images/depotMarker.png";
 
     /**
+     * Marker for Starting location
+     */
+    String mapFile = "Please choose a file";
+
+    /**
+     * Marker for Starting location
+     */
+    String requestFile = "Please choose a file";
+
+
+    /**
      * Logger for testing and debugging pursposes
      */
     private static final Logger logger = LoggerFactory.getLogger(Controller.class);
@@ -161,6 +172,7 @@ public class Controller {
      * temporary request
      */
     private Request tempRequest;
+    private Request oldRequest;
     private LocationTagContent tempItem;
     private LocationTagContent NewPickupLtc;
     private LocationTagContent NewDeliveryLtc;
@@ -210,6 +222,7 @@ public class Controller {
      * Color of highlighted lines of tour
      */
     private Color selectionColor = new Color(1.0,0.4,0.0, 1.0);
+    private Color selectionColorLite = new Color(1.0,0.55,0.0, 1.0);
 
     /**
      * status indicator: timeline view
@@ -265,11 +278,14 @@ public class Controller {
 
         addingRequest = false;
         addedReqCount = 0;
-        tempRequest = new Request( new Intersection(0,0), new Intersection(0,0), 0,0);
     }
 
-
-
+    /**
+     * Function that converts a Request into a LocationTagContent object needed for the Algo
+     * @param isPickup is it a Pickup or a delivery
+     * @param request the request object to transform
+     * @return the corresponding LocationTagContent
+     */
     public LocationTagContent convertRequestToLTC(Request request, boolean isPickup) {
         String name = "";
         String street1 = "";
@@ -326,6 +342,7 @@ public class Controller {
         logger.info("fin de la transformation");
         return item;
     }
+
     /**
      * Initialise the Map and all of the buttons
      * @param projection Projection of the window
@@ -370,9 +387,10 @@ public class Controller {
         mainButton.setDisable(true);
         secondButton.setVisible(false);
 
+        mapField.setText(mapFile);
+        requestField.setText(requestFile);
+
         secondButton.setText("Modify");
-
-
 
         logger.info("initialization finished");
 
@@ -408,17 +426,32 @@ public class Controller {
         mapButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
+                mapField.setText("Loading...");
                 File file = fileChooser.showOpenDialog(new Stage());
-                mapField.setText(file.getAbsolutePath());
-
+                mapFile = file.getAbsolutePath();
                 mvcController.LoadMap(file.getAbsolutePath());
                 refreshModel();
 
                 displayMap();
 
-                requestButton.setDisable(false);
-                requestField.setDisable(false);
-                secondButton.setDisable(false);
+                if (coordLines.isEmpty())
+                {
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                        alert.setTitle("Attention!");
+                        alert.setHeaderText(null);
+                        alert.setContentText("There seems to be a problem with your Map file. Please make sure it is properly formatted");
+
+                        alert.showAndWait();
+                    mapField.setText("Please choose a file");
+                } else {
+                    requestButton.setDisable(false);
+                    requestField.setDisable(false);
+                    secondButton.setDisable(false);
+
+                    mapField.setText(file.getAbsolutePath());
+                }
+
+
             }
 
         });
@@ -427,17 +460,29 @@ public class Controller {
         requestButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
+                requestField.setText("Loading...");
                 File file = fileChooser.showOpenDialog(new Stage());
-                requestField.setText(file.getAbsolutePath());
+                requestFile = file.getAbsolutePath();
                 logger.info(file.getAbsolutePath());
                 System.out.println(file.getAbsolutePath());
 
-                mvcController.LoadRequestPlan(file.getAbsolutePath());
-                refreshModel();
+                try {
+                    mvcController.LoadRequestPlan(file.getAbsolutePath());
+                    refreshModel();
 
-                displayRequests(true);
+                    displayRequests(true);
+                    mainButton.setDisable(false);
+                    requestField.setText(file.getAbsolutePath());
+                } catch (NullPointerException nullPointerException) {
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setTitle("Attention!");
+                    alert.setHeaderText(null);
+                    alert.setContentText("There seems to be a problem with your Requests file. Please make sure it is properly formatted and that is corresponds to the Map file you've imported.");
+                    alert.showAndWait();
+                    mapField.setText("Please choose a file");
+                }
 
-                mainButton.setDisable(false);
+
 
             }
         });
@@ -457,7 +502,11 @@ public class Controller {
                     //PASS NEW ORDER AND SETUP TO CALCULATE TOUR
 
                     //remove previous timeline
-                    list.getChildren().remove(list.getChildren().size() -1);
+                    if ( list.getChildren().get(list.getChildren().size() -1) instanceof ListView )
+                    {
+                        list.getChildren().remove(list.getChildren().size() -1);
+                    }
+
 
                     //change text of buttons
                     mainButton.setText("New Tour");
@@ -466,21 +515,21 @@ public class Controller {
 
                     ArrayList<Intersection> order = new ArrayList<>(); // TODO : MODIFY ORDER
                     // mvcController.applyModificationDone(map, planningRequest, order);
+                    System.out.println(planningRequest.toString());
+                    // logger.info("planningRequest ->" + planningRequest.toString());
+                    logger.info("cards ->" + cards.toString());
                     mvcController.applyModificationDone(map, planningRequest, cards);
                     refreshModel();
+                    logger.info(planningRequest.toString());
+                    displayRequests(false);
                     displayTour();
+
                     //call method that places results on timeline
                     initCardContent();
 
                     undoButton.setVisible(false);
                     redoButton.setVisible(false);
                     //change text of buttons
-
-
-                    //get files, pass them to the algo, calculate path, get results
-                    logger.info(map.toString());
-                    logger.info(planningRequest.toString());
-                    //call method that places results on the map
 
                     //update button position
                     isTimeline = true;
@@ -490,9 +539,14 @@ public class Controller {
                 //detect on which view we are - File Picker or Timeline
                 else if (isAddRequest) {
                     //CANCEL ADD REQUEST OPERATION, BACK TO MODIFY VIEW
+                    mvcController.cancel();
+                    displayRequests(false);
                     modifySetup(false);
+                    addingRequest = false;
                 }
                 else if(isEdit){
+                    mvcController.cancel();
+                    displayRequests(false);
                     modifySetup(false);
                     editingRequest = false;
                 }
@@ -501,7 +555,10 @@ public class Controller {
                     undoButton.setVisible(false);
                     redoButton.setVisible(false);
                     //delete list of timeline
-                    logger.info(String.valueOf(list.getChildren().remove(list.getChildren().size() -1)));
+                    if ( list.getChildren().get(list.getChildren().size() -1) instanceof ListView )
+                    {
+                        list.getChildren().remove(list.getChildren().size() -1);
+                    }
                     //remove selected path from timeline
                     removeFromMap(selectedLines);
 
@@ -510,7 +567,9 @@ public class Controller {
                     requestText.setText("Import Request File");
                     mapButton.setVisible(true);
                     requestButton.setVisible(true);
+                    mapField.setText(mapFile);
                     mapField.setVisible(true);
+                    requestField.setText(requestFile);
                     requestField.setVisible(true);
                     requestText.setVisible(true);
                     mapText.setVisible(true);
@@ -520,6 +579,7 @@ public class Controller {
 
                     //change text of button
                     mainButton.setText("Calculate Tour");
+                    secondButton.setVisible(false);
 
                     isTimeline = false;
                 } else
@@ -539,19 +599,14 @@ public class Controller {
                     secondButton.setText("Modify");
                     secondButton.setVisible(true);
 
-                    //get files, pass them to the algo, calculate path, get results
-                    logger.info(map.toString());
-                    logger.info(planningRequest.toString());
                     //call method that places results on the map
                     mvcController.ComputeTour(map, planningRequest);
                     refreshModel();
                     displayTour();
                     //call method that places results on timeline
                     initCardContent();
-
                     isTimeline = true;
                 }
-
             }
         });
 
@@ -559,64 +614,53 @@ public class Controller {
             @Override
             public void handle(ActionEvent event) {
                 if (isAddRequest) {
-                    System.out.println("Clicked on add ");
-                    // clicked on add in adding request phase
+                    tempRequest.setId(planningRequest.getRequestList().size());
                     tempRequest.setPickupDur(60*Double.parseDouble(mapField.getText()));
                     tempRequest.setDeliveryDur(60*Double.parseDouble(requestField.getText()));
-
-                    // planningRequest.addRequest(planningRequest.getRequestList().size(), tempRequest);
-                    // System.out.println(planningRequest.toString());
-
-                    // displayTour();
-                    //call method that places results on timeline
-                    // initCardContent();
-                    // cmd.setNewLtcList(new ArrayList<>(cards));
-
-                    mvcController.addDone(planningRequest, map, cards, tempRequest, NewPickupLtc, NewDeliveryLtc);
+                    mvcController.addDone(tempRequest, NewPickupLtc, NewDeliveryLtc);
+                    addedReqCount = 0;
                     AddRequestCommand cmd = (AddRequestCommand) mvcController.getL().getL().get(mvcController.getL().getI());
                     refreshModel();
-                    list.getChildren().remove(list.getChildren().size() -1);
-                    //compute tour
-                    //back to modify
+                    if ( list.getChildren().get(list.getChildren().size() -1) instanceof ListView )
+                    {
+                        list.getChildren().remove(list.getChildren().size() -1);
+                    }
                     modifySetup(false);
+                    addingRequest = false;
                 }
                 else if (isModify) {
                     addingRequest = true;
                     addedReqCount = 0;
                     addRequestSetup();
+                    tempRequest = new Request(planningRequest.getRequestList().size(), new Intersection(0,0), new Intersection(0,0), 0,0);
                     mvcController.addRequest();
                 }
                 else if ( isEdit){
-                    //mvcController.modifyRequestDone();
-                    Request editedRequest = tempRequest;
-                    LocationTagContent editedLtc = tempItem;
                     int editedCardIndex = cards.indexOf(tempItem);
-
-                    Request newRequest = new Request(tempRequest.getPickup(),tempRequest.getDelivery(), tempRequest.getPickupDur(), tempRequest.getDeliveryDur());
+                    double oldDuration;
+                    double newDuration = Double.parseDouble(mapField.getText());
+                    boolean isPickup = false;
+                    oldDuration = oldRequest.getDeliveryDur();
                     if( mapText.getText().equals("Pickup Duration (min)")){
-                        newRequest.setPickupDur(Double.parseDouble(mapField.getText()));
-                        editedLtc.request.setPickupDur(Double.parseDouble(mapField.getText()));
-                        // set editedLtc with new duration value
-                    } else if( mapText.getText().equals("Delivery Duration (min)")){
-                        newRequest.setDeliveryDur(Double.parseDouble(mapField.getText()));
-                        editedLtc.request.setDeliveryDur(Double.parseDouble(mapField.getText()));
+                        isPickup = true;
+                        oldDuration = oldRequest.getPickupDur();
                     }
-                    planningRequest.removeRequest(tempRequest);
-                    planningRequest.addRequest(newRequest);
-                    mvcController.modifyRequestDone(tempRequest, newRequest, map, planningRequest, cards);
+                    int editedRequestIndex = planningRequest.getRequestList().indexOf(tempRequest);
+                    mvcController.modifyRequestDone(oldRequest, tempRequest, editedRequestIndex, editedCardIndex, oldDuration, newDuration, isPickup);
                     refreshModel();
-
-                    list.getChildren().remove(list.getChildren().size() -1);
+                    if ( list.getChildren().get(list.getChildren().size() -1) instanceof ListView )
+                    {
+                        list.getChildren().remove(list.getChildren().size() -1);
+                    }
                     modifySetup(false);
+                    editingRequest = false;
                 } else {
                     modifySetup(true);
                     mvcController.ModifyRequestList();
                 }
             }
         });
-
         logger.info("Finished setting up event handlers");
-
     }
 
     /**
@@ -626,13 +670,15 @@ public class Controller {
         undoButton.setVisible(false);
         redoButton.setVisible(false);
 
-        infoText.setText("Click on the map to place the Pickup location");
-
         mainButton.setText("Cancel");
         secondButton.setText("Add");
-        list.getChildren().remove(list.getChildren().size() -1);
-        mapText.setText("Pickup Duration");
-        requestText.setText("Delivery Duration");
+        secondButton.setDisable(true);
+        if ( list.getChildren().get(list.getChildren().size() -1) instanceof ListView )
+        {
+            list.getChildren().remove(list.getChildren().size() -1);
+        }
+        mapText.setText("Pickup Duration (min)");
+        requestText.setText("Delivery Duration (min)");
         mapField.setText("0");
         requestField.setText("0");
         mapText.setVisible(true);
@@ -650,31 +696,37 @@ public class Controller {
      * Setup the view for editing a request
      */
     private void editSetup( LocationTagContent item ) {
+
+        mvcController.modifyRequest();
+
         undoButton.setVisible(false);
         redoButton.setVisible(false);
 
         String type = item.getName().split(" ")[0];
 
         tempRequest = item.request;
+        oldRequest = new Request(item.request);
         tempItem = item;
 
         if( type.equals("Pickup") ){
-            mapText.setText("Pickup Duration");
+            mapText.setText("Pickup Duration (min)");
             requestText.setText("Click on the map to change the Pickup location");
             mapField.setText(Double.toString(item.request.getPickupDur()));
         } else if( type.equals("Delivery") ){
-            mapText.setText("Delivery Duration");
+            mapText.setText("Delivery Duration (min)");
             requestText.setText("Click on the map to change the Delivery location");
             mapField.setText(Double.toString(item.request.getDeliveryDur()));
         }
 
         mainButton.setText("Cancel");
         secondButton.setText("Done");
-        list.getChildren().remove(list.getChildren().size() -1);
+        if ( list.getChildren().get(list.getChildren().size() -1) instanceof ListView )
+        {
+            list.getChildren().remove(list.getChildren().size() -1);
+        }
         mapText.setVisible(true);
         mapField.setVisible(true);
         requestText.setVisible(true);
-
 
         editingRequest = true;
         isEdit = true;
@@ -699,7 +751,10 @@ public class Controller {
         secondButton.setText("New Request");
         if (toDelete)
         {
-            list.getChildren().remove(list.getChildren().size() -1);
+            if ( list.getChildren().get(list.getChildren().size() -1) instanceof ListView )
+            {
+                list.getChildren().remove(list.getChildren().size() -1);
+            }
         }
         addCardsToScreen(true);
         isModify = true;
@@ -721,8 +776,6 @@ public class Controller {
 
         ArrayList<Segment> listSegments = map.getSegmentList();
         ArrayList<Intersection> listIntersection = map.getIntersectionList();
-        // logger.info(listSegments.toString());
-        // logger.info(listIntersection.toString());
         for (Segment segment: listSegments) {
             long idOrigin = segment.getOrigin();
             long idDestination = segment.getDestination();
@@ -731,7 +784,6 @@ public class Controller {
 
             Coordinate coordOrigin = new Coordinate(ptOrigin.getLatitude(), ptOrigin.getLongitude());
             Coordinate coordDestination = new Coordinate(ptDestination.getLatitude(), ptDestination.getLongitude());
-            // Extent extent = Extent.forCoordinates();
             CoordinateLine cl = new CoordinateLine(coordOrigin,coordDestination);
             cl.setVisible(true).setColor(mapColor).setWidth(1);
             coordLines.add(cl);
@@ -745,8 +797,6 @@ public class Controller {
     public void displayTour() {
         ArrayList<Segment> listSegments = tour.getSegmentList();
         ArrayList<Intersection> listIntersection = map.getIntersectionList();
-        //logger.info(listSegments.toString());
-        //logger.info(listIntersection.toString());
         for (Segment segment : listSegments) {
             long idOrigin = segment.getOrigin();
             long idDestination = segment.getDestination();
@@ -754,7 +804,6 @@ public class Controller {
             Intersection ptDestination = map.matchIdToIntersection(idDestination);
             Coordinate coordOrigin = new Coordinate(ptOrigin.getLatitude(), ptOrigin.getLongitude());
             Coordinate coordDestination = new Coordinate(ptDestination.getLatitude(), ptDestination.getLongitude());
-            // Extent extent = Extent.forCoordinates();
             CoordinateLine cl = new CoordinateLine(coordOrigin, coordDestination);
             cl.setVisible(true).setColor(pathColor).setWidth(4);
             tourLines.add(cl);
@@ -765,13 +814,11 @@ public class Controller {
     /**
      * Display a highlighted path on the MapView
      */
-    public void displaySegmentTour(ArrayList<Segment> path)
+    public void displaySegmentTour(ArrayList<Segment> path, boolean isFinal)
     {
-        removeFromMap(selectedLines);
-        selectedLines.clear();
+        //removeFromMap(selectedLines);
+        //selectedLines.clear();
         ArrayList<Intersection> listIntersection = map.getIntersectionList();
-        //logger.info(listSegments.toString());
-        //logger.info(listIntersection.toString());
         for (Segment segment : path) {
             long idOrigin = segment.getOrigin();
             long idDestination = segment.getDestination();
@@ -779,9 +826,12 @@ public class Controller {
             Intersection ptDestination = map.matchIdToIntersection(idDestination);
             Coordinate coordOrigin = new Coordinate(ptOrigin.getLatitude(), ptOrigin.getLongitude());
             Coordinate coordDestination = new Coordinate(ptDestination.getLatitude(), ptDestination.getLongitude());
-            // Extent extent = Extent.forCoordinates();
             CoordinateLine cl = new CoordinateLine(coordOrigin, coordDestination);
-            cl.setVisible(true).setColor(selectionColor).setWidth(6);
+            if (isFinal) {
+                cl.setVisible(true).setColor(selectionColor).setWidth(6);
+            } else {
+                cl.setVisible(true).setColor(selectionColorLite).setWidth(4);
+            }
             selectedLines.add(cl);
             mapView.addCoordinateLine(cl);
         }
@@ -832,7 +882,6 @@ public class Controller {
         long idDepot = planningRequest.getDepot().getAdresse().getId();
         depot = map.matchIdToIntersection(idDepot);
         planningRequest.getDepot().setAdresse(depot);
-        mvcController.setPlanningRequest(planningRequest);
 
 
         for( Request request : planningRequest.getRequestList()  ){
@@ -875,9 +924,9 @@ public class Controller {
             return;
         }
 
+        System.out.println("added request count "+addedReqCount);
         Intersection newIntersection = new Intersection( event.getCoordinate().getLatitude(), event.getCoordinate().getLongitude());
         newIntersection = map.findClosestIntersection(newIntersection);
-
         String file = ( addedReqCount%2 == 0)? pickupImageFile : deliveryImageFile;
         Coordinate coordIntersection = new Coordinate(newIntersection.getLatitude(), newIntersection.getLongitude());
         Marker newMarker = new Marker( getClass().getResource(file),-12,-12).setPosition(coordIntersection).setVisible(true);
@@ -887,21 +936,20 @@ public class Controller {
         if( addedReqCount == 0){
             tempRequest.setPickup(newIntersection);
             tempRequest.getPickup().setMarkerId(newMarker.getId());
+            System.out.println("tempRequest ID : " + tempRequest.getId());
             NewPickupLtc = convertRequestToLTC(tempRequest, true);
-            infoText.setText("Click on the map to place the Delivery location");
-            //tempRequest.setPickupDur(5);
-        } else {
+        } else if (addedReqCount == 1) {
             tempRequest.setDelivery(newIntersection);
             tempRequest.getDelivery().setMarkerId(newMarker.getId());
+            System.out.println("tempRequest ID : " + tempRequest.getId());
             NewDeliveryLtc = convertRequestToLTC(tempRequest, false);
             infoText.setText(" ");
-            //tempRequest.setDelivery_dur(5);
         }
 
         addedReqCount++;
 
-        if( addedReqCount == 2 ){
-            //secondButton.setDisable(false);
+        if( addedReqCount >= 2 ){
+            secondButton.setDisable(false);
         }
     }
 
@@ -918,8 +966,11 @@ public class Controller {
 
         Marker newMarker = null;
 
+        System.out.println("old intersection");
+        System.out.println(tempRequest);
+
         String file = "";
-        if(mapText.getText().equals("Pickup Duration")){
+        if(mapText.getText().equals("Pickup Duration (min)")){
             for( Marker m : markers){
                 if( m.getId().equals(tempRequest.getPickup().getMarkerId()) ){
                     mapView.removeMarker(m);
@@ -928,10 +979,11 @@ public class Controller {
                 }
             }
             file = pickupImageFile;
+
             tempRequest.setPickup(newIntersection);
             newMarker = new Marker( getClass().getResource(file),-12,-12).setPosition(coordIntersection).setVisible(true);
             tempRequest.getPickup().setMarkerId(newMarker.getId());
-        } else if (mapText.getText().equals("Delivery Duration")){
+        } else if (mapText.getText().equals("Delivery Duration (min)")){
             for( Marker m : markers){
                 if( m.getId().equals(tempRequest.getDelivery().getMarkerId()) ){
                     mapView.removeMarker(m);
@@ -944,6 +996,8 @@ public class Controller {
             newMarker = new Marker( getClass().getResource(file),-12,-12).setPosition(coordIntersection).setVisible(true);
             tempRequest.getDelivery().setMarkerId(newMarker.getId());
         }
+        System.out.println("new intersection");
+        System.out.println(tempRequest);
         markers.add(newMarker);
         mapView.addMarker(newMarker);
         //editingRequest = false;
@@ -956,7 +1010,7 @@ public class Controller {
         cards.clear();
         int nbDelivery = 1;
         ArrayList<TupleRequete> points = tour.getPtsPassage();
-        if(points != null) logger.info("Retrouve un objet nulllllllllll");
+        if(points == null) logger.info("Retrouve un objet nul");
         for (TupleRequete pt: points) {
             String name = "";
             String street1 = "";
@@ -966,7 +1020,7 @@ public class Controller {
             boolean isPickup = false;
             if (pt.isDepart())
             {
-                name = "Pickup "+pt.getRequete().getId();
+                name = "Pickup "+(planningRequest.findIndexOfRequest(pt.getRequete())+1);
                 ArrayList<String> street = map.getSegmentNameFromIntersectionId(pt.getRequete().getPickup().getId());
                 logger.info(street.toString());
                 street1 = street.get(0);
@@ -984,7 +1038,7 @@ public class Controller {
                 isPickup = true;
             } else
             {
-                name = "Delivery "+pt.getRequete().getId();
+                name = "Delivery "+(planningRequest.findIndexOfRequest(pt.getRequete())+1);
                 if(nbDelivery == (int)((points.size()+1)/2)) { name = "Back to shop"; }
                 nbDelivery++;
                 ArrayList<String> street = map.getSegmentNameFromIntersectionId(pt.getRequete().getDelivery().getId());
@@ -1065,9 +1119,19 @@ public class Controller {
         l.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                LocationTagContent lt = l.getSelectionModel().getSelectedItem();
-                //mapView.setCenter(lt.coordLocation);
-                displaySegmentTour(lt.chemin);
+                try {
+                    removeFromMap(selectedLines);
+                    selectedLines.clear();
+                    LocationTagContent lt = l.getSelectionModel().getSelectedItem();
+                    int index = cards.indexOf(lt);
+                    for (int i = 0; i<index; i++) {
+                        displaySegmentTour(cards.get(i).chemin, false);
+                    }
+                    //mapView.setCenter(lt.coordLocation);
+                    displaySegmentTour(lt.chemin, true);
+                } catch (NullPointerException nullPointerException){
+                    logger.info("Clicked on segment that does not exist");
+                }
             }
         });
     }
@@ -1121,6 +1185,8 @@ public class Controller {
         private ArrayList<Segment> chemin;
         private boolean isPickup;
 
+        public Request getRequest() { return request; }
+        public void setRequest(Request request) { this.request = request; }
         /**
          * Get the name of the LTC
          * @return name Name of the LTC
@@ -1344,18 +1410,20 @@ public class Controller {
                         for( LocationTagContent ltc: cards ){
                             if( Integer.parseInt(ltc.name.split(" ")[1]) == Integer.parseInt(getItem().name.split(" ")[1])
                                     && ltc.getName() != getItem().getName() ){
-                                //cards.remove(ltc);
                                 break;
                             }
                             cursor++;
                         }
 
-                        // TODO : call to refresh the content?
+                        // Change from ModifyState to RemoveState
                         mvcController.removeRequest();
                         mvcController.removeDone(planningRequest, cards, requestIndex, removedCardIndex1, cursor);
                         refreshModel();
                         logger.info(cards.toString());
-                        list.getChildren().remove(list.getChildren().size() -1);
+                        if ( list.getChildren().get(list.getChildren().size() -1) instanceof ListView )
+                        {
+                            list.getChildren().remove(list.getChildren().size() -1);
+                        }
                         displayRequests(false);
                         addCardsToScreen(true);
                     } else {
@@ -1396,7 +1464,10 @@ public class Controller {
                             mvcController.swapRequest(index, index - 1, cards);
                             refreshModel();
                             logger.info(cards.toString());
-                            list.getChildren().remove(list.getChildren().size() - 1);
+                            if ( list.getChildren().get(list.getChildren().size() -1) instanceof ListView )
+                            {
+                                list.getChildren().remove(list.getChildren().size() -1);
+                            }
                             addCardsToScreen(true);
                         }
                     }
@@ -1424,11 +1495,13 @@ public class Controller {
                             alert.showAndWait();
                         } else {
                             logger.info(cards.toString());
-                            //call to refresh the content?
                             mvcController.swapRequest(index, index+1, cards);
                             refreshModel();
                             logger.info(cards.toString());
-                            list.getChildren().remove(list.getChildren().size() -1);
+                            if ( list.getChildren().get(list.getChildren().size() -1) instanceof ListView )
+                            {
+                                list.getChildren().remove(list.getChildren().size() -1);
+                            }
                             addCardsToScreen(true);
                         }
 
@@ -1445,9 +1518,14 @@ public class Controller {
                     logger.info("undo is clicked");
                     mvcController.Undo();
                     refreshModel();
+                    displayRequests(false);
                     logger.info(cards.toString());
-                    list.getChildren().remove(list.getChildren().size() -1);
+                    if ( list.getChildren().get(list.getChildren().size() -1) instanceof ListView )
+                    {
+                        list.getChildren().remove(list.getChildren().size() -1);
+                    }
                     addCardsToScreen(true);
+                    displayRequests(false);
                 }
             });
 
@@ -1460,9 +1538,14 @@ public class Controller {
                     logger.info("redo is clicked");
                     mvcController.Redo();
                     refreshModel();
+                    displayRequests(false);
                     logger.info(cards.toString());
-                    list.getChildren().remove(list.getChildren().size() -1);
+                    if ( list.getChildren().get(list.getChildren().size() -1) instanceof ListView )
+                    {
+                        list.getChildren().remove(list.getChildren().size() -1);
+                    }
                     addCardsToScreen(true);
+                    displayRequests(false);
                 }
             });
 

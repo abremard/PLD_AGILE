@@ -100,7 +100,7 @@ public class PlanningRequest {
                 Element requestElement = (Element) requestNode;
                 Intersection pickupIntersection = new Intersection(Long.parseLong(requestElement.getAttribute("pickupAddress")));
                 Intersection deliveryIntersection = new Intersection(Long.parseLong(requestElement.getAttribute("deliveryAddress")));
-                Request requestParsed = new Request(pickupIntersection, deliveryIntersection, Double.parseDouble(requestElement.getAttribute("pickupDuration")), Double.parseDouble(requestElement.getAttribute("deliveryDuration")));
+                Request requestParsed = new Request(this.getRequestList().size(),pickupIntersection, deliveryIntersection, Double.parseDouble(requestElement.getAttribute("pickupDuration")), Double.parseDouble(requestElement.getAttribute("deliveryDuration")));
                 // for debugging purposes
                 // System.out.println(requestParsed.toString());
                 requestList.add(requestParsed);
@@ -160,6 +160,33 @@ public class PlanningRequest {
                 requestList.add(requestToAdd);
             }
         }
+    }
+
+    public int findIndexOfRequest(Request request){
+        int index = 0;
+        for (int i=0; i<requestList.size(); i++){
+            if (request == requestList.get(i)){
+                index = i;
+            }
+        }
+        return index;
+    }
+
+    public void resetIndexOfRequestList() {
+        int index = 0;
+        for (Request request: requestList) {
+            request.setId(index);
+            ++index;
+        }
+    }
+
+    public String toString(){
+        String myString = "";
+        myString += "Depot : " + depot.toString();
+        for (int i=0; i<requestList.size(); i++){
+            myString += " request numéro " + i + ": " + requestList.get(i).toString() + "\r\n";
+        }
+        return myString;
     }
 
 }

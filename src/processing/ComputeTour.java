@@ -344,7 +344,7 @@ public class ComputeTour {
         for (Request req : planning.getRequestList()) {
             pool.add(new TupleRequete(req, true));
         }
-        pool.add(new TupleRequete(new Request(planning.getDepot().getAdresse(), planning.getDepot().getAdresse(), 0, 0), false));
+        pool.add(new TupleRequete(new Request(planning.getRequestList().size(), planning.getDepot().getAdresse(), planning.getDepot().getAdresse(), 0, 0), false));
 
         ArrayList<TupleRequete> ptsPassage = new ArrayList<TupleRequete>();
 
@@ -617,7 +617,7 @@ public class ComputeTour {
         travelDur *= 3600.0 / 15000.0; // conversion de metres vers secondes
         curTime = curTime.plusSeconds((long) travelDur);
         chemin.addAll(lastChemin);
-        ptsPassage.add(new TupleRequete(new Request(previousDelivery, planning.getDepot().getAdresse(), 0, 0), false, curTime, lastChemin));
+        ptsPassage.add(new TupleRequete(new Request(planning.getRequestList().size(), previousDelivery, planning.getDepot().getAdresse(), 0, 0), false, curTime, lastChemin));
 
         return new Tournee(chemin, planning.getRequestList(), ptsPassage);
     }
@@ -783,7 +783,7 @@ public class ComputeTour {
         curTime = curTime.plusSeconds((long) travelDur);
 
         chemin.addAll(curChemin.chemin);
-        ptsPassage.add(new TupleRequete(new Request(planning.getDepot().getAdresse(), planning.getDepot().getAdresse(), 0, 0), false, curTime, curChemin.chemin));
+        ptsPassage.add(new TupleRequete(new Request(planning.getRequestList().size(), planning.getDepot().getAdresse(), planning.getDepot().getAdresse(), 0, 0), false, curTime, curChemin.chemin));
 
         Tournee tournee = new Tournee(chemin, requests);
 //        Tournee tournee = new Tournee(chemin, requests, ptsPassage);

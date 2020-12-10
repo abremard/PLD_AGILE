@@ -14,8 +14,8 @@ import sample.Controller;
 import java.util.ArrayList;
 
 public class AddState implements State {
-    public void addDone(ListOfCommands l, MVCController c, PlanningRequest p, Map m, ArrayList<Controller.LocationTagContent> ltcList, Request newRequest, Controller.LocationTagContent newPickupLtc, Controller.LocationTagContent newDeliveryLtc) {
-        l.Add(new AddRequestCommand(p, ltcList, newRequest, newPickupLtc, newDeliveryLtc), c);
+    public void addDone(ListOfCommands l, MVCController c, Request newRequest, Controller.LocationTagContent newPickupLtc, Controller.LocationTagContent newDeliveryLtc) {
+        l.Add(new AddRequestCommand(newRequest, newPickupLtc, newDeliveryLtc), c);
         c.setCurrentState(c.getModifyState());
 
         if (debug) {

@@ -211,15 +211,13 @@ public class PaperHeuristicTSP {
                             newCost = threeOptCost(center, cuts.cut1, cuts.cut2, cuts.cut3, order);
 
                             // si on trouve un meilleur trajet et qu'il respecte les contraintes de précédence, on l'applique
-                            if (newCost > initialCost) {
-                                // TODO VERIFIER SI LE CHEMIN RESPECTE LES CONTRAINTES D ORDRE 
-                                System.err.println("Found a better local optimization of cost " + newCost
-                                        + " (against " + initialCost +")");
-                                System.err.print("Old Tournee : " + this.currentTourIndexes);
-                                applyThreeOpt(center, cuts.cut1, cuts.cut2, cuts.cut3, order);
-                                System.err.println(" -> new Tournee : " + this.currentTourIndexes);
-                                stop = true;        // propage le break à la boucle du dessus
-                                break;
+                            if (newCost < initialCost) {
+                                // on applique l'optimisation si elle est valide
+                                if (applyThreeOptIfValid(center, cuts.cut1, cuts.cut2, cuts.cut3, order)) {
+                                    System.err.println("Optimized path from cost " + initialCost + " to " + newCost);
+                                    stop = true;        // propage le break à la boucle du dessus
+                                    break;
+                                }
                             }
                         }
 
@@ -229,7 +227,7 @@ public class PaperHeuristicTSP {
                         }
                     }
                 }
-            }
+            }   // fin 3-opt
         }
     }
 
@@ -417,11 +415,23 @@ public class PaperHeuristicTSP {
 
     /**
      * Applique la méthode de réarrangement choisie après calcul de son coût par
-     * 3-opt au trajet actuel
+     * 3-opt au trajet actuel uniquement si le trajet est valide
      *
+     * @param center L'indice dans le chemin du point autour duquel on effectue
+     *               l'optimisation (longueur du sous-chemin déterminée par r)
+     * @param cut1   L'indice du point dans le chemin depuis lequel on "coupe" la
+     *               première arête (dernier point de A)
+     * @param cut2   L'indice du point dans le chemin depuis lequel on "coupe" la
+     *               deuxième arête (dernier point de B)
+     * @param cut3   L'indice du point dans le chemin depuis lequel on "coupe" la
+     *               troisième arête (dernier point de C)
+     * @param order  L'ordre dans lequel on assemble les sous-chemins entre eux
+     * @return true si l'optimisation demandée était valide et a été appliquée,
+     * false sinon
+     * @see InsertionMethod
      * @see PaperHeuristicTSP#threeOptCost(int, int, int, int, AssembleOrder)
      */
-    void applyThreeOpt(int center, int cut1, int cut2, int cut3, AssembleOrder order) {
+    boolean applyThreeOptIfValid(int center, int cut1, int cut2, int cut3, AssembleOrder order) {
 
         // indices dans le trajet initial du début de chacun des sous-chemins A et B
         int firstB = cut1 + 1;
@@ -467,7 +477,7 @@ public class PaperHeuristicTSP {
                     newPathPoints.get(i).setFrom(currentTourPoints.get(firstC + i));
                 }
                 // B à l'endroit (début -> fin)
-                for (j = 0 ; i < lgB + lgC; ++i, ++j) {
+                for (j = 0; i < lgB + lgC; ++i, ++j) {
                     newPathIndexes[i] = currentTourIndexes.get(firstB + j);
                     newPathPoints.get(i).setFrom(currentTourPoints.get(firstB + j));
                 }
@@ -490,9 +500,10 @@ public class PaperHeuristicTSP {
                 // C à l'envers (fin -> début)
                 for (i = 0; i < lgC; ++i) {
                     newPathIndexes[i] = currentTourIndexes.get(cut3 - i);
+                    newPathPoints.get(i).setFrom(currentTourPoints.get(cut3 - i));
                 }
                 // B à l'endroit (début -> fin)
-                for (j = 0 ; i < lgB + lgC; ++i, ++j) {
+                for (j = 0; i < lgB + lgC; ++i, ++j) {
                     newPathIndexes[i] = currentTourIndexes.get(firstB + j);
                     newPathPoints.get(i).setFrom(currentTourPoints.get(firstB + j));
                 }
@@ -505,17 +516,53 @@ public class PaperHeuristicTSP {
                     newPathPoints.get(i).setFrom(currentTourPoints.get(cut3 - i));
                 }
                 // B à l'envers (fin -> début)
-                for (j = 0 ; i < lgB + lgC; ++i, ++j) {
+                for (j = 0; i < lgB + lgC; ++i, ++j) {
                     newPathIndexes[i] = currentTourIndexes.get(cut2 - j);
                     newPathPoints.get(i).setFrom(currentTourPoints.get(cut2 - j));
                 }
                 break;
         }
 
-        System.err.println("Old path: " + this.currentTourIndexes);
+        // ----- vérification de la validité du nouvel ordre des points de passage
+        boolean isValid = true;
+        HashSet<Integer> requestsStarted = new HashSet<>();
 
-        for (i = 0; i < newPathIndexes.length; ++i) {
-            // todo
+        // initialisation des requêtes dont on a déjà parcouru le pickup
+        for (i = 0; i < firstB; ++i) {
+            if (this.currentTourPoints.get(i) != null) {    // ne pas prendre les null du dépôt
+                requestsStarted.add(this.currentTourPoints.get(i).requete.getId());
+            }
+        }
+
+        // parcours des points qu'on a réordonnés
+        for (i = 0; i < lgB + lgC; ++i) {
+            TupleRequete req = newPathPoints.get(i);
+            if (req.isDepart()) {   // on ajoute le pickup à la liste des requêtes en cours (/finies)
+                requestsStarted.add(req.requete.getId());
+            } else {        // on vérifie qu'on a déjà parcouru le pickup du delivery actuel
+                if (!requestsStarted.contains(req.requete.getId())) {
+                    isValid = false;
+                    break;
+                }
+            }
+        }
+
+        if (isValid) {
+
+            System.err.println("Found a valid local optimization !!");
+            System.err.println("- Old path: " + this.currentTourIndexes);
+
+            for (i = 0; i < newPathIndexes.length; ++i) {
+                this.currentTourIndexes.set(firstB + i, newPathIndexes[i]);
+                this.currentTourPoints.set(firstB + i, newPathPoints.get(i));
+            }
+
+            System.err.println("- New path: " + this.currentTourIndexes);
+
+            return true;
+        } else {
+//            System.err.println("Local optimization found was invalid and not applied");
+            return false;
         }
     }
 
@@ -563,7 +610,11 @@ public class PaperHeuristicTSP {
 
         // initialisation des éléments à passer au constructeur de Tournee
         ArrayList<Request> requestList = planning.getRequestList();
-        ArrayList<TupleRequete> ptsPassage = new ArrayList<>(this.currentTourPoints);
+
+        ArrayList<TupleRequete> ptsPassage = new ArrayList<>();
+        for (TupleRequete tupleRequete: this.currentTourPoints) {
+            ptsPassage.add(tupleRequete);       // laisser les null ! ils sont traités après !
+        }
 
         // initialisation de la liste des segments avec le chemin dépôt -> premier pickup
         ArrayList<Segment> segmentList = new ArrayList<>(matAdj[0][currentTourIndexes.get(1)].chemin);
@@ -581,6 +632,16 @@ public class PaperHeuristicTSP {
                         matAdj[ptsIdToIndex.get(pt1.getCurrentGoal().getId())][0].chemin);
             }
         }
+
+        // debug : vérification de la continuité du chemin (liste de segments)
+        boolean isCorrect = true;
+        for (int i = 0; i < segmentList.size() - 1; ++i) {
+            if (segmentList.get(i).getDestination() != segmentList.get(i+1).getOrigin()) {
+                System.err.println("-_-_-_-_- BAH ALORS ON SAIT PAS CODER ?????? REGARDE DONC A L INDICE " + i);
+                isCorrect = false;
+            }
+        }
+        if (isCorrect) System.err.println("WOLA C PA MOA");
 
         // ajout des heures d'arrivée à chaque point de passage + le chemin qui y mène
         Tournee tournee = new Tournee(segmentList, requestList);
@@ -665,10 +726,12 @@ public class PaperHeuristicTSP {
 
     /**
      * Surcharge pour ajouter un point directement à la fin du trajet actuel
+     *
+     * @param tupleRequete le point de passage à insérer     *
+     * @see PaperHeuristicTSP#ajouterPointTournee(TupleRequete, int)
      */
     void ajouterPointTournee(TupleRequete tupleRequete) {
         ajouterPointTournee(tupleRequete, currentTourIndexes.size());
     }
 
-    // todo supprimerPointTournee pour l'étape 2
 }

@@ -32,8 +32,13 @@ public class ComputeTourCommand implements Command {
 
     @Override
     public void doCommand(MVCController c) {
-        c.setTour(ComputeTour.planTour(map, planningRequest, Heuristique.BRANCHANDBOUND));
-        // tournee = ComputeTour.planTour(map, planningRequest, Heuristique.DOUBLEINSERTION);      // EXPERIMENTAL
+        // mesure du temps d'exécution de la fonction de calcul du chemin
+        long startTime = System.nanoTime();
+//        c.setTour(ComputeTour.planTour(map, planningRequest, Heuristique.BRANCHANDBOUND));
+//        c.setTour(ComputeTour.planTour(map, planningRequest, Heuristique.GREEDY));
+        c.setTour(ComputeTour.planTour(map, planningRequest, Heuristique.DOUBLEINSERTION));      // EXPERIMENTAL
+        long stopTime = System.nanoTime();
+        System.err.println(">>> Executed method 'planTour' in " + (double)(stopTime - startTime)/1000.0 + " μs");
     }
 
     @Override
