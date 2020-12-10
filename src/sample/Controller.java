@@ -735,11 +735,11 @@ public class Controller {
         tempItem = item;
 
         if( type.equals("Pickup") ){
-            mapText.setText("Pickup Duration (min)");
+            mapText.setText("Pickup Duration (sec)");
             requestText.setText("Click on the map to change the Pickup location");
             mapField.setText(Double.toString(item.request.getPickupDur()));
         } else if( type.equals("Delivery") ){
-            mapText.setText("Delivery Duration (min)");
+            mapText.setText("Delivery Duration (sec)");
             requestText.setText("Click on the map to change the Delivery location");
             mapField.setText(Double.toString(item.request.getDeliveryDur()));
         }
