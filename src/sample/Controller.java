@@ -161,6 +161,7 @@ public class Controller {
      * temporary request
      */
     private Request tempRequest;
+    private Request oldRequest;
     private LocationTagContent tempItem;
     private LocationTagContent NewPickupLtc;
     private LocationTagContent NewDeliveryLtc;
@@ -593,6 +594,7 @@ public class Controller {
                     tempRequest.setPickupDur(60*Double.parseDouble(mapField.getText()));
                     tempRequest.setDeliveryDur(60*Double.parseDouble(requestField.getText()));
                     mvcController.addDone(tempRequest, NewPickupLtc, NewDeliveryLtc);
+                    addedReqCount = 0;
                     AddRequestCommand cmd = (AddRequestCommand) mvcController.getL().getL().get(mvcController.getL().getI());
                     refreshModel();
                     if ( list.getChildren().get(list.getChildren().size() -1) instanceof ListView )
@@ -610,13 +612,16 @@ public class Controller {
                 }
                 else if ( isEdit){
                     int editedCardIndex = cards.indexOf(tempItem);
+                    double oldDuration;
                     double newDuration = Double.parseDouble(mapField.getText());
                     boolean isPickup = false;
-                    if( mapText.getText().equals("Pickup Duration (sec)")){
+                    oldDuration = oldRequest.getDeliveryDur();
+                    if( mapText.getText().equals("Pickup Duration (min)")){
                         isPickup = true;
+                        oldDuration = oldRequest.getPickupDur();
                     }
                     int editedRequestIndex = planningRequest.getRequestList().indexOf(tempRequest);
-                    mvcController.modifyRequestDone(planningRequest, editedRequestIndex, editedCardIndex, newDuration, isPickup);
+                    mvcController.modifyRequestDone(oldRequest, tempRequest, editedRequestIndex, editedCardIndex, oldDuration, newDuration, isPickup);
                     refreshModel();
                     if ( list.getChildren().get(list.getChildren().size() -1) instanceof ListView )
                     {
@@ -674,6 +679,7 @@ public class Controller {
         String type = item.getName().split(" ")[0];
 
         tempRequest = item.request;
+        oldRequest = new Request(item.request);
         tempItem = item;
 
         if( type.equals("Pickup") ){
@@ -846,7 +852,6 @@ public class Controller {
         long idDepot = planningRequest.getDepot().getAdresse().getId();
         depot = map.matchIdToIntersection(idDepot);
         planningRequest.getDepot().setAdresse(depot);
-        mvcController.setPlanningRequest(planningRequest);
 
 
         for( Request request : planningRequest.getRequestList()  ){
@@ -929,6 +934,9 @@ public class Controller {
 
         Marker newMarker = null;
 
+        System.out.println("old intersection");
+        System.out.println(tempRequest);
+
         String file = "";
         if(mapText.getText().equals("Pickup Duration (min)")){
             for( Marker m : markers){
@@ -956,6 +964,8 @@ public class Controller {
             newMarker = new Marker( getClass().getResource(file),-12,-12).setPosition(coordIntersection).setVisible(true);
             tempRequest.getDelivery().setMarkerId(newMarker.getId());
         }
+        System.out.println("new intersection");
+        System.out.println(tempRequest);
         markers.add(newMarker);
         mapView.addMarker(newMarker);
         //editingRequest = false;
@@ -1138,6 +1148,7 @@ public class Controller {
         private boolean isPickup;
 
         public Request getRequest() { return request; }
+        public void setRequest(Request request) { this.request = request; }
         /**
          * Get the name of the LTC
          * @return name Name of the LTC

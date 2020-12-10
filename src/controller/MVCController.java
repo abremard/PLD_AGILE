@@ -124,7 +124,7 @@ public class MVCController {
 
     public void removeDone(PlanningRequest oldPlanningRequest, ArrayList<Controller.LocationTagContent> ltcList, int removedRequestIndex, int removedCardIndex1, int removedCardIndex2){currentState.removeDone(l, this, oldPlanningRequest, ltcList, removedRequestIndex, removedCardIndex1, removedCardIndex2);}
 
-    public void modifyRequestDone(PlanningRequest p, int editedRequestIndex, int editedCardIndex, double newDuration, boolean isPickup){currentState.modifyRequestDone(l, this, p, editedRequestIndex, editedCardIndex, newDuration, isPickup);}
+    public void modifyRequestDone(Request oldRequest, Request newRequest, int editedRequestIndex, int editedCardIndex, double oldDuration, double newDuration, boolean isPickup){currentState.modifyRequestDone(l, this, oldRequest, newRequest, editedRequestIndex, editedCardIndex, oldDuration, newDuration, isPickup);}
 
     public void applyModificationDone(Map m, PlanningRequest p, ArrayList<Controller.LocationTagContent> ltcList){currentState.applyModificationDone(l, this, m, p, ltcList);}
 

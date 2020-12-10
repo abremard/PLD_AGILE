@@ -19,21 +19,30 @@ public class EditRequestCommand implements Command {
     private double oldDuration;
     private double newDuration;
     private boolean isPickup;
+    private Request newRequest;
+    private Request oldRequest;
 
-    public EditRequestCommand(PlanningRequest p, int editedRequestIndex, int editedCardIndex, double newDuration, boolean isPickup) {
+    public EditRequestCommand(Request oldRequest, Request newRequest, int editedRequestIndex, int editedCardIndex, double oldDuration, double newDuration, boolean isPickup) {
         this.editedRequestIndex = editedRequestIndex;
         this.editedCardIndex = editedCardIndex;
+        /*
         if (isPickup) {
             this.oldDuration = p.getRequestList().get(editedRequestIndex).getPickupDur();
         } else {
             this.oldDuration = p.getRequestList().get(editedRequestIndex).getDeliveryDur();
         }
+        */
+        this.oldRequest = oldRequest;
+        this.newRequest = newRequest;
+        this.oldDuration = oldDuration;
         this.newDuration = newDuration;
         this.isPickup = isPickup;
     }
 
     @Override
     public void doCommand(MVCController c) {
+        c.getPlanningRequest().getRequestList().set(editedRequestIndex, newRequest);
+        c.getLtcList().get(editedCardIndex).setRequest(newRequest);
         if (isPickup) {
             c.getPlanningRequest().getRequestList().get(editedRequestIndex).setPickupDur(this.newDuration);
             c.getLtcList().get(editedCardIndex).getRequest().setPickupDur(this.newDuration);
@@ -45,6 +54,8 @@ public class EditRequestCommand implements Command {
 
     @Override
     public void undoCommand(MVCController c) {
+        c.getPlanningRequest().getRequestList().set(editedRequestIndex, oldRequest);
+        c.getLtcList().get(editedCardIndex).setRequest(oldRequest);
         if (isPickup) {
             c.getPlanningRequest().getRequestList().get(editedRequestIndex).setPickupDur(this.oldDuration);
             c.getLtcList().get(editedCardIndex).getRequest().setPickupDur(this.oldDuration);

@@ -131,7 +131,7 @@ public interface State {
      * @param l Liste des commandes effectuées jusqu'à maintenant.
      * @param c Controlleur dont on met à jour l'état.
      */
-    default void modifyRequestDone(ListOfCommands l, MVCController c, PlanningRequest p, int editedRequestIndex, int editedCardIndex, double newDuration, boolean isPickup) {}
+    default void modifyRequestDone(ListOfCommands l, MVCController c, Request oldRequest, Request newRequest, int editedRequestIndex, int editedCardIndex, double oldDuration, double newDuration, boolean isPickup) {}
 
     /**
      * On valide toutes les modifications apportées à la tournée.

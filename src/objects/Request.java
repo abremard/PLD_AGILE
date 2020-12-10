@@ -64,6 +64,14 @@ public class Request {
         this.id = id;
     }
 
+    public Request(Request referencedRequest) {
+        this.pickup = referencedRequest.pickup;
+        this.delivery = referencedRequest.delivery;
+        this.pickupDur = referencedRequest.pickupDur;
+        this.deliveryDur = referencedRequest.deliveryDur;
+        this.id = referencedRequest.id;
+    }
+
     // Getters et setters
 
     public int getId() {
