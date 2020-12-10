@@ -411,14 +411,25 @@ public class Controller {
                 File file = fileChooser.showOpenDialog(new Stage());
                 mapField.setText(file.getAbsolutePath());
 
+
                 mvcController.LoadMap(file.getAbsolutePath());
                 refreshModel();
 
                 displayMap();
 
-                requestButton.setDisable(false);
-                requestField.setDisable(false);
-                secondButton.setDisable(false);
+                if (coordLines.isEmpty())
+                {
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                        alert.setTitle("Attention!");
+                        alert.setHeaderText(null);
+                        alert.setContentText("There seems to be a problem with your Map file. Please make sure it is properly formatted");
+
+                        alert.showAndWait();
+                } else {
+                    requestButton.setDisable(false);
+                    requestField.setDisable(false);
+                    secondButton.setDisable(false);
+                }
             }
 
         });
@@ -432,12 +443,20 @@ public class Controller {
                 logger.info(file.getAbsolutePath());
                 System.out.println(file.getAbsolutePath());
 
-                mvcController.LoadRequestPlan(file.getAbsolutePath());
-                refreshModel();
+                try {
+                    mvcController.LoadRequestPlan(file.getAbsolutePath());
+                    refreshModel();
 
-                displayRequests(true);
+                    displayRequests(true);
+                    mainButton.setDisable(false);
+                } catch (NullPointerException nullPointerException) {
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setTitle("Attention!");
+                    alert.setHeaderText(null);
+                    alert.setContentText("There seems to be a problem with your Requests file. Please make sure it is properly formatted.");
 
-                mainButton.setDisable(false);
+                    alert.showAndWait();
+                }
 
             }
         });
@@ -487,6 +506,7 @@ public class Controller {
                 else if (isAddRequest) {
                     //CANCEL ADD REQUEST OPERATION, BACK TO MODIFY VIEW
                     mvcController.cancel();
+                    displayRequests(false);
                     modifySetup(false);
                 }
                 else if(isEdit){
