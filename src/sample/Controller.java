@@ -434,6 +434,7 @@ public class Controller {
                         logger.info(" found match ");
                         markersWithLabels.add(event.getMarker().attachLabel(new MapLabel(c.getName(), 10, 10)));
                         mapView.addMarker(markersWithLabels.get(0));
+                        listView.scrollTo(c);
                         listView.getSelectionModel().select(c);
                     }
                 }
@@ -560,9 +561,11 @@ public class Controller {
                 //detect on which view we are - File Picker or Timeline
                 else if (isAddRequest) {
                     //CANCEL ADD REQUEST OPERATION, BACK TO MODIFY VIEW
+                    infoText.setText(" ");
                     mvcController.cancel();
                     displayRequests(false);
                     modifySetup(false);
+                    secondButton.setDisable(false);
                     addingRequest = false;
                 }
                 else if(isEdit){
@@ -662,7 +665,7 @@ public class Controller {
                     double newDuration = Double.parseDouble(mapField.getText());
                     boolean isPickup = false;
                     oldDuration = oldRequest.getDeliveryDur();
-                    if( mapText.getText().equals("Pickup Duration (min)")){
+                    if( mapText.getText().equals("Pickup Duration (sec)")){
                         isPickup = true;
                         oldDuration = oldRequest.getPickupDur();
                     }
@@ -700,6 +703,8 @@ public class Controller {
         }
         mapText.setText("Pickup Duration (min)");
         requestText.setText("Delivery Duration (min)");
+
+        infoText.setText("Click on the map to place the Pickup location.");
         mapField.setText("0");
         requestField.setText("0");
         mapText.setVisible(true);
@@ -720,6 +725,9 @@ public class Controller {
 
         mvcController.modifyRequest();
 
+        removeFromMapMarker(markersWithLabels);
+        markersWithLabels.clear();
+
         undoButton.setVisible(false);
         redoButton.setVisible(false);
 
@@ -730,11 +738,11 @@ public class Controller {
         tempItem = item;
 
         if( type.equals("Pickup") ){
-            mapText.setText("Pickup Duration (min)");
+            mapText.setText("Pickup Duration (sec)");
             requestText.setText("Click on the map to change the Pickup location");
             mapField.setText(Double.toString(item.request.getPickupDur()));
         } else if( type.equals("Delivery") ){
-            mapText.setText("Delivery Duration (min)");
+            mapText.setText("Delivery Duration (sec)");
             requestText.setText("Click on the map to change the Delivery location");
             mapField.setText(Double.toString(item.request.getDeliveryDur()));
         }
@@ -959,6 +967,7 @@ public class Controller {
             tempRequest.getPickup().setMarkerId(newMarker.getId());
             System.out.println("tempRequest ID : " + tempRequest.getId());
             NewPickupLtc = convertRequestToLTC(tempRequest, true);
+            infoText.setText("Click on the map to place the Delivery location.");
         } else if (addedReqCount == 1) {
             tempRequest.setDelivery(newIntersection);
             tempRequest.getDelivery().setMarkerId(newMarker.getId());
@@ -991,7 +1000,7 @@ public class Controller {
         System.out.println(tempRequest);
 
         String file = "";
-        if(mapText.getText().equals("Pickup Duration (min)")){
+        if(mapText.getText().equals("Pickup Duration (sec)")){
             for( Marker m : markers){
                 if( m.getId().equals(tempRequest.getPickup().getMarkerId()) ){
                     mapView.removeMarker(m);
@@ -1004,7 +1013,7 @@ public class Controller {
             tempRequest.setPickup(newIntersection);
             newMarker = new Marker( getClass().getResource(file),-12,-12).setPosition(coordIntersection).setVisible(true);
             tempRequest.getPickup().setMarkerId(newMarker.getId());
-        } else if (mapText.getText().equals("Delivery Duration (min)")){
+        } else if (mapText.getText().equals("Delivery Duration (sec)")){
             for( Marker m : markers){
                 if( m.getId().equals(tempRequest.getDelivery().getMarkerId()) ){
                     mapView.removeMarker(m);
@@ -1466,6 +1475,8 @@ public class Controller {
                         {
                             list.getChildren().remove(list.getChildren().size() -1);
                         }
+                        removeFromMapMarker(markersWithLabels);
+                        markersWithLabels.clear();
                         displayRequests(false);
                         addCardsToScreen(true);
                     } else {

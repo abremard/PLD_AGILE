@@ -35,9 +35,7 @@ public class Main extends Application {
         Scene scene = new Scene(rootNode);
         logger.info("scene created");
 
-
-
-        primaryStage.setTitle("Delivery UI Demo");
+        primaryStage.setTitle("Delivery by Hexa4312");
         primaryStage.setScene(scene);
         logger.info("showing scene");
         primaryStage.show();
