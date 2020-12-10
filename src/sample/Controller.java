@@ -466,6 +466,8 @@ public class Controller {
 
                     ArrayList<Intersection> order = new ArrayList<>(); // TODO : MODIFY ORDER
                     // mvcController.applyModificationDone(map, planningRequest, order);
+                    logger.info("planningRequest ->" + planningRequest.toString());
+                    logger.info("cards ->" + cards.toString());
                     mvcController.applyModificationDone(map, planningRequest, cards);
                     refreshModel();
                     displayTour();
@@ -475,12 +477,6 @@ public class Controller {
                     undoButton.setVisible(false);
                     redoButton.setVisible(false);
                     //change text of buttons
-
-
-                    //get files, pass them to the algo, calculate path, get results
-                    logger.info(map.toString());
-                    logger.info(planningRequest.toString());
-                    //call method that places results on the map
 
                     //update button position
                     isTimeline = true;
@@ -542,8 +538,8 @@ public class Controller {
                     secondButton.setVisible(true);
 
                     //get files, pass them to the algo, calculate path, get results
-                    logger.info(map.toString());
-                    logger.info(planningRequest.toString());
+                    //logger.info(map.toString());
+                    //logger.info(planningRequest.toString());
                     //call method that places results on the map
                     mvcController.ComputeTour(map, planningRequest);
                     refreshModel();
@@ -1353,7 +1349,7 @@ public class Controller {
                             cursor++;
                         }
 
-                        // TODO : call to refresh the content?
+                        // Change from ModifyState to RemoveState
                         mvcController.removeRequest();
                         mvcController.removeDone(planningRequest, cards, requestIndex, removedCardIndex1, cursor);
                         refreshModel();

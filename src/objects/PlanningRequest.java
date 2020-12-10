@@ -162,4 +162,13 @@ public class PlanningRequest {
         }
     }
 
+    public String toString(){
+        String myString = "";
+        myString += "Depot : " + depot.toString();
+        for (int i=0; i<requestList.size(); i++){
+            myString += " request numéro " + i + ": " + requestList.get(i).toString();
+        }
+        return myString;
+    }
+
 }
