@@ -434,6 +434,7 @@ public class Controller {
                         logger.info(" found match ");
                         markersWithLabels.add(event.getMarker().attachLabel(new MapLabel(c.getName(), 10, 10)));
                         mapView.addMarker(markersWithLabels.get(0));
+                        listView.scrollTo(c);
                         listView.getSelectionModel().select(c);
                     }
                 }
