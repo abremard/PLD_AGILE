@@ -725,6 +725,9 @@ public class Controller {
 
         mvcController.modifyRequest();
 
+        removeFromMapMarker(markersWithLabels);
+        markersWithLabels.clear();
+
         undoButton.setVisible(false);
         redoButton.setVisible(false);
 
@@ -997,7 +1000,7 @@ public class Controller {
         System.out.println(tempRequest);
 
         String file = "";
-        if(mapText.getText().equals("Pickup Duration (min)")){
+        if(mapText.getText().equals("Pickup Duration (sec)")){
             for( Marker m : markers){
                 if( m.getId().equals(tempRequest.getPickup().getMarkerId()) ){
                     mapView.removeMarker(m);
@@ -1010,7 +1013,7 @@ public class Controller {
             tempRequest.setPickup(newIntersection);
             newMarker = new Marker( getClass().getResource(file),-12,-12).setPosition(coordIntersection).setVisible(true);
             tempRequest.getPickup().setMarkerId(newMarker.getId());
-        } else if (mapText.getText().equals("Delivery Duration (min)")){
+        } else if (mapText.getText().equals("Delivery Duration (sec)")){
             for( Marker m : markers){
                 if( m.getId().equals(tempRequest.getDelivery().getMarkerId()) ){
                     mapView.removeMarker(m);
