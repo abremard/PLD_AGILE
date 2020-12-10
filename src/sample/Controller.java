@@ -901,17 +901,19 @@ public class Controller {
         if( addedReqCount == 0){
             tempRequest.setPickup(newIntersection);
             tempRequest.getPickup().setMarkerId(newMarker.getId());
+            System.out.println("tempRequest ID : " + tempRequest.getId());
             NewPickupLtc = convertRequestToLTC(tempRequest, true);
-        } else {
+        } else if (addedReqCount == 1) {
             tempRequest.setDelivery(newIntersection);
             tempRequest.getDelivery().setMarkerId(newMarker.getId());
+            System.out.println("tempRequest ID : " + tempRequest.getId());
             NewDeliveryLtc = convertRequestToLTC(tempRequest, false);
             infoText.setText(" ");
         }
 
         addedReqCount++;
 
-        if( addedReqCount == 2 ){
+        if( addedReqCount >= 2 ){
             secondButton.setDisable(false);
         }
     }
@@ -978,7 +980,7 @@ public class Controller {
             boolean isPickup = false;
             if (pt.isDepart())
             {
-                name = "Pickup "+(pt.getRequete().getId()+1);
+                name = "Pickup "+(planningRequest.findIndexOfRequest(pt.getRequete())+1);
                 ArrayList<String> street = map.getSegmentNameFromIntersectionId(pt.getRequete().getPickup().getId());
                 logger.info(street.toString());
                 street1 = street.get(0);
@@ -996,7 +998,7 @@ public class Controller {
                 isPickup = true;
             } else
             {
-                name = "Delivery "+(pt.getRequete().getId()+1);
+                name = "Delivery "+(planningRequest.findIndexOfRequest(pt.getRequete())+1);
                 if(nbDelivery == (int)((points.size()+1)/2)) { name = "Back to shop"; }
                 nbDelivery++;
                 ArrayList<String> street = map.getSegmentNameFromIntersectionId(pt.getRequete().getDelivery().getId());
@@ -1469,6 +1471,7 @@ public class Controller {
                     logger.info("undo is clicked");
                     mvcController.Undo();
                     refreshModel();
+                    displayRequests(false);
                     logger.info(cards.toString());
                     if ( list.getChildren().get(list.getChildren().size() -1) instanceof ListView )
                     {
@@ -1488,6 +1491,7 @@ public class Controller {
                     logger.info("redo is clicked");
                     mvcController.Redo();
                     refreshModel();
+                    displayRequests(false);
                     logger.info(cards.toString());
                     if ( list.getChildren().get(list.getChildren().size() -1) instanceof ListView )
                     {

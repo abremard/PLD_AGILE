@@ -25,7 +25,7 @@ public class AddRequestCommand implements Command {
 
     @Override
     public void doCommand(MVCController c) {
-        c.getPlanningRequest().addRequest(c.getPlanningRequest().getRequestList().size(), newRequest);
+        c.getPlanningRequest().addRequest(c.getPlanningRequest().getRequestList().size()-1, newRequest);
         c.getLtcList().add(c.getLtcList().size()-1, newPickupLtc);
         c.getLtcList().add(c.getLtcList().size()-1, newDeliveryLtc);
         System.out.println(c.getLtcList());

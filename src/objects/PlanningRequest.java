@@ -162,6 +162,16 @@ public class PlanningRequest {
         }
     }
 
+    public int findIndexOfRequest(Request request){
+        int index = 0;
+        for (int i=0; i<requestList.size(); i++){
+            if (request == requestList.get(i)){
+                index = i;
+            }
+        }
+        return index;
+    }
+
     public String toString(){
         String myString = "";
         myString += "Depot : " + depot.toString();
