@@ -857,16 +857,20 @@ public class ComputeTour {
     private static Tournee branchAndBoundOpti(SuperArete[][] matAdj, PlanningRequest planning) {
 
         TSP tsp = new TSP4();
-        tsp.searchSolution(20000, matAdj, planning.getRequestList());
+        tsp.searchSolution(20*1000, matAdj, planning.getRequestList());
 //        System.out.println("Solution trouvee en " + tsp.getExecTime() + " secondes");
         Integer[] solution = tsp.getSolution();
 
         ArrayList<Segment> chemin = new ArrayList<Segment>();
 
         for (int i = 1; i < solution.length; i++) {
-            chemin.addAll(matAdj[solution[i - 1]][solution[i]].getChemin());
+            if(! solution[i-1].equals(solution[i])) {
+                chemin.addAll(matAdj[solution[i - 1]][solution[i]].getChemin());
+            }
         }
-        chemin.addAll(matAdj[solution[solution.length - 1]][0].getChemin());
+        if(! solution[solution.length-1].equals(0)) {
+            chemin.addAll(matAdj[solution[solution.length - 1]][0].getChemin());
+        }
         return new Tournee(chemin, planning.getRequestList());
     }
 
