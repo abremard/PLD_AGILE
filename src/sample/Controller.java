@@ -267,8 +267,12 @@ public class Controller {
         addedReqCount = 0;
     }
 
-
-
+    /**
+     * Function that converts a Request into a LocationTagContent object needed for the Algo
+     * @param isPickup is it a Pickup or a delivery
+     * @param request the request object to transform
+     * @return the corresponding LocationTagContent
+     */
     public LocationTagContent convertRequestToLTC(Request request, boolean isPickup) {
         String name = "";
         String street1 = "";
@@ -325,6 +329,7 @@ public class Controller {
         logger.info("fin de la transformation");
         return item;
     }
+
     /**
      * Initialise the Map and all of the buttons
      * @param projection Projection of the window
@@ -370,8 +375,6 @@ public class Controller {
         secondButton.setVisible(false);
 
         secondButton.setText("Modify");
-
-
 
         logger.info("initialization finished");
 
@@ -452,7 +455,7 @@ public class Controller {
                     Alert alert = new Alert(Alert.AlertType.INFORMATION);
                     alert.setTitle("Attention!");
                     alert.setHeaderText(null);
-                    alert.setContentText("There seems to be a problem with your Requests file. Please make sure it is properly formatted.");
+                    alert.setContentText("There seems to be a problem with your Requests file. Please make sure it is properly formatted and that is corresponds to the Map file you've imported.");
 
                     alert.showAndWait();
                 }
@@ -539,7 +542,9 @@ public class Controller {
                     requestText.setText("Import Request File");
                     mapButton.setVisible(true);
                     requestButton.setVisible(true);
+                    mapField.setText(" ");
                     mapField.setVisible(true);
+                    requestField.setText(" ");
                     requestField.setVisible(true);
                     requestText.setVisible(true);
                     mapText.setVisible(true);
@@ -549,6 +554,7 @@ public class Controller {
 
                     //change text of button
                     mainButton.setText("Calculate Tour");
+                    secondButton.setVisible(false);
 
                     isTimeline = false;
                 } else
@@ -568,19 +574,14 @@ public class Controller {
                     secondButton.setText("Modify");
                     secondButton.setVisible(true);
 
-                    //get files, pass them to the algo, calculate path, get results
-                    //logger.info(map.toString());
-                    //logger.info(planningRequest.toString());
                     //call method that places results on the map
                     mvcController.ComputeTour(map, planningRequest);
                     refreshModel();
                     displayTour();
                     //call method that places results on timeline
                     initCardContent();
-
                     isTimeline = true;
                 }
-
             }
         });
 
@@ -588,20 +589,9 @@ public class Controller {
             @Override
             public void handle(ActionEvent event) {
                 if (isAddRequest) {
-                    System.out.println("Clicked on add ");
-                    // clicked on add in adding request phase
                     tempRequest.setId(planningRequest.getRequestList().size());
                     tempRequest.setPickupDur(60*Double.parseDouble(mapField.getText()));
                     tempRequest.setDeliveryDur(60*Double.parseDouble(requestField.getText()));
-
-                    // planningRequest.addRequest(planningRequest.getRequestList().size(), tempRequest);
-                    // System.out.println(planningRequest.toString());
-
-                    // displayTour();
-                    //call method that places results on timeline
-                    // initCardContent();
-                    // cmd.setNewLtcList(new ArrayList<>(cards));
-
                     mvcController.addDone(tempRequest, NewPickupLtc, NewDeliveryLtc);
                     AddRequestCommand cmd = (AddRequestCommand) mvcController.getL().getL().get(mvcController.getL().getI());
                     refreshModel();
@@ -609,8 +599,6 @@ public class Controller {
                     {
                         list.getChildren().remove(list.getChildren().size() -1);
                     }
-                    //compute tour
-                    //back to modify
                     modifySetup(false);
                 }
                 else if (isModify) {
@@ -621,15 +609,12 @@ public class Controller {
                     mvcController.addRequest();
                 }
                 else if ( isEdit){
-
                     int editedCardIndex = cards.indexOf(tempItem);
                     double newDuration = Double.parseDouble(mapField.getText());
                     boolean isPickup = false;
-
                     if( mapText.getText().equals("Pickup Duration (min)")){
                         isPickup = true;
                     }
-
                     int editedRequestIndex = planningRequest.getRequestList().indexOf(tempRequest);
                     mvcController.modifyRequestDone(planningRequest, editedRequestIndex, editedCardIndex, newDuration, isPickup);
                     refreshModel();
@@ -638,18 +623,13 @@ public class Controller {
                         list.getChildren().remove(list.getChildren().size() -1);
                     }
                     modifySetup(false);
-
                 } else {
-
                     modifySetup(true);
                     mvcController.ModifyRequestList();
-
                 }
             }
         });
-
         logger.info("Finished setting up event handlers");
-
     }
 
     /**
@@ -658,8 +638,6 @@ public class Controller {
     private void addRequestSetup() {
         undoButton.setVisible(false);
         redoButton.setVisible(false);
-
-        // infoText.setText("Click on the map to place the Pickup location");
 
         mainButton.setText("Cancel");
         secondButton.setText("Add");
@@ -718,7 +696,6 @@ public class Controller {
         mapField.setVisible(true);
         requestText.setVisible(true);
 
-
         editingRequest = true;
         isEdit = true;
         isAddRequest = false;
@@ -767,8 +744,6 @@ public class Controller {
 
         ArrayList<Segment> listSegments = map.getSegmentList();
         ArrayList<Intersection> listIntersection = map.getIntersectionList();
-        // logger.info(listSegments.toString());
-        // logger.info(listIntersection.toString());
         for (Segment segment: listSegments) {
             long idOrigin = segment.getOrigin();
             long idDestination = segment.getDestination();
@@ -777,7 +752,6 @@ public class Controller {
 
             Coordinate coordOrigin = new Coordinate(ptOrigin.getLatitude(), ptOrigin.getLongitude());
             Coordinate coordDestination = new Coordinate(ptDestination.getLatitude(), ptDestination.getLongitude());
-            // Extent extent = Extent.forCoordinates();
             CoordinateLine cl = new CoordinateLine(coordOrigin,coordDestination);
             cl.setVisible(true).setColor(mapColor).setWidth(1);
             coordLines.add(cl);
@@ -791,8 +765,6 @@ public class Controller {
     public void displayTour() {
         ArrayList<Segment> listSegments = tour.getSegmentList();
         ArrayList<Intersection> listIntersection = map.getIntersectionList();
-        //logger.info(listSegments.toString());
-        //logger.info(listIntersection.toString());
         for (Segment segment : listSegments) {
             long idOrigin = segment.getOrigin();
             long idDestination = segment.getDestination();
@@ -800,7 +772,6 @@ public class Controller {
             Intersection ptDestination = map.matchIdToIntersection(idDestination);
             Coordinate coordOrigin = new Coordinate(ptOrigin.getLatitude(), ptOrigin.getLongitude());
             Coordinate coordDestination = new Coordinate(ptDestination.getLatitude(), ptDestination.getLongitude());
-            // Extent extent = Extent.forCoordinates();
             CoordinateLine cl = new CoordinateLine(coordOrigin, coordDestination);
             cl.setVisible(true).setColor(pathColor).setWidth(4);
             tourLines.add(cl);
@@ -816,8 +787,6 @@ public class Controller {
         removeFromMap(selectedLines);
         selectedLines.clear();
         ArrayList<Intersection> listIntersection = map.getIntersectionList();
-        //logger.info(listSegments.toString());
-        //logger.info(listIntersection.toString());
         for (Segment segment : path) {
             long idOrigin = segment.getOrigin();
             long idDestination = segment.getDestination();
@@ -825,7 +794,6 @@ public class Controller {
             Intersection ptDestination = map.matchIdToIntersection(idDestination);
             Coordinate coordOrigin = new Coordinate(ptOrigin.getLatitude(), ptOrigin.getLongitude());
             Coordinate coordDestination = new Coordinate(ptDestination.getLatitude(), ptDestination.getLongitude());
-            // Extent extent = Extent.forCoordinates();
             CoordinateLine cl = new CoordinateLine(coordOrigin, coordDestination);
             cl.setVisible(true).setColor(selectionColor).setWidth(6);
             selectedLines.add(cl);
@@ -934,14 +902,11 @@ public class Controller {
             tempRequest.setPickup(newIntersection);
             tempRequest.getPickup().setMarkerId(newMarker.getId());
             NewPickupLtc = convertRequestToLTC(tempRequest, true);
-            // infoText.setText("Click on the map to place the Delivery location");
-            //tempRequest.setPickupDur(5);
         } else {
             tempRequest.setDelivery(newIntersection);
             tempRequest.getDelivery().setMarkerId(newMarker.getId());
             NewDeliveryLtc = convertRequestToLTC(tempRequest, false);
             infoText.setText(" ");
-            //tempRequest.setDelivery_dur(5);
         }
 
         addedReqCount++;
@@ -1396,7 +1361,6 @@ public class Controller {
                         for( LocationTagContent ltc: cards ){
                             if( Integer.parseInt(ltc.name.split(" ")[1]) == Integer.parseInt(getItem().name.split(" ")[1])
                                     && ltc.getName() != getItem().getName() ){
-                                //cards.remove(ltc);
                                 break;
                             }
                             cursor++;
@@ -1482,7 +1446,6 @@ public class Controller {
                             alert.showAndWait();
                         } else {
                             logger.info(cards.toString());
-                            //call to refresh the content?
                             mvcController.swapRequest(index, index+1, cards);
                             refreshModel();
                             logger.info(cards.toString());
