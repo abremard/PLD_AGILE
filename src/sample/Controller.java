@@ -497,6 +497,7 @@ public class Controller {
                     logger.info("cards ->" + cards.toString());
                     mvcController.applyModificationDone(map, planningRequest, cards);
                     refreshModel();
+                    logger.info(planningRequest.toString());
                     displayRequests(false);
                     displayTour();
 
