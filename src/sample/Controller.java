@@ -612,7 +612,7 @@ public class Controller {
                     int editedCardIndex = cards.indexOf(tempItem);
                     double newDuration = Double.parseDouble(mapField.getText());
                     boolean isPickup = false;
-                    if( mapText.getText().equals("Pickup Duration (min)")){
+                    if( mapText.getText().equals("Pickup Duration (sec)")){
                         isPickup = true;
                     }
                     int editedRequestIndex = planningRequest.getRequestList().indexOf(tempRequest);
