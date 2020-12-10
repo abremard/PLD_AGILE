@@ -489,7 +489,9 @@ public class Controller {
                     logger.info("cards ->" + cards.toString());
                     mvcController.applyModificationDone(map, planningRequest, cards);
                     refreshModel();
+                    displayRequests(false);
                     displayTour();
+
                     //call method that places results on timeline
                     initCardContent();
 
@@ -1467,6 +1469,7 @@ public class Controller {
                     logger.info(cards.toString());
                     list.getChildren().remove(list.getChildren().size() -1);
                     addCardsToScreen(true);
+                    displayRequests(false);
                 }
             });
 
@@ -1482,6 +1485,7 @@ public class Controller {
                     logger.info(cards.toString());
                     list.getChildren().remove(list.getChildren().size() -1);
                     addCardsToScreen(true);
+                    displayRequests(false);
                 }
             });
 
