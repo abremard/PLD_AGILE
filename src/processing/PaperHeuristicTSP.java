@@ -83,6 +83,7 @@ public class PaperHeuristicTSP {
 
     static float alpha = 1;     // pour le calcul de delta_i, 0 < alpha < 2
     static int r = 3;           // détermine la longueur des chaînes à utiliser pour 3-opt
+    boolean verbose = false;    // (dés)active les prints sur stderr
 
     int nbRequest;
     SuperArete[][] matAdj;
@@ -145,8 +146,8 @@ public class PaperHeuristicTSP {
         // on enlève la requête qu'on vient de process de la liste des requêtes à ajouter
         requestsToProcess.remove(requestList.get(maxCostRequestIndex));
 
-        // debug : chemin actuel
-        System.err.println("Initial tour indexes: " + this.currentTourIndexes);
+        if (verbose)
+            System.err.println("Initial tour indexes: " + this.currentTourIndexes);
 
         DeltaI currDelta;
         while (requestsToProcess.size() > 0) {
@@ -177,7 +178,8 @@ public class PaperHeuristicTSP {
 //            System.err.println("Removing request " + bestChoice);
             requestsToProcess.remove(bestChoice);
 //            System.err.println("Requests to process: " + requestsToProcess);
-            System.err.println("Current tour indexes: " + currentTourIndexes);
+            if (verbose)
+                System.err.println("Current tour indexes: " + currentTourIndexes);
 
 
             // --------- Etape 1.4 : Optimisation locale (3-opt)
@@ -214,7 +216,8 @@ public class PaperHeuristicTSP {
                             if (newCost < initialCost) {
                                 // on applique l'optimisation si elle est valide
                                 if (applyThreeOptIfValid(center, cuts.cut1, cuts.cut2, cuts.cut3, order)) {
-                                    System.err.println("Optimized path from cost " + initialCost + " to " + newCost);
+                                    if (verbose)
+                                        System.err.println("Optimized path from cost " + initialCost + " to " + newCost);
                                     stop = true;        // propage le break à la boucle du dessus
                                     break;
                                 }
@@ -549,15 +552,18 @@ public class PaperHeuristicTSP {
 
         if (isValid) {
 
-            System.err.println("Found a valid local optimization !!");
-            System.err.println("- Old path: " + this.currentTourIndexes);
+            if (verbose) {
+                System.err.println("Found a valid local optimization !!");
+                System.err.println("- Old path: " + this.currentTourIndexes);
+            }
 
             for (i = 0; i < newPathIndexes.length; ++i) {
                 this.currentTourIndexes.set(firstB + i, newPathIndexes[i]);
                 this.currentTourPoints.set(firstB + i, newPathPoints.get(i));
             }
 
-            System.err.println("- New path: " + this.currentTourIndexes);
+            if (verbose)
+                System.err.println("- New path: " + this.currentTourIndexes);
 
             return true;
         } else {
@@ -584,7 +590,8 @@ public class PaperHeuristicTSP {
 
         // ne pas calculer si moins de 3 arêtes à couper
         if (last - first < 3) {
-            System.err.println("WARNING: Asking for an optimization with a path too small!");
+            if (verbose)
+                System.err.println("WARNING: Asking for an optimization with a path too small!");
             return null;
         }
 
@@ -628,13 +635,16 @@ public class PaperHeuristicTSP {
                 if (pt1.getCurrentGoal().getId() != pt2.getCurrentGoal().getId()) {
                     segmentList.addAll(matAdj[ptsIdToIndex.get(pt1.getCurrentGoal().getId())][ptsIdToIndex.get(pt2.getCurrentGoal().getId())].chemin);
                 } else {
-                    System.err.println("Not adding path with identical pickup & delivery");
+                    if (verbose)
+                        System.err.println("Not adding path with identical pickup & delivery");
                 }
             } else if (i == ptsPassage.size() - 2) {      // dernier delivery -> dépôt
                 segmentList.addAll(matAdj[ptsIdToIndex.get(pt1.getCurrentGoal().getId())][0].chemin);
             } else {
-                System.err.println("AAAATTENTION AUX NUUUUUUUUUUUUUUUUUUL(L)S !! i = " + i);
-                System.err.println(pt1 + ", " + pt2);
+                if (verbose) {
+                    System.err.println("AAAATTENTION AUX NUUUUUUUUUUUUUUUUUUL(L)S !! i = " + i);
+                    System.err.println(pt1 + ", " + pt2);
+                }
             }
         }
 

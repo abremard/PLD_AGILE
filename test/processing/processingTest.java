@@ -16,12 +16,19 @@ public class processingTest {
     public static void main(String[] args) {
         initFile();
 
-        Heuristique[] heuristiques = {Heuristique.TRIVIALE, Heuristique.GREEDY, Heuristique.DOUBLEINSERTION, Heuristique.BRANCHANDBOUND};
+        Heuristique[] heuristiques = {Heuristique.TRIVIALE, Heuristique.GREEDY, Heuristique.DOUBLEINSERTION};
+        String[] maps = {"data/map_test.xml", "data/smallMap.xml", "data/smallMap.xml", "data/mediumMap.xml", "data/mediumMap.xml", "data/largeMap.xml", "data/largeMap.xml", "data/largeMap.xml", "data/largeMap.xml"};
+        String[] reqs = {"data/requests_test.xml", "data/requestsSmall1.xml", "data/requestsSmall2.xml", "data/requestsMedium3.xml", "data/requestsMedium5.xml", "data/requestsLarge7.xml", "data/requestsLarge9.xml", "data/requestsLarge-dupesTest.xml", "data/requestsLarge-veryLarge.xml"};
 
-        String mapPath = "data/largeMap.xml";
-        String reqPath = "data/requestsLarge9.xml";
+        for (int i = 0; i < maps.length; i++) {
+            for (int j = 0; j < heuristiques.length; j++) {
+                testBatch(maps[i], reqs[i], heuristiques[j], 10);
+            }
+        }
 
-        testBatch(mapPath, reqPath, Heuristique.GREEDY, 10);
+//        String mapPath = "data/largeMap.xml";
+//        String reqPath = "data/requestsLarge-veryLarge.xml";
+//        testBatch(mapPath, reqPath, Heuristique.BRANCHANDBOUND, 1);
 
         closeFile();
     }

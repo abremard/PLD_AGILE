@@ -33,6 +33,8 @@ import sample.Controller;
  */
 public class ComputeTour {
 
+    static boolean verbose = false;
+
     /**
      * Fonction principale de ComputeTour, permet de calculer une tournée d'après les informations des fichiers XML
      * de map et de liste de requêtes, ainsi que d'un choix d'heuristique.
@@ -80,8 +82,10 @@ public class ComputeTour {
                 doubleInsertion.doubleInsertionHeuristic();
 
                 // résultats
-                System.err.println("=== Double-insertion heuristic results ===");
-                System.err.println(doubleInsertion);
+                if (verbose) {
+                    System.err.println("=== Double-insertion heuristic results ===");
+                    System.err.println(doubleInsertion);
+                }
                 return doubleInsertion.buildTour();
         }
 
@@ -340,8 +344,6 @@ public class ComputeTour {
      * @param planning Le planning contenant la liste des requêtes à traiter ainsi que le dépôt
      */
     public static void recreateTimesTournee(Tournee tournee, PlanningRequest planning) {
-
-        boolean verbose = false;
 
         LocalTime curTime = planning.getDepot().getDepartureTime();
         ArrayList<Segment> curChemin = new ArrayList<Segment>();
@@ -857,16 +859,20 @@ public class ComputeTour {
     private static Tournee branchAndBoundOpti(SuperArete[][] matAdj, PlanningRequest planning) {
 
         TSP tsp = new TSP4();
-        tsp.searchSolution(20000, matAdj, planning.getRequestList());
+        tsp.searchSolution(20*1000, matAdj, planning.getRequestList());
 //        System.out.println("Solution trouvee en " + tsp.getExecTime() + " secondes");
         Integer[] solution = tsp.getSolution();
 
         ArrayList<Segment> chemin = new ArrayList<Segment>();
 
         for (int i = 1; i < solution.length; i++) {
-            chemin.addAll(matAdj[solution[i - 1]][solution[i]].getChemin());
+            if(! solution[i-1].equals(solution[i])) {
+                chemin.addAll(matAdj[solution[i - 1]][solution[i]].getChemin());
+            }
         }
-        chemin.addAll(matAdj[solution[solution.length - 1]][0].getChemin());
+        if(! solution[solution.length-1].equals(0)) {
+            chemin.addAll(matAdj[solution[solution.length - 1]][0].getChemin());
+        }
         return new Tournee(chemin, planning.getRequestList());
     }
 
