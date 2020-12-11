@@ -4,33 +4,17 @@ package processing;
 import objects.*;
 
 import java.io.FileWriter;
-import java.util.ArrayList;
-import java.util.PriorityQueue;
 import java.io.File;  // Import the File class
 import java.io.IOException;  // Import the IOException class to handle errors
 
 public class processingTest {
 
     static FileWriter myWriter = null;
+    static String filePath = "results.txt";
 
     public static void main(String[] args) {
-        initFile();
-
-        Heuristique[] heuristiques = {Heuristique.TRIVIALE, Heuristique.GREEDY, Heuristique.DOUBLEINSERTION};
-        String[] maps = {"data/map_test.xml", "data/smallMap.xml", "data/smallMap.xml", "data/mediumMap.xml", "data/mediumMap.xml", "data/largeMap.xml", "data/largeMap.xml", "data/largeMap.xml", "data/largeMap.xml"};
-        String[] reqs = {"data/requests_test.xml", "data/requestsSmall1.xml", "data/requestsSmall2.xml", "data/requestsMedium3.xml", "data/requestsMedium5.xml", "data/requestsLarge7.xml", "data/requestsLarge9.xml", "data/requestsLarge-dupesTest.xml", "data/requestsLarge-veryLarge.xml"};
-
-        for (int i = 0; i < maps.length; i++) {
-            for (int j = 0; j < heuristiques.length; j++) {
-                testBatch(maps[i], reqs[i], heuristiques[j], 10);
-            }
-        }
-
-//        String mapPath = "data/largeMap.xml";
-//        String reqPath = "data/requestsLarge-veryLarge.xml";
-//        testBatch(mapPath, reqPath, Heuristique.BRANCHANDBOUND, 1);
-
-        closeFile();
+//        processGeneral();
+        processBnB();
     }
 
     static void randomTests() {
@@ -115,7 +99,7 @@ public class processingTest {
 
     static void testBatch(String mapPath, String reqPath, Heuristique heuristique, int repetitions) {
 
-        writeToFile(repetitions + " runs sur " + reqPath + " avec " + heuristique);
+//        writeToFile(repetitions + " runs sur " + reqPath + " avec " + heuristique);
 
         // ------------ chargement & parsing des données de test
         Map map = new Map(mapPath);
@@ -135,34 +119,74 @@ public class processingTest {
             float dureeExec = (System.nanoTime() - startTime) / (float)1000000000;
 
             float dureeTournee = tournee.getPtsPassage().get(tournee.getPtsPassage().size() - 1).getTime().minusHours(8).toSecondOfDay();
-            writeToFile(String.valueOf(dureeExec) + " " + String.valueOf(dureeTournee));
+//            writeToFile(String.valueOf(dureeExec) + " " + String.valueOf(dureeTournee));
             moyDureeExec += dureeExec;
             moyDureeTournee += dureeTournee;
         }
 
-        writeToFile("Moyennes : exec=" + moyDureeExec/(float)repetitions + ", tournee=" + moyDureeTournee/(float)repetitions + "\n");
+//        writeToFile(moyDureeExec/(float)repetitions + " ", false);
+//        writeToFile(moyDureeTournee/(float)repetitions + " ", false);
+        writeToFile(moyDureeExec/(float)repetitions + " " + moyDureeTournee/(float)repetitions + " ", false);
+//        writeToFile("Moyennes : exec=" + moyDureeExec/(float)repetitions + ", tournee=" + moyDureeTournee/(float)repetitions + "\n");
     }
 
-    static void initFile() {
-        try {
-            File myObj = new File("results.txt");
-            if (myObj.createNewFile()) {
-                System.out.println("File created: " + myObj.getName());
-            } else {
-                System.out.println("File already exists.");
+    static void processGeneral() {
+        initFile("results.txt");
+
+        Heuristique[] heuristiques = {Heuristique.TRIVIALE, Heuristique.GREEDY, Heuristique.DOUBLEINSERTION};
+        String[] maps = {"data/map_test.xml", "data/smallMap.xml", "data/smallMap.xml", "data/mediumMap.xml", "data/mediumMap.xml", "data/largeMap.xml", "data/largeMap.xml", "data/largeMap.xml", "data/largeMap.xml"};
+        String[] reqs = {"data/requests_test.xml", "data/requestsSmall1.xml", "data/requestsSmall2.xml", "data/requestsMedium3.xml", "data/requestsMedium5.xml", "data/requestsLarge7.xml", "data/requestsLarge9.xml", "data/requestsLarge-dupesTest.xml", "data/requestsLarge-veryLarge.xml"};
+
+        for (int i = 0; i < maps.length; i++) {
+            System.out.println("Starting " + reqs[i]);
+            for (int j = 0; j < heuristiques.length; j++) {
+                testBatch(maps[i], reqs[i], heuristiques[j], 100);
             }
-            myWriter = new FileWriter("results.txt");
+            writeToFile("\n", false);
+//            writeToFile("------------------------------------------------------\n");
+        }
+
+//        String mapPath = "data/largeMap.xml";
+//        String reqPath = "data/requestsLarge-veryLarge.xml";
+//        testBatch(mapPath, reqPath, Heuristique.BRANCHANDBOUND, 1);
+
+        closeFile();
+    }
+
+    static void processBnB() {
+
+        String[] maps = {"data/map_test.xml", "data/smallMap.xml", "data/smallMap.xml", "data/mediumMap.xml", "data/mediumMap.xml", "data/largeMap.xml", "data/largeMap.xml", "data/largeMap.xml", "data/largeMap.xml"};
+        String[] reqs = {"data/requests_test.xml", "data/requestsSmall1.xml", "data/requestsSmall2.xml", "data/requestsMedium3.xml", "data/requestsMedium5.xml", "data/requestsLarge7.xml", "data/requestsLarge9.xml", "data/requestsLarge-dupesTest.xml", "data/requestsLarge-veryLarge.xml"};
+
+        for (int i = 0; i < maps.length; i++) {
+            System.out.println("Starting " + reqs[i]);
+            initFile("BnB" + (i+1) + "_" + reqs[i].substring(5) + ".txt");
+            testBatch(maps[i], reqs[i], Heuristique.BRANCHANDBOUND, 10);
+            writeToFile("", true);
+            closeFile();
+        }
+    }
+
+    static void initFile(String filePath) {
+        try {
+            File myObj = new File(filePath);
+//            if (myObj.createNewFile()) {
+//                System.out.println("File created: " + myObj.getName());
+//            } else {
+//                System.out.println("File already exists.");
+//            }
+            myWriter = new FileWriter(filePath);
         } catch (IOException e) {
             System.out.println("An error occurred.");
             e.printStackTrace();
         }
     }
 
-    static void writeToFile(String line) {
+    static void writeToFile(String line, boolean ln) {
         try {
             if (myWriter != null) {
 //                System.out.println(line);
-                myWriter.write(line + "\n");
+                myWriter.write(line + (ln ? "\n" : ""));
             }
         } catch (IOException e) {
             System.out.println("An error occurred.");
