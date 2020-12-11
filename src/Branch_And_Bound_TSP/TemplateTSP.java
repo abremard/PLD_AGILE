@@ -8,6 +8,7 @@ import processing.TupleRequete;
 import java.util.*;
 
 public abstract class TemplateTSP implements TSP {
+
     private Integer[] bestSol;
     protected SuperArete[][] g;
     HashMap<Long, Integer> ptsIdToIndex;
@@ -57,7 +58,7 @@ public abstract class TemplateTSP implements TSP {
     }
 
     public float getExecTime() {
-        return (System.currentTimeMillis() - startTime)/(float)1000;
+        return (System.currentTimeMillis() - startTime) / (float) 1000;
     }
 
     public void setIndexDico() {
@@ -91,12 +92,12 @@ public abstract class TemplateTSP implements TSP {
      * Template method of a branch and bound algorithm for solving the TSP in <code>g</code>.
      *
      * @param currentVertex the last visited vertex
-     * @param leftTodo     the set of vertex that have not yet been visited
+     * @param leftTodo      the set of vertex that have not yet been visited
      * @param visited       the sequence of vertices that have been already visited (including currentVertex)
      * @param currentCost   the cost of the path corresponding to <code>visited</code>
      */
     private void branchAndBound(int currentVertex, int leftTodo, ArrayList<Integer> visited, float currentCost, ArrayList<TupleRequete> requetes) {
-        nbIter ++;
+        nbIter++;
 
 //        if (System.currentTimeMillis() - startTime > timeLimit) {
 //            System.out.println("Hit time limit");
@@ -104,7 +105,7 @@ public abstract class TemplateTSP implements TSP {
 //        }
         if (leftTodo == 0) {
             if (g[currentVertex][0] != null) {
-                nbSol ++;
+                nbSol++;
 
                 if (currentCost + g[currentVertex][0].getLongueur() < bestSolCost) {
                     bestSol = new Integer[visited.size()];
@@ -125,7 +126,7 @@ public abstract class TemplateTSP implements TSP {
                 ArrayList<TupleRequete> backupRequetes = new ArrayList<TupleRequete>(requetes);
                 for (int i = 0; i < requetes.size(); i++) {
                     if (requetes.get(i).getCurrentGoal().getId() == g[nextVertex][nextVertex == 0 ? 1 : 0].getDepart().getId()) {
-                        if(requetes.get(i).isDepart()) {
+                        if (requetes.get(i).isDepart()) {
                             traites.add(i);
                         } else {
                             removed.add(requetes.get(i));
@@ -143,7 +144,7 @@ public abstract class TemplateTSP implements TSP {
                 visited.add(nextVertex);
 //                visited.add(nextVertex);
 //                unvisited.remove(nextVertex);
-                branchAndBound(nextVertex, leftTodo-removed.size(), visited,
+                branchAndBound(nextVertex, leftTodo - removed.size(), visited,
                         currentCost + g[currentVertex][nextVertex].getLongueur(), requetes);
                 visited.remove(nextVertex);
 //                visited.remove(nextVertex);

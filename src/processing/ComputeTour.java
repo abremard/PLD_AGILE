@@ -7,8 +7,6 @@ import java.util.*;
 import Branch_And_Bound_TSP.TSP;
 import Branch_And_Bound_TSP.TSP1;
 import Branch_And_Bound_TSP.TSP2;
-import Branch_And_Bound_TSP.TSP3;
-import Branch_And_Bound_TSP.TSP4;
 import objects.*;
 import objects.Map;
 import sample.Controller;
@@ -20,13 +18,12 @@ import sample.Controller;
  *  - JavaDoc
  *
  * FIXME
- *  - B&B : pas optimal ?
  *  - random passe pas par tous les points :'( (notamment largeMap + requestsLarge9)
  * */
 
 /**
- * Classe regroupant les algorithmes de calcul de tournée.
- * Utiliser planTour() pour récupérer une tournée.
+ * Class that groups the tour computation algorithms.
+ * Use planTour() to get a Tour.
  *
  * @author H4302
  * @see command.ComputeTourCommand
@@ -36,13 +33,13 @@ public class ComputeTour {
     static boolean verbose = false;
 
     /**
-     * Fonction principale de ComputeTour, permet de calculer une tournée d'après les informations des fichiers XML
-     * de map et de liste de requêtes, ainsi que d'un choix d'heuristique.
+     * Main function of ComputeTour, computes a Tour according to the informations of the map and requests list
+     * XML files, as well as a choice of heuristic.
      *
-     * @param map         La carte représentant le graphe sur lequel on effectue le parcours
-     * @param planning    Le planning contenant la liste des requêtes à traiter ainsi que le dépôt
-     * @param heuristique L'heuristique à utiliser (conditionne la qualité du résultat et la vitesse d'exécution)
-     * @return la tournée calculée
+     * @param map         The map representing the graph on which we search
+     * @param planning    The planning that includes a list of requests to deal with as well as the departure address
+     * @param heuristique The heuristic to use (influences the quality of the result and execution speed)
+     * @return the computed Tour
      */
     public static Tournee planTour(Map map, PlanningRequest planning, Heuristique heuristique) {
 
@@ -93,12 +90,12 @@ public class ComputeTour {
     }
 
     /**
-     * Calcule la tournée passant par les points de récupération et de dépôt dans un ordre spécifique.
+     * Computes the Tour passing through all pickup and delivery points in a specific order.
      *
-     * @param map      La carte représentant le graphe sur lequel on effectue le parcours
-     * @param planning Le planning contenant la liste des requêtes à traiter ainsi que le dépôt
-     * @param order    Les points par lesquelles la tournée doit passer, dans l'ordre chronologique.
-     * @return la tournée calculée
+     * @param map         The map representing the graph on which we search
+     * @param planning    The planning that includes a list of requests to deal with as well as the departure address
+     * @param order       The points through which the Tour has to pass, in chronological order
+     * @return the computed Tour
      */
     public static Tournee recreateTourneeWithOrder(Map map, PlanningRequest planning, ArrayList<Controller.LocationTagContent> order) {
         HashMap<Long, Integer> intersecIdToIndex = indexationIntersections(map);
@@ -122,19 +119,17 @@ public class ComputeTour {
         return getOptimalFullGraph(map, planning, intersecIdToIndex);
     }
 
-    // ----------------------------- Fonctions utilitaires
+    // ----------------------------- Utilitarian functions
 
     /**
-     * Dijkstra sur la map donnée en entrée depuis le point de départ vers tous les points d'intérêts (plus les points
-     * sur le chemin)
+     * Dijkstra on the given map from a departure point to all interest points.
      *
-     * @param map        La carte représentant le graphe sur lequel on effectue le parcours
-     * @param depart     Le point de départ du parcours
-     * @param ptsInteret La liste des points d'intérêt, c'est-à-dire les points vers lesquels on veut connaître le plus
-     *                   court chemin depuis le point de départ
-     * @return La liste des prédécesseurs de chaque sommet dans le plus court chemin depuis le départ vers tous les
-     * points qui sont plus proches que le plus lointain point d'intérêt, pas forcément pour les autres
-     * (arrêt de l'algo quand on a fini de traiter tous les points d'intérêt)
+     * @param map        The map representing the graph on which we search
+     * @param depart     The starting point of the search
+     * @param ptsInteret List of the interest points : points to which we want to know the shortest path from the
+     *                   starting point
+     * @return the predecessor list of each node according to the shortest path towards all interest points and nodes
+     * on the path to interest nodes. The function stops when the shortest paths to all interest points are computed.
      */
     private static ArrayList<Segment> dijkstra(Map map, Intersection depart, LinkedList<Intersection> ptsInteret, HashMap<Long, Integer> intersecIdToIndex) {
 
@@ -195,17 +190,17 @@ public class ComputeTour {
     }
 
     /**
-     * Calcule le graphe complet dont les sommets sont les points où il y a un pickup ou une delivery,
-     * ainsi que le dépôt (points d'intérêt), et dont les arêtes sont les plus courts chemins sur la map entre ces
-     * points d'intérêt.
+     * Computes the full graph in which all nodes are pickup, delivery points or the departure address
+     * (interest points), and vertices are the shortest paths on the Map between those interest points.
      *
-     * @param map               La carte représentant le graphe sur lequel on effectue le parcours
-     * @param planning          Le planning contenant la liste des requêtes à traiter ainsi que le dépôt
-     * @param intersecIdToIndex Le dictionnaire donnant l'indice d'une intersection dans la liste d'intersections de
-     *                          la map, à partir de son ID
-     * @return le graphe complet sous forme d'une matrice d'adjacence. Y accéder aux indices [depart][arrivee] donne
-     * l'objet SuperArete dont l'attribut chemin est le plus court chemin (en tant que liste de Segments de la map)
-     * en allant du point de depart vers le point d'arrivée.
+     * @param map               The map representing the graph on which we search
+     * @param planning          The planning that includes a list of requests to deal with as well as the
+     *                          departure address
+     * @param intersecIdToIndex The dictionnary giving the index of an Intersection in the Intersection list of the map,
+     *                          from its ID
+     * @return the full graph as an adjacence matrix. Accessing it at indices [departure][destination] gives the
+     * SuperArete object in which the path attibute is the shortest path (as list of map Segments) from the departure
+     * node to the destination node.
      */
     private static SuperArete[][] getOptimalFullGraph(Map map, PlanningRequest planning, HashMap<Long, Integer> intersecIdToIndex) {
         ArrayList<Request> requests = planning.getRequestList();
@@ -262,15 +257,14 @@ public class ComputeTour {
     }
 
     /**
-     * Renvoie la liste d'adjacence correspondant au graphe construit à partir des segments & intersections de la map
-     * passée en paramètre.
+     * Computes the adjacence list corresponding to the graph built from the Segments and Intersections of the Map
+     * given as parameter.
      *
-     * @param map               La carte représentant le graphe sur lequel on effectue le parcours
-     * @param intersecIdToIndex Le dictionnaire donnant l'indice d'une intersection dans la liste d'intersections de
-     *                          la map, à partir de son ID
-     * @return La liste d'adjacence, indexée par indices (obtenus à partir des ID des intersections avec la HashMap
-     * passée en paramètre) et contenant pour chaque Intersection la liste des segments ayant pour origine cette
-     * Intersection.
+     * @param map               The map representing the graph on which we search
+     * @param intersecIdToIndex The dictionnary giving the index of an Intersection in the Intersection list of the map,
+     *                          from its ID
+     * @return the adjacence list, indexed according to the indices given by the HashMap given as parameter,
+     * and including for each Intersection the list of Segments having for origin this Intersection.
      */
     private static ArrayList<ArrayList<Segment>> getListeAdj(Map map, HashMap<Long, Integer> intersecIdToIndex) {
 
@@ -290,11 +284,11 @@ public class ComputeTour {
     }
 
     /**
-     * Crée un dictionnaire donnant l'indice d'une intersection dans la liste d'intersections de la map,
-     * à partir de son ID.
+     * Creates a dictionnary giving the index of an Intersection in the Intersection list of the Map,
+     * according to its ID.
      *
-     * @param map La carte représentant le graphe sur lequel on effectue le parcours
-     * @return Le dictionnaire
+     * @param map        The map representing the graph on which we search
+     * @return the dictionnary
      */
     private static HashMap<Long, Integer> indexationIntersections(Map map) {
         // dico id -> index dans les tableaux indexés par intersections
@@ -310,17 +304,16 @@ public class ComputeTour {
     }
 
     /**
-     * Recree un chemin (en tant que liste de Segments) a partir d'une liste de predecesseurs,
-     * d'un depart et d'une arrivee.
+     * Recreates a path (as a Segments list) from a predecessor list, a departure node and a destination node.
      *
-     * @param predList          La liste d'arêtes prédécesseures : à chaque indice, le Segment menant du point précédent
-     *                          vers ce point
-     * @param depart            L'intersection au départ du chemin
-     * @param arrivee           L'intersection à l'arrivée du chemin
-     * @param intersections     La liste d'intersections de la map
-     * @param intersecIdToIndex Le dictionnaire donnant l'indice d'une intersection dans la liste d'intersections de
-     *                          la map, à partir de son ID
-     * @return le chemin du départ à l'arrivée
+     * @param predList          The predecessor vertices list : at each index, the Segment leading to this node
+     *                          from the previous node
+     * @param depart            The Intersection at the departure of the path
+     * @param arrivee           The Intersection at the destination of the path
+     * @param intersections     The Intersection list of the map
+     * @param intersecIdToIndex The dictionnary giving the index of an Intersection in the Intersection list of the map,
+     *                          from its ID
+     * @return the path from the departure node to the destination node
      */
     private static ArrayList<Segment> recreateChemin(ArrayList<Segment> predList, Intersection depart, Intersection arrivee, ArrayList<Intersection> intersections, HashMap<Long, Integer> intersecIdToIndex) {
         ArrayList<Segment> chemin = new ArrayList<Segment>();
@@ -336,12 +329,12 @@ public class ComputeTour {
     }
 
     /**
-     * Calcule les heures d'arrivée à chaque point de pickup/delivery, ainsi que les fragments de chemins associés.
-     * Utilisé lorsque le traitement de calcul de la tournée serait plus compliqué si il fallait calculer
-     * ces attributs en même temps.
+     * Computes the arrival times of each pickup/delivery, as well as the associated path fragments.
+     * Used when it would be more complicated to compute this during the main Tour calculations.
      *
-     * @param tournee  La tournée à modifier (pas de return, modifie directement le paramètre)
-     * @param planning Le planning contenant la liste des requêtes à traiter ainsi que le dépôt
+     * @param tournee       The Tour to modify (no return, modifies the parameter directly)
+     * @param planning      The planning that includes a list of requests to deal with as well as the
+     *                      departure address
      */
     public static void recreateTimesTournee(Tournee tournee, PlanningRequest planning) {
 
@@ -366,21 +359,24 @@ public class ComputeTour {
                 if (req.isDepart && req.requete.getPickup().getId() == seg.getDestination()) {
                     req.isDepart = false;
                     curTime = curTime.plusSeconds((long) (req.getRequete().getPickupDur()));
-                    if(verbose) System.out.println("Pickup a " + req.getRequete().getPickup().getId() + " pendant " + req.getRequete().getPickupDur());
+                    if (verbose)
+                        System.out.println("Pickup a " + req.getRequete().getPickup().getId() + " pendant " + req.getRequete().getPickupDur());
                     ptsPassage.add(new TupleRequete(req.getRequete(), true, curTime, curChemin));
                     found = true;
                 }
                 if (!req.isDepart && req.requete.getDelivery().getId() == seg.getDestination()) {
                     aDelete.add(req);
                     curTime = curTime.plusSeconds((long) (req.getRequete().getDeliveryDur()));
-                    if(verbose) System.out.println("Delivery a " + req.getRequete().getDelivery().getId() + " pendant " + req.getRequete().getDeliveryDur());
+                    if (verbose)
+                        System.out.println("Delivery a " + req.getRequete().getDelivery().getId() + " pendant " + req.getRequete().getDeliveryDur());
                     ptsPassage.add(new TupleRequete(req.getRequete(), false, curTime, curChemin));
                     found = true;
                 }
             }
             pool.removeAll(aDelete);
             if (found) {
-                if(verbose) System.out.println("On va de " + curChemin.get(0).getOrigin() + " a " + curChemin.get(curChemin.size() - 1).getDestination());
+                if (verbose)
+                    System.out.println("On va de " + curChemin.get(0).getOrigin() + " a " + curChemin.get(curChemin.size() - 1).getDestination());
                 curChemin = new ArrayList<Segment>();
             }
         }
@@ -388,19 +384,11 @@ public class ComputeTour {
         tournee.setPtsPassage(ptsPassage);
     }
 
-    private static float longueurChemin(ArrayList<Segment> chemin) {
-        float longueur = 0;
-        for (Segment seg : chemin) {
-            longueur += seg.getLength();
-        }
-        return longueur;
-    }
-
     /**
-     * Choisit un élément aléatoire dans une ArrayList de type quelconque
+     * Chooses a random element in any ArrayList.
      *
-     * @param arrayList La liste dans laquelle l'élément est choisi
-     * @return L'élément de la liste choisi
+     * @param arrayList     The list in which the element is chosen
+     * @return the chosen element
      */
     private static <T> T pickRandom(ArrayList<T> arrayList) {
         int rnd = new Random().nextInt(arrayList.size());
@@ -408,18 +396,20 @@ public class ComputeTour {
     }
 
     /**
-     * Indexe les points de départ, d'arrivée de chaque requête + le dépôt de la façon suivante :
-     * * indice 0 : dépot
-     * * indices 1 à nb de pts d'intérêt : chaque point d'intérêt hors dépôt, indexé selon ptsIdToIndex
-     * FIXME pas sûr que ça marche avec les points confondus
+     * Indexes the pickup and delivery of each request as well as the departure address in the following way :
+     * - index 0 : departure address
+     * - index 1 and above : each interest point other than the departure address, indexed according to ptsIdToIndex
+     * @param planning      The planning that includes a list of requests to deal with as well as the
+     *                      departure address
+     * @return the dictionnary associating the intersection ID to its index
      */
-    private static HashMap<Long, Integer> indexerPtsInteret(PlanningRequest planningRequest) {
+    private static HashMap<Long, Integer> indexerPtsInteret(PlanningRequest planning) {
         HashMap<Long, Integer> ptsIdToIndex = new HashMap<>();
 
-        ptsIdToIndex.put(planningRequest.getDepot().getAdresse().getId(), 0);
+        ptsIdToIndex.put(planning.getDepot().getAdresse().getId(), 0);
 
         int index = 1;
-        for (Request req : planningRequest.getRequestList()) {
+        for (Request req : planning.getRequestList()) {
             if (!ptsIdToIndex.containsKey(req.getPickup().getId())) {     // pas sûr que c'est nécessaire
                 ptsIdToIndex.put(req.getPickup().getId(), index);
                 ++index;
@@ -434,10 +424,10 @@ public class ComputeTour {
     }
 
     /**
-     * Reconstruit un objet Tournee à partir d'un chemin entier et des requêtes demandées
+     * Rebuilds a Tour object from a full path and the given Requests.
      *
-     * @param chemin Le chemin à utiliser pour la tournée
-     * @return La tournée qui en résulte
+     * @param chemin    The path to use for the Tour
+     * @return the computed Tour
      */
     private static Tournee cheminVersTournee(PlanningRequest planningRequest, ArrayList<SuperArete> chemin) {
         ArrayList<Segment> segmentList = new ArrayList<>();
@@ -453,15 +443,12 @@ public class ComputeTour {
      * Crée un chemin aléatoire valide, c'est-à-dire qui passe par tous les points de pickup et de delivery,
      * et que tous les pickups sont réalisés avant les deliveries associées.
      *
-     * @param matAdj       Le sous-graphe complet optimal de la map sous forme d'une matrice d'adjacence
-     * @param planning     Le planning contenant la liste des requêtes à traiter ainsi que le dépôt
-     * @param ptsIdToIndex Le dictionnaire donnant l'indice d'une intersection dans la matrice d'adjacence du
-     *                     sous-graphe optimal, à partir de son ID
-     * @return le chemin sous forme de liste de SuperAretes, représentant chacune le chemin entre deux points d'intérêt
-     * consécutifs.
-     * Contrat : matAdj est indexé de la façon suivante :
-     * indice 0 : dépot
-     * indices 1 à nb de pts d'intérêt : chaque point d'intérêt hors dépôt, indexé selon ptsIdToIndex
+     * @param matAdj       The optimal full sub-graph of the map as an adjacence matrix
+     * @param planning     The planning that includes a list of requests to deal with as well as the
+     *                     departure address
+     * @param ptsIdToIndex The dictionnary associating and Intersection ID with its index in the adjacence matrix
+     * @return the path as a SuperAretes list, representing each the path between two consecutive interest points.
+     * Contract : the first index in matAdj represents the departure address.
      */
     private static ArrayList<SuperArete> cheminAleatoire(SuperArete[][] matAdj, PlanningRequest planning, HashMap<Long, Integer> ptsIdToIndex) {
 
@@ -553,17 +540,18 @@ public class ComputeTour {
         return chemin;
     }
 
-    // ----------------------------- Heuristiques
+    // ----------------------------- Heuristics
 
     /**
-     * Calcule une tournée de la manière la plus rapide, en reliant de manière itérative le pickup d'une requête
-     * avec sa delivery, puis avec le pickup de la requête suivante.
+     * Computes a Tour in the fastest possible way, by iteratively going from a request's pickup to its delivery,
+     * then to the next request's pickup, for each Request.
      *
-     * @param map               La carte représentant le graphe sur lequel on effectue le parcours
-     * @param planning          Le planning contenant la liste des requêtes à traiter ainsi que le dépôt
-     * @param intersecIdToIndex Le dictionnaire donnant l'indice d'une intersection dans la liste d'intersections de
-     *                          la map, à partir de son ID
-     * @return la tournée calculée
+     * @param map               The map representing the graph on which we search
+     * @param planning          The planning that includes a list of requests to deal with as well as the
+     *                          departure address
+     * @param intersecIdToIndex The dictionnary giving the index of an Intersection in the Intersection list of the map,
+     *                          from its ID
+     * @return the computed Tour
      */
     private static Tournee tourneeTriviale(Map map, PlanningRequest planning, HashMap<Long, Integer> intersecIdToIndex) {
         LocalTime curTime = planning.getDepot().getDepartureTime();
@@ -633,9 +621,10 @@ public class ComputeTour {
     /**
      * Todo : pas encore implémentée
      *
-     * @param matAdj   Le sous-graphe complet optimal de la map sous forme d'une matrice d'adjacence
-     * @param planning Le planning contenant la liste des requêtes à traiter ainsi que le dépôt
-     * @return la tournée calculée
+     * @param matAdj       The optimal full sub-graph of the map as an adjacence matrix
+     * @param planning     The planning that includes a list of requests to deal with as well as the
+     *                     departure address
+     * @return the computed Tour
      */
     private static Tournee geneticATSP(SuperArete[][] matAdj, PlanningRequest planning) {
         HashMap<Long, Integer> ptIdToIndex = new HashMap<>();       // !! pas les mêmes index qu'avant
@@ -643,14 +632,15 @@ public class ComputeTour {
     }
 
     /**
-     * Calcule une tournée en utilisant un algorithme glouton, qui se dirige à chaque itération vers le point
-     * d'intérêt restant le plus proche de la position actuelle.
+     * Computes a Tour using a greedy algorithm, heading at each iteration to the closest remaining interest point
+     * to the current position.
      *
-     * @param matAdj            Le sous-graphe complet optimal de la map sous forme d'une matrice d'adjacence
-     * @param planning          Le planning contenant la liste des requêtes à traiter ainsi que le dépôt
-     * @param intersecIdToIndex Le dictionnaire donnant l'indice d'une intersection dans la liste d'intersections de
-     *                          la map, à partir de son ID
-     * @return la tournée calculée
+     * @param matAdj       The optimal full sub-graph of the map as an adjacence matrix
+     * @param planning          The planning that includes a list of requests to deal with as well as the
+     *                          departure address
+     * @param intersecIdToIndex The dictionnary giving the index of an Intersection in the Intersection list of the map,
+     *                          from its ID
+     * @return the computed Tour
      */
     private static Tournee greedy(SuperArete[][] matAdj, PlanningRequest planning, HashMap<Long, Integer> intersecIdToIndex) {
 
@@ -801,15 +791,16 @@ public class ComputeTour {
     }
 
     /**
-     * Génère une tournée aléatoire respectant les contraintes d'ordre pickup -> delivery avec les requêtes et la map*
-     * passées en paramètre
+     * Generates a random Tour that respects the pickup -> delivery order constraints, with the Requests and the Map
+     * given as parameters
      * FIXME apparemment passe pas par tous les points nécessaires
      *
-     * @param map               La carte représentant le graphe sur lequel on effectue le parcours
-     * @param planning          Le planning contenant la liste des requêtes à traiter ainsi que le dépôt
-     * @param intersecIdToIndex Le dictionnaire donnant l'indice d'une intersection dans la liste d'intersections de
-     *                          la map, à partir de son ID
-     * @return la tournée calculée
+     * @param map               The map representing the graph on which we search
+     * @param planning          The planning that includes a list of requests to deal with as well as the
+     *                          departure address
+     * @param intersecIdToIndex The dictionnary giving the index of an Intersection in the Intersection list of the map,
+     *                          from its ID
+     * @return the computed Tour
      */
     private static Tournee tourneeRandom(Map map, PlanningRequest planning, HashMap<Long, Integer> intersecIdToIndex) {
 
@@ -829,48 +820,29 @@ public class ComputeTour {
     }
 
     /**
-     * @param map               La carte représentant le graphe sur lequel on effectue le parcours
-     * @param planning          Le planning contenant la liste des requêtes à traiter ainsi que le dépôt
-     * @param intersecIdToIndex Le dictionnaire donnant l'indice d'une intersection dans la liste d'intersections de
-     *                          la map, à partir de son ID
-     * @return la tournée calculée
-     */
-    private static Tournee tourneePaper(Map map, PlanningRequest planning, HashMap<Long, Integer> intersecIdToIndex) {
-
-        // dijkstra pour le graphe complet des plus courts chemins entre les points d'intérêt
-        SuperArete[][] matAdj = getOptimalFullGraph(map, planning, intersecIdToIndex);
-        // indexation de ces points d'intérêt
-        HashMap<Long, Integer> ptsIdToIndex = indexerPtsInteret(planning);
-
-        PaperHeuristicTSP heuristicTSP = new PaperHeuristicTSP(matAdj, planning, ptsIdToIndex);
-
-        // TODO
-        return null;
-    }
-
-    /**
-     * Calcule une tournée en utilisant le principe du Branch and Bound. La tournée calculée est optimale : son chemin
-     * est le plus court possible. Le temps d'exécution peut en revanche être plus long que pour les autres heuristiques.
+     * Computes a Tour using the Branch and Bound paradigm. The computed tour is optimal : its path is
+     * the shortest possible. Execution time may as such be longer than the other heuristics.
      *
-     * @param matAdj   Le sous-graphe complet optimal de la map sous forme d'une matrice d'adjacence
-     * @param planning Le planning contenant la liste des requêtes à traiter ainsi que le dépôt
-     * @return la tournée calculée
+     * @param matAdj       The optimal full sub-graph of the map as an adjacence matrix
+     * @param planning     The planning that includes a list of requests to deal with as well as the
+     *                     departure address
+     * @return the computed Tour
      */
     private static Tournee branchAndBoundOpti(SuperArete[][] matAdj, PlanningRequest planning) {
 
-        TSP tsp = new TSP4();
-        tsp.searchSolution(20*1000, matAdj, planning.getRequestList());
+        TSP tsp = new TSP2();
+        tsp.searchSolution(20 * 1000, matAdj, planning.getRequestList());
 //        System.out.println("Solution trouvee en " + tsp.getExecTime() + " secondes");
         Integer[] solution = tsp.getSolution();
 
         ArrayList<Segment> chemin = new ArrayList<Segment>();
 
         for (int i = 1; i < solution.length; i++) {
-            if(! solution[i-1].equals(solution[i])) {
+            if (!solution[i - 1].equals(solution[i])) {
                 chemin.addAll(matAdj[solution[i - 1]][solution[i]].getChemin());
             }
         }
-        if(! solution[solution.length-1].equals(0)) {
+        if (!solution[solution.length - 1].equals(0)) {
             chemin.addAll(matAdj[solution[solution.length - 1]][0].getChemin());
         }
         return new Tournee(chemin, planning.getRequestList());
