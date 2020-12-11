@@ -501,7 +501,7 @@ public class Controller {
                     alert.setHeaderText(null);
                     alert.setContentText("There seems to be a problem with your Requests file. Please make sure it is properly formatted and that is corresponds to the Map file you've imported.");
                     alert.showAndWait();
-                    mapField.setText("Please choose a file");
+                    requestField.setText("Please choose a file");
                 }
 
 
