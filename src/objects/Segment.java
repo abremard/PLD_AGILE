@@ -104,7 +104,7 @@ public class Segment {
         // Compare the data members and return accordingly
         return origin == s.getOrigin()
                 && destination == s.getDestination()
-                && length == s.getLength()
+                && length.equals(s.getLength())
                 && name.equals(s.getName());
     }
 }

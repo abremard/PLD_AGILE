@@ -6,14 +6,12 @@ import objects.Depot;
 import objects.Intersection;
 import objects.PlanningRequest;
 import objects.Request;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.Before; 
 import org.junit.After;
-import org.junit.Assert.*;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import sample.Controller;
 
-import java.time.LocalTime;
 import java.util.ArrayList;
 
 /** 
