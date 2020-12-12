@@ -25,43 +25,41 @@ public class TSP2 extends TemplateTSP {
             }
         }
 
+//        float maxVal = 0;
+        float minSum = 0;
         float minVal = Float.MAX_VALUE;
-        float maxVal = 0;
-        float longueur;
-        for (Integer ind1 : nonVisites) {
-            if(! ind1.equals(currentVertex)) {
-                longueur = g[currentVertex][ind1].getLongueur();
-                maxVal = Math.max(maxVal, longueur);
-            }
+        float longueur = 0;
 
-//            for (Integer ind2 : nonVisites) {
-//                if(ind1.equals(ind2)) {
-//                    continue;
-//                }
-//                longueur = g[ind1][ind2].getLongueur();
-//                minVal = Math.min(minVal, longueur);
+        for (Integer ind1 : nonVisites) {
+            if(ind1 != 0 && g[0][ind1].getLongueur() < minVal) {
+                minVal = g[0][ind1].getLongueur();
+            }
+        }
+        minSum += minVal;
+
+        for (Integer ind1 : nonVisites) {
+//            if(! ind1.equals(currentVertex)) {
+//                longueur = g[currentVertex][ind1].getLongueur();
+//                maxVal = Math.max(maxVal, longueur);
 //            }
+
+            minVal = Float.MAX_VALUE;
+            for (Integer ind2 : nonVisites) {
+                if(ind1.equals(ind2)) {
+                    continue;
+                }
+                longueur = g[ind1][ind2].getLongueur();
+                minVal = Math.min(minVal, longueur);
+            }
+            if(ind1 != 0) {
+                longueur = g[ind1][0].getLongueur();
+                minVal = Math.min(minVal, longueur);
+            }
+            minSum += minVal;
         }
 
-        return maxVal;
-//        return minVal * nonVisites.size();
-//        return Math.max(maxVal, minVal*nonVisites.size());
-
-//        float minVal = 0;
-////        float minVal = Float.MAX_VALUE;
-////        for (TupleRequete req : requetes) {
-//        int oldInd = ptsIdToIndex.get(requetes.get(0).getCurrentGoal().getId());
-//        for(int i=1; i<requetes.size(); i++){
-//            int newInd = ptsIdToIndex.get(requetes.get(i).getCurrentGoal().getId());
-//            minVal = Math.max(minVal, g[oldInd][newInd].getLongueur());
-//            oldInd = newInd;
-//            if(requetes.get(i).isDepart()) {
-//                newInd = ptsIdToIndex.get(requetes.get(i).getRequete().getDelivery().getId());
-//                minVal = Math.max(minVal, g[oldInd][newInd].getLongueur());
-//                oldInd = newInd;
-//            }
-//        }
-//        return minVal;
+        return minSum;
+//        return Math.max(maxVal, minSum);
     }
 
     @Override
