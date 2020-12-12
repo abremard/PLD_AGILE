@@ -11,32 +11,37 @@ import static java.lang.StrictMath.*;
 
 
 /**
- * Heuristique de résolution du TSP pickup-delivery (TSPPC) d'après l'article
- * "A heuristic for the pickup and delivery traveling salesman problem" de J.
- * Renaud, F. F. Boctor et J. Ouenniche (2000)
+ * Heuristic-based pickup-delivery TSP (TSPPC) solution adapted from the paper
+ * "A heuristic for the pickup and delivery traveling salesman problem" of J.
+ * Renaud, F. F. Boctor and J. Ouenniche (2000).
+ * Only the first part is implemented here, and in the case of our application,
+ * it does not seem relevant to try to optimize the solution computed any
+ * further.
  */
-public class PaperHeuristicTSP {
+public class DoubleInsertionTSP {
 
     enum InsertionMethod {CONSECUTIVE, SPLIT}
 
     /**
-     * Façons de réassembler un chemin A-B-C-D auquel on a enlevé les 3 arêtes
-     * entre A et B, entre B et C et entre C et D, ces quatre lettres
-     * représentant chacune une portion du chemin, composée d'un ou plus
-     * point(s), sans considérer les cas 2-opt (on repose une arête là où on
-     * vient d'en enlever une, dans le même sens)
+     * Ways of assemblin a given path A-B-C-D to which we removed the 3 edges
+     * A-B, B-C and C-D, these 4 letters each representing a portion of this
+     * path, made up of one or more vertice(s), without considering cases that
+     * can be reduced as 2-opt cases (when an edge that has been removed is
+     * added back at the same place and in the same direction as before).
      * <p>
-     * - DOUBLE_REVERSE : A - B à l'envers - C à l'envers - D
+     * - DOUBLE_REVERSE : A - B reversed - C reversed - D
      * - INVERT-ORDER : A - C - B - D
-     * - REVERSE_B : B - C - B à l'envers - D
-     * - REVERSE_C : A - C à l'envers - B - D
-     * - INVERT_REVERSE : A - C à l'envers - B à l'envers - D
+     * - REVERSE_B : B - C - B reversed - D
+     * - REVERSE_C : A - C reversed - B - D
+     * - INVERT_REVERSE : A - C reversed - C reversed - D
      */
     enum AssembleOrder {DOUBLE_REVERSE, INVERT_ORDER, REVERSE_B, REVERSE_C, INVERT_REVERSE}
 
     /**
-     * Classe utilisée pour le retour de la méthode calculant le delta_i
-     * pour une requête donnée sur le trajet actuel
+     * Class used as the return of the method computing the delta_i of a given
+     * request on the current path.
+     *
+     * @see DoubleInsertionTSP#minWeightedInsertionCost(Request)
      */
     private class DeltaI {
         public InsertionMethod insertionMethod;
@@ -60,8 +65,9 @@ public class PaperHeuristicTSP {
     }
 
     /**
-     * Classe servant de tuple de 3 entiers pour définir les points de coupure
-     * des arêtes dans l'optimisation 3-opt
+     * Class used to represent a 3-integer tuple corresponding to the 3 cut
+     * points in the sub-path in 3-opt optimization
+     * @see DoubleInsertionTSP#AllPossibleCuts(int)
      */
     private class ThreeOptCuts {
 
@@ -95,7 +101,7 @@ public class PaperHeuristicTSP {
     // !!! le premier & le dernier élément d'un trajet complet sont des null car
     // pas de requête depuis/vers le dépôt !
 
-    PaperHeuristicTSP(SuperArete[][] matAdj, PlanningRequest planning, HashMap<Long, Integer> ptsIdToIndex) {
+    DoubleInsertionTSP(SuperArete[][] matAdj, PlanningRequest planning, HashMap<Long, Integer> ptsIdToIndex) {
         this.matAdj = matAdj;
         this.planning = planning;
         this.ptsIdToIndex = ptsIdToIndex;
@@ -107,8 +113,9 @@ public class PaperHeuristicTSP {
     }
 
     /**
-     * Etape 1 de l'algorithme : création d'un premier trajet par insertions
-     * successives des requêtes une par une.
+     * First step of the algorithm : Iteratively building an initial tour by
+     * inserting one by one each request and applying a local optimization
+     * after each insertion.
      */
     void doubleInsertionHeuristic() {
 
@@ -331,7 +338,7 @@ public class PaperHeuristicTSP {
      *               troisième arête (dernier point de C)
      * @param order  L'ordre dans lequel on assemble les sous-chemins entre eux
      * @see InsertionMethod
-     * @see PaperHeuristicTSP#doubleInsertionHeuristic()
+     * @see DoubleInsertionTSP#doubleInsertionHeuristic()
      */
     public float threeOptCost(int center, int cut1, int cut2, int cut3, AssembleOrder order) {
 
@@ -432,7 +439,7 @@ public class PaperHeuristicTSP {
      * @return true si l'optimisation demandée était valide et a été appliquée,
      * false sinon
      * @see InsertionMethod
-     * @see PaperHeuristicTSP#threeOptCost(int, int, int, int, AssembleOrder)
+     * @see DoubleInsertionTSP#threeOptCost(int, int, int, int, AssembleOrder)
      */
     boolean applyThreeOptIfValid(int center, int cut1, int cut2, int cut3, AssembleOrder order) {
 
@@ -580,7 +587,7 @@ public class PaperHeuristicTSP {
      * @param center Le milieu du chemin sur lequel on applique l'optimisation
      * @return La liste des ensembles de 3 points à partir desquels on peut
      * "couper" une arête pour appliquer l'optimisation 3-opt
-     * @see PaperHeuristicTSP.ThreeOptCuts
+     * @see DoubleInsertionTSP.ThreeOptCuts
      */
     ArrayList<ThreeOptCuts> AllPossibleCuts(int center) {
 
@@ -681,7 +688,7 @@ public class PaperHeuristicTSP {
      *                chemin dont on cherche à calculer la longueur
      * @param arrivee L'indice dans le trajet du point d'arrivée du sous-chemin
      * @return La longueur du chemin demandée
-     * @see PaperHeuristicTSP#longueurEntre(int, int)
+     * @see DoubleInsertionTSP#longueurEntre(int, int)
      */
     private float longueurCheminEntre(int depart, int arrivee) {
 
@@ -733,7 +740,7 @@ public class PaperHeuristicTSP {
      * Surcharge pour ajouter un point directement à la fin du trajet actuel
      *
      * @param tupleRequete le point de passage à insérer     *
-     * @see PaperHeuristicTSP#ajouterPointTournee(TupleRequete, int)
+     * @see DoubleInsertionTSP#ajouterPointTournee(TupleRequete, int)
      */
     void ajouterPointTournee(TupleRequete tupleRequete) {
         ajouterPointTournee(tupleRequete, currentTourIndexes.size());

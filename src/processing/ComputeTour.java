@@ -5,7 +5,6 @@ import java.time.LocalTime;
 import java.util.*;
 
 import Branch_And_Bound_TSP.TSP;
-import Branch_And_Bound_TSP.TSP1;
 import Branch_And_Bound_TSP.TSP2;
 import objects.*;
 import objects.Map;
@@ -74,7 +73,7 @@ public class ComputeTour {
                 matAdj = getOptimalFullGraph(map, planning, intersecIdToIndex);
                 // indexation des points d'intérêt
                 HashMap<Long, Integer> ptsIdToIndex = indexerPtsInteret(planning);
-                PaperHeuristicTSP doubleInsertion = new PaperHeuristicTSP(matAdj, planning, ptsIdToIndex);
+                DoubleInsertionTSP doubleInsertion = new DoubleInsertionTSP(matAdj, planning, ptsIdToIndex);
                 // calcul étape 1
                 doubleInsertion.doubleInsertionHeuristic();
 
