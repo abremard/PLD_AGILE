@@ -38,7 +38,6 @@ public class EditRequestCommandTest {
 
 @Before
 public void before() {
-
     request0 = new Request(0, new Intersection(45.884784, 4.8456121, 0), new Intersection(45.884451, 4.8715468, 0), 200, 200);
     request1 = new Request(1, new Intersection(45.750404, 4.8744674, 1), new Intersection(45.754433, 4.8718023, 1), 100, 240);
     request2 = new Request(2, new Intersection(45.731080, 4.8979990, 2), new Intersection(45.755142, 4.8716140, 2), 200, 100);
@@ -54,7 +53,7 @@ public void before() {
 } 
 
 @After
-public void after() throws Exception { 
+public void after() {
 } 
 
 /** 

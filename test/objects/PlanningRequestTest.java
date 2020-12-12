@@ -15,6 +15,6 @@ public class PlanningRequestTest extends TestCase {
 
     public static void testParseRequest() throws IOException, SAXException, ParserConfigurationException {
         PlanningRequest planningRequestParse = new PlanningRequest();
-        planningRequestParse.parseRequest("temp/fichiersXML2020/requestsMedium3.xml");
+        planningRequestParse.parseRequest("data/requestsMedium3.xml");
     }
 }
