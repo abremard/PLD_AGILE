@@ -24,22 +24,22 @@ public class Map {
     /**
      * Liste des intersections contenues dans la map.
      */
-    ArrayList<Intersection> intersectionList;
+    private ArrayList<Intersection> intersectionList;
 
     /**
      * Liste des segments contenus dans la map.
      */
-    ArrayList<Segment> segmentList;
+    private ArrayList<Segment> segmentList;
 
     /**
      * Nombre d'intersections contenues dans la map. Equivalent à intersectionList.size().
      */
-    Integer noOfIntersections;
+    private Integer noOfIntersections;
 
     /**
      * Nombre de segments contenus dans la map. Equivalent à segmentList.size().
      */
-    Integer noOfSegments;
+    private Integer noOfSegments;
 
     // Constructeurs
 
@@ -201,5 +201,29 @@ public class Map {
      */
     private double calculateDistanceBetweenCursorAndIntersection(double cursorLatitude, double cursorLongitude, Intersection intersection) {
         return Math.sqrt((Math.pow(cursorLatitude - intersection.getLatitude(), 2)) + Math.pow(cursorLongitude - intersection.getLongitude(), 2));
+    }
+
+    @Override
+    public boolean equals(Object o) {
+
+        // If the object is compared with itself then return true
+        if (o == this) {
+            return true;
+        }
+
+        /* Check if o is an instance of Complex or not
+          "null instanceof [type]" also returns false */
+        if (!(o instanceof Map)) {
+            return false;
+        }
+
+        // typecast o to Complex so that we can compare data members
+        Map m = (Map) o;
+
+        // Compare the data members and return accordingly
+        return intersectionList.equals(m.getIntersectionList())
+                && segmentList.equals(m.getSegmentList())
+                    && noOfIntersections.equals(m.getNoOfIntersections())
+                        && noOfSegments.equals(m.getNoOfSegments());
     }
 }
