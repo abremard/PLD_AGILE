@@ -67,7 +67,8 @@ public class DoubleInsertionTSP {
     /**
      * Class used to represent a 3-integer tuple corresponding to the 3 cut
      * points in the sub-path in 3-opt optimization
-     * @see DoubleInsertionTSP#AllPossibleCuts(int)
+     *
+     * @see DoubleInsertionTSP#allPossibleCuts(int)
      */
     private class ThreeOptCuts {
 
@@ -111,6 +112,8 @@ public class DoubleInsertionTSP {
         this.requestList = planning.getRequestList();
         this.nbRequest = requestList.size();
     }
+
+    // --------------------------- Algorithm core methods
 
     /**
      * First step of the algorithm : Iteratively building an initial tour by
@@ -209,7 +212,7 @@ public class DoubleInsertionTSP {
                 for (int center : centers) {        // 3-opt autour du pickup et du delivery
 
                     // combinaisons possibles pour les "coupures" d'arêtes sur le chemin
-                    ArrayList<ThreeOptCuts> possibleCuts = AllPossibleCuts(minDeltaI.index1);
+                    ArrayList<ThreeOptCuts> possibleCuts = allPossibleCuts(minDeltaI.index1);
                     boolean stop = false;
 
                     // pour chaque possibilité de 3-opt, évaluer son coût, et la garder si meilleure que l'originale
@@ -217,12 +220,12 @@ public class DoubleInsertionTSP {
                         initialCost = longueurCheminEntre(cuts.cut1, cuts.cut3 + 1);
 
                         for (AssembleOrder order : AssembleOrder.values()) {
-                            newCost = threeOptCost(center, cuts.cut1, cuts.cut2, cuts.cut3, order);
+                            newCost = threeOptCost(cuts.cut1, cuts.cut2, cuts.cut3, order);
 
                             // si on trouve un meilleur trajet et qu'il respecte les contraintes de précédence, on l'applique
                             if (newCost < initialCost) {
                                 // on applique l'optimisation si elle est valide
-                                if (applyThreeOptIfValid(center, cuts.cut1, cuts.cut2, cuts.cut3, order)) {
+                                if (applyThreeOptIfValid(cuts.cut1, cuts.cut2, cuts.cut3, order)) {
                                     if (verbose)
                                         System.err.println("Optimized path from cost " + initialCost + " to " + newCost);
                                     stop = true;        // propage le break à la boucle du dessus
@@ -242,13 +245,13 @@ public class DoubleInsertionTSP {
     }
 
     /**
-     * Calcule le 'minimum weighted insertion cost' (delta_i) pour une requête
-     * donnée dans l'état actuel du trajet.
-     * Utilisée dans les étapes 1.2 et 2.2 de l'algorithme
+     * Computes the 'minimum weighted insertion cost' (delta_i) for a given
+     * request given the current state of the tour.
+     * Used in parts 1.2 and 2.2 of the main algorithm.
      *
-     * @param request La requête dont on calcule le delta_i
-     * @return delta_i, le minimum weighted insertion cost de la meilleure
-     * combinaison trouvée, ainsi que sa méthode & sa position d'insertion
+     * @param request The request for which we compute delta_i
+     * @return delta_i, the minimum weighted insertion cost of the best
+     * combination found, as well as the position(s) and method of insertion
      * @see DeltaI
      */
     DeltaI minWeightedInsertionCost(Request request) {
@@ -323,24 +326,25 @@ public class DoubleInsertionTSP {
     }
 
     /**
-     * Renvoie le coût de la permutation 3-opt selon la méthode renseignée.
-     * Ce coût correspond à la longueur du chemin considéré qui variera en
-     * fonction de l'ordre dans lequel on assemble les sous-chemins, c'est-
-     * à-dire le coût du chemin qui commence à cut1 et qui finit à cut3 + 1.
+     * Computes the cost of the given 3-opt permutation according to the given
+     * method of assembling.
+     * This cost corresponds to the length of the sub-path considered after
+     * being reordered according to the given method, that is to say the length
+     * of the path starting at index cut1 and ending at index cu3 + 1 included.
+     * The length of this sub-path is 2r+1.
      *
-     * @param center L'indice dans le chemin du point autour duquel on effectue
-     *               l'optimisation (longueur du sous-chemin déterminée par r)
-     * @param cut1   L'indice du point dans le chemin depuis lequel on "coupe" la
-     *               première arête (dernier point de A)
-     * @param cut2   L'indice du point dans le chemin depuis lequel on "coupe" la
-     *               deuxième arête (dernier point de B)
-     * @param cut3   L'indice du point dans le chemin depuis lequel on "coupe" la
-     *               troisième arête (dernier point de C)
-     * @param order  L'ordre dans lequel on assemble les sous-chemins entre eux
+     * @param cut1  The index in the current tour of the point from which we
+     *              'cut' the first edge.
+     * @param cut2  The index in the current tour of the point from which we
+     *              'cut' the second edge.
+     * @param cut3  The index in the current tour of the point from which we
+     *              'cut' the third edge.
+     * @param order The order accordind to which we reorder the sub-paths
+     *              obtained after cutting the first sub-path
      * @see InsertionMethod
      * @see DoubleInsertionTSP#doubleInsertionHeuristic()
      */
-    public float threeOptCost(int center, int cut1, int cut2, int cut3, AssembleOrder order) {
+    public float threeOptCost(int cut1, int cut2, int cut3, AssembleOrder order) {
 
         float cost = 0;
 
@@ -424,24 +428,24 @@ public class DoubleInsertionTSP {
     }
 
     /**
-     * Applique la méthode de réarrangement choisie après calcul de son coût par
-     * 3-opt au trajet actuel uniquement si le trajet est valide
+     * Applies the reordering method given to the current tour (once its cost
+     * evaluated) ONLY IF the resulting path is valid (if each pickup is visited
+     * before its associated delivery).
      *
-     * @param center L'indice dans le chemin du point autour duquel on effectue
-     *               l'optimisation (longueur du sous-chemin déterminée par r)
-     * @param cut1   L'indice du point dans le chemin depuis lequel on "coupe" la
-     *               première arête (dernier point de A)
-     * @param cut2   L'indice du point dans le chemin depuis lequel on "coupe" la
-     *               deuxième arête (dernier point de B)
-     * @param cut3   L'indice du point dans le chemin depuis lequel on "coupe" la
-     *               troisième arête (dernier point de C)
-     * @param order  L'ordre dans lequel on assemble les sous-chemins entre eux
-     * @return true si l'optimisation demandée était valide et a été appliquée,
-     * false sinon
+     * @param cut1   The index in the current tour of the point from which we
+     *               'cut' the first edge.
+     * @param cut2   The index in the current tour of the point from which we
+     *               'cut' the second edge.
+     * @param cut3   The index in the current tour of the point from which we
+     *               'cut' the third edge.
+     * @param order  The order accordind to which we reorder the sub-paths
+     *               obtained after cutting the first sub-path
+     * @return true if the given optimization has been applied (= if it was
+     * valid), else false
      * @see InsertionMethod
-     * @see DoubleInsertionTSP#threeOptCost(int, int, int, int, AssembleOrder)
+     * @see #threeOptCost(int, int, int, AssembleOrder)
      */
-    boolean applyThreeOptIfValid(int center, int cut1, int cut2, int cut3, AssembleOrder order) {
+    boolean applyThreeOptIfValid(int cut1, int cut2, int cut3, AssembleOrder order) {
 
         // indices dans le trajet initial du début de chacun des sous-chemins A et B
         int firstB = cut1 + 1;
@@ -579,17 +583,19 @@ public class DoubleInsertionTSP {
         }
     }
 
+    // --------------------------- Utilities
+
     /**
-     * Méthode pour générer toutes les combinaisons possibles de 3 arêtes à
-     * enlever au chemin de longueur 2r+1 centré en center pour l'optimisation
-     * 3-opt
+     * Generate each possible combination of cutting 3 edges in the sub-path of
+     * length 2r+1 centered around center for the 3-opt local optimization.
      *
-     * @param center Le milieu du chemin sur lequel on applique l'optimisation
-     * @return La liste des ensembles de 3 points à partir desquels on peut
-     * "couper" une arête pour appliquer l'optimisation 3-opt
+     * @param center The index in the current tour of the point around which the
+     *               sub-path is centered
+     * @return A list of all possible sets of 3 points (their indexes in the
+     * current tour) from which we can 'cut' an edge and apply the 3-opt method.
      * @see DoubleInsertionTSP.ThreeOptCuts
      */
-    ArrayList<ThreeOptCuts> AllPossibleCuts(int center) {
+    ArrayList<ThreeOptCuts> allPossibleCuts(int center) {
 
         // prendre en compte les bounds du trajet pour ne pas dépasser
         int first = max(0, center - r);
@@ -616,9 +622,9 @@ public class DoubleInsertionTSP {
     }
 
     /**
-     * Construit un objet Tournee utilisable par l'IHM à partir du trajet actuel
+     * Build an use-ready Tournee object from the current tour.
      *
-     * @return L'objet complet et utilisable
+     * @return The fully usable Tournee object
      */
     Tournee buildTour() {
 
@@ -626,7 +632,7 @@ public class DoubleInsertionTSP {
         ArrayList<Request> requestList = planning.getRequestList();
 
         ArrayList<TupleRequete> ptsPassage = new ArrayList<>();
-        for (TupleRequete tupleRequete: this.currentTourPoints) {
+        for (TupleRequete tupleRequete : this.currentTourPoints) {
             ptsPassage.add(tupleRequete);       // laisser les null ! ils sont traités après !
         }
 
@@ -662,12 +668,14 @@ public class DoubleInsertionTSP {
     }
 
     /**
-     * Renvoie la longueur du plus court chemin entre 2 points d'intérêt selon
-     * la matrice d'adjacence
+     * Return the length of the shortest path between 2 points according to
+     * matAdj.
      *
-     * @param depart  L'indice dans matAdj du point de départ du chemin
-     * @param arrivee L'indice dans matAdj du point d'arrivée du chemin
-     * @return La longueur du plus court chemin entre depart et arrivee
+     * @param depart  The index in matAdj of the starting point of the desired
+     *                path
+     * @param arrivee The index in matAdj of the arrival point of the desired
+     *                path
+     * @return The length of the shortest path between depart and arrivee
      */
     private float longueurEntre(int depart, int arrivee) {
         if (matAdj[depart][arrivee] != null) {
@@ -678,16 +686,15 @@ public class DoubleInsertionTSP {
     }
 
     /**
-     * Calcule la longueur du sous-chemin dans le trajet actuel entre les points
-     * de départ et d'arrivée donnés, éventuellement en le parcourant à l'envers
-     * si arrivee < depart.
-     * Utilise longueurEntre(int, int) pour un sous-chemin constitué uniquement
-     * d'un départ et d'une arrivée.
+     * Compute the length of the sub-path in the current tour between the given
+     * starting and arrival points, possibly by taking it backwards if
+     * arrivee < depart.
      *
-     * @param depart  L'indice dans le trajet actuel du point de départ du sous-
-     *                chemin dont on cherche à calculer la longueur
-     * @param arrivee L'indice dans le trajet du point d'arrivée du sous-chemin
-     * @return La longueur du chemin demandée
+     * @param depart  The index in the current tour of the starting point of the
+     *                desired path
+     * @param arrivee The index in the current tour of the arrival point of the
+     *                desired path
+     * @return The length of the desired path
      * @see DoubleInsertionTSP#longueurEntre(int, int)
      */
     private float longueurCheminEntre(int depart, int arrivee) {
@@ -713,19 +720,12 @@ public class DoubleInsertionTSP {
         return sum;
     }
 
-    @Override
-    public String toString() {
-        return "PaperHeuristicTSP{" +
-                "currentTourIndexes=" + currentTourIndexes +
-                ", nbRequest=" + nbRequest +
-                '}';
-    }
-
     /**
-     * Ajoute un point de passage à la tournée actuelle
+     * Add a given point to the current tour.
      *
-     * @param index        l'index que le point aura après insertion dans les différentes listes
-     * @param tupleRequete le point de passage à insérer
+     * @param index        The index in the current tour where the point is to
+     *                     be inserted (its index after insertion)
+     * @param tupleRequete The point to be inserted
      */
     void ajouterPointTournee(TupleRequete tupleRequete, int index) {
         if (tupleRequete != null) {
@@ -737,13 +737,22 @@ public class DoubleInsertionTSP {
     }
 
     /**
-     * Surcharge pour ajouter un point directement à la fin du trajet actuel
+     * Overload of the identically-named method to add a point directly to the
+     * end of the current tour.
      *
-     * @param tupleRequete le point de passage à insérer     *
+     * @param tupleRequete The point to add at the end ot the tour
      * @see DoubleInsertionTSP#ajouterPointTournee(TupleRequete, int)
      */
     void ajouterPointTournee(TupleRequete tupleRequete) {
         ajouterPointTournee(tupleRequete, currentTourIndexes.size());
+    }
+
+    @Override
+    public String toString() {
+        return "PaperHeuristicTSP{" +
+                "currentTourIndexes=" + currentTourIndexes +
+                ", nbRequest=" + nbRequest +
+                '}';
     }
 
 }
