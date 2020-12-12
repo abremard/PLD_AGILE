@@ -73,7 +73,7 @@ public class ComputeTour {
                 matAdj = getOptimalFullGraph(map, planning, intersecIdToIndex);
                 // indexation des points d'intérêt
                 HashMap<Long, Integer> ptsIdToIndex = indexerPtsInteret(planning);
-                PaperHeuristicTSP doubleInsertion = new PaperHeuristicTSP(matAdj, planning, ptsIdToIndex);
+                DoubleInsertionTSP doubleInsertion = new DoubleInsertionTSP(matAdj, planning, ptsIdToIndex);
                 // calcul étape 1
                 doubleInsertion.doubleInsertionHeuristic();
 
