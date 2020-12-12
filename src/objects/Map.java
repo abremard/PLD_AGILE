@@ -1,3 +1,4 @@
+
 package objects;
 
 import java.util.ArrayList;
@@ -14,7 +15,7 @@ import org.w3c.dom.Element;
 import java.lang.Math;
 
 /**
- * Classe métier représentant la carte, c'est-à-dire le graphe que l'on va parcourir.
+ * Business class representing the map, that is to say the graph we will search.
  * @author H4302
  * @see Intersection
  * @see Segment
@@ -22,26 +23,27 @@ import java.lang.Math;
 public class Map {
 
     /**
-     * Liste des intersections contenues dans la map.
+     * List of the Intersections included in the map.
      */
     ArrayList<Intersection> intersectionList;
 
     /**
-     * Liste des segments contenus dans la map.
+     * List of the Segments included in the map.
+     *
      */
     ArrayList<Segment> segmentList;
 
     /**
-     * Nombre d'intersections contenues dans la map. Equivalent à intersectionList.size().
+     * Number of Intersections included in the map. Equivalent to intersectionList.size().
      */
     Integer noOfIntersections;
 
     /**
-     * Nombre de segments contenus dans la map. Equivalent à segmentList.size().
+     * Number of Segments included in the map. Equivalent to segmentList.size().
      */
     Integer noOfSegments;
 
-    // Constructeurs
+    // Constructors
 
     public Map() {
         this.intersectionList = new ArrayList<Intersection>();
@@ -51,8 +53,8 @@ public class Map {
     }
 
     /**
-     * Construit une map en chargeant un fichier XML.
-     * @param documentName  le chemin du fichier XML contenant les données de la map
+     * Builds a map by loading a XML file.
+     * @param documentName  the name of the XML file containing the data of the map
      */
     public Map(String documentName) {
         try {
@@ -106,7 +108,7 @@ public class Map {
         }
     }
 
-    // Getters et setters
+    // Getters and setters
 
     public ArrayList<Intersection> getIntersectionList() {
         return intersectionList;
@@ -132,12 +134,12 @@ public class Map {
         return noOfSegments;
     }
 
-    // Fonctions utilitaires
+    // Utilitarian functions
 
     /**
-     * Recherche l'intersection d'id donné parmis les intersections de la map.
-     * @param id    L'id de l'intersection à rechercher
-     * @return l'intersection trouvée, ou null si aucune intersection n'a été trouvée
+     * Searches the intersection with the given ID in the map's intersections.
+     * @param id    The ID of the Intersection to search
+     * @return the intersection that was found, or null if non was found
      */
     public Intersection matchIdToIntersection(long id) {
         Intersection matchedIntersection = null;
@@ -153,8 +155,10 @@ public class Map {
 
     /**
      * Recherche la liste des noms des Segments (rues) dont l'une des extrémitées est l'intersection d'id donné.
-     * @param id    L'id de l'intersection
-     * @return la liste des noms des Segments
+     * Searches for the list of the names of the Segments (streets) of which one of the ends is the Intersection
+     * of given ID.
+     * @param id    The ID of the Intersection to search
+     * @return the list of Segment names
      */
     public ArrayList<String> getSegmentNameFromIntersectionId(long id) {
         ArrayList<String> segmentNameList = new ArrayList<String>();
@@ -169,12 +173,12 @@ public class Map {
     }
 
     /**
-     * Recherche l'intersection la plus proche d'un point donné.
-     * Les distances sont considérées à partir de la longitude et latitude, à vol d'oiseau (distance euclidienne).
-     * @param cursorIntersection    L'intersection dont les coordonnées sont celles du point duquel on veut trouver
-     *                              l'intersection la plus proche. Cette intersection peut être fictive, c'est-à-dire
-     *                              ne pas exister dans la liste des intersections de la map.
-     * @return l'intersection la plus proche, parmi la liste d'intersections de la map
+     * Searches the closest Intersection to a given point.
+     * Distances are calculated using longitudes and latitudes, in euclidian distance.
+     * @param cursorIntersection    The Intersection which coordinates are that of the point of which we want to
+     *                              find the closest Intersection. This Intersection might be fictive, that is to say
+     *                              it might not exist in the list of Intersections of the Map.
+     * @return the closest Intersection within the list of Intersections of the Map
      */
     public Intersection findClosestIntersection(Intersection cursorIntersection) {
         double cursorLatitude = cursorIntersection.getLatitude();
@@ -194,10 +198,13 @@ public class Map {
     /**
      * Calcule la distance entre une intersection et les coordonnées données.
      * Les distances sont considérées à partir de la longitude et latitude, à vol d'oiseau (distance euclidienne).
-     * @param cursorLatitude    la latitude de la première position
-     * @param cursorLongitude   la longitude de la première position
-     * @param intersection      l'intersection dont les coordonnées sont celles de la deuxième position
-     * @return la distance euclidienne entre les deux positions
+     *
+     * Computes the distances between an Intersection and the given coordinates.
+     * Distances are calculated using longitudes and latitudes, in euclidian distance.
+     * @param cursorLatitude    the latitude of the first position
+     * @param cursorLongitude   the longitude of the first position
+     * @param intersection      the Intersection which coordinates are that of the second position
+     * @return the euclidian distance between the two positions
      */
     private double calculateDistanceBetweenCursorAndIntersection(double cursorLatitude, double cursorLongitude, Intersection intersection) {
         return Math.sqrt((Math.pow(cursorLatitude - intersection.getLatitude(), 2)) + Math.pow(cursorLongitude - intersection.getLongitude(), 2));

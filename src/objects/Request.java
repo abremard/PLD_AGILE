@@ -5,56 +5,39 @@ import java.time.LocalTime;
 import java.util.Objects;
 
 /**
- * Classe métier représentant une requête, contenant les Intersections de récupération et de dépôt, ainsi que
- * les durées de récupération et de dépôt.
+ * Business class representing a request, containing the Intersections of delivery and pickup, as well as the
+ * pickup and delivery durations.
  * @author H4302
  * @see Intersection
  */
 public class Request {
 
     /**
-     * Compte le nombre d'instances de Request qui ont été construites.
-     */
-    // static int nbInstances = 0;
-
-    /**
-     * L'intersection de récupération de la requête
+     * The Intersection of the Request's delivery.
      */
     Intersection pickup;
 
     /**
-     * L'intersection de dépôt de la requête
+     * The Intersection of the Request's pickup.
      */
     Intersection delivery;
 
     /**
-     * La durée nécessaire pour compléter la récupération, en secondes.
+     * The necessary duration to complete the pickup, in seconds.
      */
     double pickupDur;
 
     /**
-     * La durée nécessaire pour compléter le dépôt, en secondes.
+     * The necessary duration to complete the delivery, in seconds.
      */
     double deliveryDur;
 
     /**
-     * L'ID de la requête.
+     * The ID of the Request.
      */
     int id;
 
-    // Constructeur
-
-    /* CE CONSTRUCTEUR EST MAUVAIS! IL FAUT EVITER D'UTILISER UNE VARIABLE STATIQUE!!!
-    public Request(Intersection pickup, Intersection delivery, double pickupDur, double deliveryDur) {
-        this.pickup = pickup;
-        this.delivery = delivery;
-        this.pickupDur = pickupDur;
-        this.deliveryDur = deliveryDur;
-
-        this.id = nbInstances;
-        ++nbInstances;
-    }
-     */
+    // Constructors
 
     public Request(int id, Intersection pickup, Intersection delivery, double pickupDur, double deliveryDur) {
         this.pickup = pickup;
@@ -72,7 +55,7 @@ public class Request {
         this.id = referencedRequest.id;
     }
 
-    // Getters et setters
+    // Getters and setters
 
     public int getId() {
         return id;
@@ -112,7 +95,7 @@ public class Request {
         this.deliveryDur = deliveryDur;
     }
 
-    // Surcharges
+    // Overrides
 
     @Override
     public String toString() {

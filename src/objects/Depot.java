@@ -4,30 +4,30 @@ package objects;
 import java.time.LocalTime;
 
 /**
- * Classe métier représentant le dépôt d'un planning, c'est-à-dire le point où la tournée doit commencer et finir.
+ * Business class representing the departure address of a planning : the point where the Tour must start and end.
  * @author H4302
  * @see Intersection
  */
 public class Depot {
 
     /**
-     * L'intersection où le dépôt est localisé.
+     * The Intersection where the departure address is located.
      */
     Intersection adresse;
 
     /**
-     * L'heure de départ du dépôt, c'est-à-dire l'heure à laquelle la tournée commence.
+     * The time of departure : time at which the Tour starts.
      */
     LocalTime departureTime;
 
-    // Constructeur
+    // Constructor
 
     public Depot(Intersection adresse, LocalTime departureTime) {
         this.adresse = adresse;
         this.departureTime = departureTime;
     }
 
-    // Getters et setters
+    // Getters and setters
 
     public Intersection getAdresse() {
         return adresse;
@@ -45,7 +45,7 @@ public class Depot {
         this.departureTime = departureTime;
     }
 
-    // Surcharges
+    // Overrides
 
     @Override
     public String toString() {

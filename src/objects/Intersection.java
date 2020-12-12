@@ -2,33 +2,34 @@
 package objects;
 
 /**
- * Classe métier représentant une intersection sur la carte, c'est-à-dire un noeud dans le graphe.
+ * Business class representing an Intersection on the map, that is to say a node in the graph.
  * @author H4302
  * @see Depot
  */
 public class Intersection {
 
     /**
-     * Latitude à laquelle se situe l'intersection.
+     * Latitude at which the Intersection is located.
+     *
      */
     double latitude;
 
     /**
-     * Longitude à laquelle se situe l'intersection.
+     * Longitude at which the Intersection is located.
      */
     double longitude;
 
     /**
-     * ID de l'intersection, tel que définit dans les fichiers XML de map.
+     * ID of the Intersection, as defined in the XML file of the map.
      */
     long id;
 
     /**
-     * ID de l'icône du marqueur à afficher sur la map pour cette intersection.
+     * ID of the icon of the marker to be displayed on the map for this Intersection.
      */
     String markerId;
 
-    // Constructeurs
+    // Constructors
 
     public Intersection(double latitude, double longitude, long id) {
         this.latitude = latitude;
@@ -45,7 +46,7 @@ public class Intersection {
         this.id = id;
     }
 
-    // Getters et setters
+    // Getters and setters
 
     public double getLatitude() {
         return latitude;
@@ -79,7 +80,7 @@ public class Intersection {
         this.markerId = markerId;
     }
 
-    // Surcharges
+    // Overrides
 
     @Override
     public String toString() {

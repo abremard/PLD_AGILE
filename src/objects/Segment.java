@@ -2,34 +2,34 @@
 package objects;
 
 /**
- * Classe métier représentant un Segment (rue) sur la carte, c'est-à-dire une arête dans le graphe.
- * Les Segments sont considérés comme étant dirigés, ils ont donc une origine et une destination.
+ * Business class representing a Segment (street) on the Map, that is to say a vertex in the graph.
+ * Segments are directed and as such have an origin and a destination.
  * @author H4302
  * @see Depot
  */
 public class Segment {
 
     /**
-     * ID de l'intersection de laquelle le Segment part.
+     * ID of the intersection at which the Segment starts.
      */
     long origin;
 
     /**
-     * ID de l'intersection à laquelle le Segment arrive.
+     * ID of the intersection at which the Segment end.
      */
     long destination;
 
     /**
-     * Longueur du Segment, en mètres.
+     * Length of the Segment, in meters.
      */
     Float length;
 
     /**
-     * Nom du Segment (de la rue).
+     * Name of the Segment (of the street).
      */
     String name;
 
-    // Constructeur
+    // Constructor
 
     public Segment(long origin, long destination, Float length, String name) {
         this.origin = origin;
@@ -38,7 +38,7 @@ public class Segment {
         this.name = name;
     }
 
-    // Getters et setters
+    // Getters and setters
 
     public long getOrigin() {
         return origin;
@@ -72,7 +72,7 @@ public class Segment {
         this.name = name;
     }
 
-    // Surcharges
+    // Overrides
 
     @Override
     public String toString() {      // généré par IntelliJ <3

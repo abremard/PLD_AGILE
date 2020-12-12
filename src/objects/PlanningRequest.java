@@ -20,8 +20,8 @@ import java.util.Collections;
 import java.util.Locale;
 
 /**
- * Classe métier représentant un planning, c'est-à-dire une liste non ordonnée de requêtes à traiter ainsi que
- * le dépôt duquel la tournée doit partir et où elle doit finir.
+ * Business class representing a planning : an unordered list of Requests to deal with and the departure address
+ * from which the Tour must start and where it must end.
  * @author H4302
  * @see Depot
  * @see Request
@@ -29,16 +29,16 @@ import java.util.Locale;
 public class PlanningRequest {
 
     /**
-     * Le dépôt duquel la tournée doit partir et où elle doit finir.
+     * The departure address from which the Tour must start and where it must end.
      */
     Depot depot;
 
     /**
-     * La liste non ordonnée des requêtes à traiter.
+     * The unordered list of Requests to deal with.
      */
     ArrayList<Request> requestList = new ArrayList<>();
 
-    // Constructeurs
+    // Constructors
 
     public PlanningRequest() {
     }
@@ -48,7 +48,7 @@ public class PlanningRequest {
         this.requestList = new ArrayList<>(copyOfPlanningRequest.requestList);
     }
 
-    // Getters et setters
+    // Getters and setters
 
     public Depot getDepot() {
         return depot;
@@ -66,14 +66,14 @@ public class PlanningRequest {
         this.requestList = requestList;
     }
 
-    // Fonctions utilitaires
+    // Utilitarian functions
 
     /**
-     * Charge les informations d'un fichier XML correspondant à un planning.
-     * @param requestFile   le chemin du fichier XML à charger
-     * @throws ParserConfigurationException en cas d'échec de la construction du DocumenBuilder
-     * @throws IOException                  en cas d'échec du parsing du fichier
-     * @throws SAXException                 en cas d'échec du parsing du fichier
+     * Loads the informations of an XML file corresponding to a planning.
+     * @param requestFile   the path the the XML file to load
+     * @throws ParserConfigurationException in case of failure of the construction of the DocumentBuilder
+     * @throws IOException                  in case of failure of the file parsing
+     * @throws SAXException                 in case of failure of the file parsing
      */
     public void parseRequest(String requestFile) throws ParserConfigurationException, IOException, SAXException {
 
@@ -109,26 +109,26 @@ public class PlanningRequest {
     }
 
     /**
-     * Ajoute une requête à la liste des requêtes à traiter.
-     * @param index         L'index auquel ajouter la requête (sert pour undo/redo)
-     * @param newRequest    La requête à ajouter
+     * Adds a Request to the list of Requests to deal with.
+     * @param index         The index where the Request should be added (used to undo/redo)
+     * @param newRequest    The Request to add
      */
     public void addRequest(int index, Request newRequest) {
         requestList.add(index, newRequest);
     }
 
     /**
-     * Ajoute une requête à la liste des requêtes à traiter (en dernière position).
-     * @param newRequest    La requête à ajouter
+     * Adds a Request to the list of Requests to deal with (in last position).
+     * @param newRequest    the Request to add
      */
     public void addRequest(Request newRequest) {
         requestList.add(newRequest);
     }
 
     /**
-     * Retire une requête de la liste des requêtes à traiter.
-     * @param requestToRemove   La requête à retirer
-     * @return un booléen indiquant si la requête a bien été retirée.
+     * Removes a Request of the list of Requests to deal with.
+     * @param requestToRemove   The Request to remove
+     * @return a boolean indicating if the Request was successfully removed
      */
     public boolean removeRequest(Request requestToRemove) {
         for (Request request : requestList) {
@@ -141,17 +141,17 @@ public class PlanningRequest {
     }
 
     /**
-     * Retire une requête de la liste des requêtes à traiter.
-     * @param index     l'indice de la liste de requêtes auquel retirer une requête
+     * Removes a Request of the list of Requests to deal with.
+     * @param index     The index in the list where a Request should be removed
      */
     public void removeRequest(int index) {
         requestList.remove(index);
     }
 
     /**
-     * Remplace une requête par une autre dans la liste
-     * @param requestToRemove   la requête à remplacer
-     * @param requestToAdd      la requête par laquelle elle doit être remplacée
+     * Replaces a Request with another in the list
+     * @param requestToRemove   The Rrequest to replace
+     * @param requestToAdd      The Request with which it must be replaced
      */
     public void modifyRequest(Request requestToRemove, Request requestToAdd) {
         for (Request request : requestList) {

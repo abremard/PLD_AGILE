@@ -6,29 +6,29 @@ import processing.TupleRequete;
 import java.util.ArrayList;
 
 /**
- * Classe métier représentant une Tournee, regroupant les informations concernant le trajet à emprunter pour compléter
- * la liste des requêtes à réaliser.
+ * Business class representing a Tour, grouping informations concerning the path to take to complete the list of
+ * pending requests.
  * @author H4302
  * @see Depot
  */
 public class Tournee {
 
     /**
-     * Chemin à emprunter, en tant que liste ordonnée de Segments.
+     * Path to take, as an ordered list of Segments.
      */
     ArrayList<Segment> segmentList;
 
     /**
-     * Liste non ordonnée des requêtes à réaliser.
+     * Unordered list of pending Requests.
      */
     ArrayList<Request> requestList;
 
     /**
-     * Liste ordonnée des TupleRequete, représentant les points d'intérêts par lesquels on passe.
+     * Ordered list of TupleRequete, representing the interest points through which to pass.
      */
     ArrayList<TupleRequete> ptsPassage;
 
-    // Constructeurs
+    // Constructors
 
     public Tournee() {
         this.segmentList = new ArrayList<Segment>();
@@ -46,7 +46,7 @@ public class Tournee {
         this.ptsPassage = ptsPassage;
     }
 
-    // Getters et setters
+    // Getters and setters
 
     public ArrayList<Segment> getSegmentList() {
         return segmentList;
@@ -72,7 +72,7 @@ public class Tournee {
         this.ptsPassage = ptsPassage;
     }
 
-    // Surcharges
+    // Overrides
 
     @Override
     public String toString() {
