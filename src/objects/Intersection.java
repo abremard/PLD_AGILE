@@ -92,7 +92,27 @@ public class Intersection {
     }
 
     @Override
-    public boolean equals(Object object) {
+    public boolean equals(Object o) {
+
+        // If the object is compared with itself then return true
+        if (o == this) {
+            return true;
+        }
+
+        /* Check if o is an instance of Complex or not
+          "null instanceof [type]" also returns false */
+        if (!(o instanceof Intersection)) {
+            return false;
+        }
+
+        // typecast o to Complex so that we can compare data members
+        Intersection i = (Intersection) o;
+        
+        return latitude == i.getLatitude()
+                    && longitude == i.getLongitude()
+                        && id == i.getId();
+        
+        /*
         if (this.getClass() == object.getClass()) {
             Intersection intersection = (Intersection) object;
             if ((this.getLatitude() == intersection.getLatitude()) && (this.getLongitude() == intersection.getLongitude()) && (this.getId() == intersection.getId())) {
@@ -103,6 +123,6 @@ public class Intersection {
         }
         else{
             return false;
-        }
+        }*/
     }
 }

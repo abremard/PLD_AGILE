@@ -25,23 +25,23 @@ public class Map {
     /**
      * List of the Intersections included in the map.
      */
-    ArrayList<Intersection> intersectionList;
+    private ArrayList<Intersection> intersectionList;
 
     /**
      * List of the Segments included in the map.
      *
      */
-    ArrayList<Segment> segmentList;
+    private ArrayList<Segment> segmentList;
 
     /**
      * Number of Intersections included in the map. Equivalent to intersectionList.size().
      */
-    Integer noOfIntersections;
+    private Integer noOfIntersections;
 
     /**
      * Number of Segments included in the map. Equivalent to segmentList.size().
      */
-    Integer noOfSegments;
+    private Integer noOfSegments;
 
     // Constructors
 
@@ -208,5 +208,37 @@ public class Map {
      */
     private double calculateDistanceBetweenCursorAndIntersection(double cursorLatitude, double cursorLongitude, Intersection intersection) {
         return Math.sqrt((Math.pow(cursorLatitude - intersection.getLatitude(), 2)) + Math.pow(cursorLongitude - intersection.getLongitude(), 2));
+    }
+
+    @Override
+    public boolean equals(Object o) {
+
+        // If the object is compared with itself then return true
+        if (o == this) {
+            return true;
+        }
+
+        /* Check if o is an instance of Complex or not
+          "null instanceof [type]" also returns false */
+        if (!(o instanceof Map)) {
+            return false;
+        }
+
+        // typecast o to Complex so that we can compare data members
+        Map m = (Map) o;
+
+        // Compare the data members and return accordingly
+        return intersectionList.equals(m.getIntersectionList())
+                && segmentList.equals(m.getSegmentList())
+                    && noOfIntersections == m.getNoOfIntersections()
+                        && noOfSegments == m.getNoOfSegments();
+    }
+
+    @Override
+    public String toString(){
+        return "Intersection List : " + intersectionList +
+                "\n Segment List : " + segmentList +
+                "\n number of Intersections : " + noOfIntersections +
+                "\n number of Segments : " + noOfSegments;
     }
 }
