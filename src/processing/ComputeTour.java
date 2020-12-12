@@ -101,7 +101,6 @@ public class ComputeTour {
         HashMap<Long, Integer> intersecIdToIndex = indexationIntersections(map);
         HashMap<Long, Integer> indexPtsInterets = indexerPtsInteret(planning);
         SuperArete[][] matAdj = getOptimalFullGraph(map, planning, intersecIdToIndex);
-
         ArrayList<Segment> chemin = new ArrayList<Segment>();
         int previousInd = 0;
         for (int i = 0; i < order.size(); i++) {

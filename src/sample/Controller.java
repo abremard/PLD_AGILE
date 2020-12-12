@@ -1296,7 +1296,16 @@ public class Controller {
          * @return name Name of LTC
          */
         public String toString() {
-            return name;
+            return "Location Tag Content{" +
+                    "name=" + name +
+                    ", streetOne=" + streetOne +
+                    ", streetTwo=" + streetTwo +
+                    ", arrivalTime=" + arrivalTime +
+                    ", coordinate=" + coordLocation +
+                    ", request=" + request +
+                    ", chemin=" + chemin +
+                    ", isPickup=" + isPickup +
+                    '}';
         }
 
         @Override

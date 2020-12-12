@@ -208,7 +208,7 @@ public class PlanningRequest {
 
         // Compare the data members and return accordingly
         return depot.equals(p.depot)
-                && requestList.equals(requestList);
+                && requestList.equals(p.requestList);
     }
 
 }

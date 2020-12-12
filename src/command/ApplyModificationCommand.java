@@ -30,7 +30,12 @@ public class ApplyModificationCommand implements Command {
 
     @Override
     public void doCommand(MVCController c) {
-        //c.setTour(ComputeTour.planTour(map, planningRequest, Heuristique.GREEDY));
+        System.out.println(map.getIntersectionList().toString());
+        System.out.println(map.getNoOfIntersections().toString());
+        System.out.println(map.getNoOfSegments().toString());
+        System.out.println(map.getSegmentList().toString());
+        System.out.println(planningRequest.toString());
+        System.out.println(ltcList.toString());
         c.setTour(ComputeTour.recreateTourneeWithOrder(map, planningRequest, ltcList));
     }
 
