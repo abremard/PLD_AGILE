@@ -13,8 +13,8 @@ public class processingTest {
     static String filePath = "results.txt";
 
     public static void main(String[] args) {
-//        processGeneral();
-        processBnB();
+        processGeneral();
+//        processBnB();
     }
 
     static void randomTests() {
@@ -140,7 +140,7 @@ public class processingTest {
         for (int i = 0; i < maps.length; i++) {
             System.out.println("Starting " + reqs[i]);
             for (int j = 0; j < heuristiques.length; j++) {
-                testBatch(maps[i], reqs[i], heuristiques[j], 100);
+                testBatch(maps[i], reqs[i], heuristiques[j], 1);
             }
             writeToFile("\n", false);
 //            writeToFile("------------------------------------------------------\n");

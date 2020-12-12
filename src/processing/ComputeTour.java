@@ -4,8 +4,8 @@ package processing;
 import java.time.LocalTime;
 import java.util.*;
 
-import Branch_And_Bound_TSP.TSP;
-import Branch_And_Bound_TSP.TSP2;
+import Branch_And_Bound_TSP.BnB_TSP;
+import Branch_And_Bound_TSP.BnB_TSP2;
 import objects.*;
 import objects.Map;
 import sample.Controller;
@@ -828,7 +828,7 @@ public class ComputeTour {
      */
     private static Tournee branchAndBoundOpti(SuperArete[][] matAdj, PlanningRequest planning) {
 
-        TSP tsp = new TSP2();
+        BnB_TSP tsp = new BnB_TSP2();
         tsp.searchSolution(20 * 1000, matAdj, planning.getRequestList());
 //        System.out.println("Solution trouvee en " + tsp.getExecTime() + " secondes");
         Integer[] solution = tsp.getSolution();
