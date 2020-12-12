@@ -28,7 +28,10 @@ public class AddRequestCommand implements Command {
         c.getPlanningRequest().addRequest(c.getPlanningRequest().getRequestList().size()-1, newRequest);
         c.getLtcList().add(c.getLtcList().size()-1, newPickupLtc);
         c.getLtcList().add(c.getLtcList().size()-1, newDeliveryLtc);
-        System.out.println(c.getLtcList());
+
+        if(debug){
+            System.out.println(c.getLtcList());
+        }
     }
 
     @Override
@@ -36,7 +39,10 @@ public class AddRequestCommand implements Command {
         c.getPlanningRequest().removeRequest(newRequest);
         c.getLtcList().remove(c.getLtcList().size()-2);
         c.getLtcList().remove(c.getLtcList().size()-2);
-        System.out.println(c.getLtcList());
+
+        if(debug){
+            System.out.println(c.getLtcList());
+        }
     }
 
 }

@@ -25,13 +25,6 @@ public class EditRequestCommand implements Command {
     public EditRequestCommand(Request oldRequest, Request newRequest, int editedRequestIndex, int editedCardIndex, double oldDuration, double newDuration, boolean isPickup) {
         this.editedRequestIndex = editedRequestIndex;
         this.editedCardIndex = editedCardIndex;
-        /*
-        if (isPickup) {
-            this.oldDuration = p.getRequestList().get(editedRequestIndex).getPickupDur();
-        } else {
-            this.oldDuration = p.getRequestList().get(editedRequestIndex).getDeliveryDur();
-        }
-        */
         this.oldRequest = oldRequest;
         this.newRequest = newRequest;
         this.oldDuration = oldDuration;
@@ -50,7 +43,10 @@ public class EditRequestCommand implements Command {
             c.getPlanningRequest().getRequestList().get(editedRequestIndex).setDeliveryDur(this.newDuration);
             c.getLtcList().get(editedCardIndex).getRequest().setDeliveryDur(this.newDuration);
         }
-        System.out.println(c.getPlanningRequest());
+
+        if(debug){
+            System.out.println(c.getPlanningRequest());
+        }
     }
 
     @Override
@@ -64,7 +60,10 @@ public class EditRequestCommand implements Command {
             c.getPlanningRequest().getRequestList().get(editedRequestIndex).setDeliveryDur(this.oldDuration);
             c.getLtcList().get(editedCardIndex).getRequest().setDeliveryDur(this.oldDuration);
         }
-        System.out.println(c.getPlanningRequest());
+
+        if(debug){
+            System.out.println(c.getPlanningRequest());
+        }
     }
 
 }

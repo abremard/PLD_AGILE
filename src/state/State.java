@@ -119,6 +119,7 @@ public interface State {
      * @param c Controlleur dont on met à jour l'état.
      * @param oldPlanningRequest Le planning des différentes requêtes à effectuer lors de la tournée.
      * @param ltcList La liste des request/delivery ordonnée de façon temporelle.
+     * @param request La requête à enlever du planningRequest
      * @param removedCardIndex1 Index du premier request/delivery dans la liste associée
      * @param removedCardIndex2 Index du deuxième request/delivery dans la liste associée
      */

@@ -47,6 +47,12 @@ public class ListOfCommands {
         }
         cmd.doCommand(c);
     }
+
+    /**
+     * On va effectuer un undo de la commande actuelle, puis on décrémente dans la liste des commandes effectuées
+     *
+     * @param c Controlleur dont on met à jour l'état
+     */
     public void Undo(MVCController c) {
         if (i>=lowerBound) {
             System.out.println("Undo command number "+i);
@@ -54,16 +60,19 @@ public class ListOfCommands {
             i--;
         }
     }
+
+    /**
+     * On va incrémenter dans la liste des commandes effectuées
+     *      et effectuer un doCommand de la commande sur laquelle on se trouve à présent
+     *
+     * @param c Controlleur dont on met à jour l'état
+     */
     public void Redo(MVCController c) {
         if (i<l.size()-1) {
             i++;
             l.get(i).doCommand(c);
             System.out.println("Redo command number "+i);
         }
-    }
-
-    public int getLowerBound() {
-        return lowerBound;
     }
 
     public void setLowerBound(int lowerBound) {
