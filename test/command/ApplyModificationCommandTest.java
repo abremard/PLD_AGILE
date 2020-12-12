@@ -32,7 +32,7 @@ public class ApplyModificationCommandTest {
     Controller.LocationTagContent newPickupLtc, newDeliveryLtc, depotLtc;
 
     @Before
-public void before() throws Exception {
+public void before() {
 
     request0 = new Request(0, new Intersection(45.760174, 4.877455, 208769457), new Intersection(45.760597, 4.87622, 208769499), 180, 240);
     request1 = new Request(1, new Intersection(45.76038, 4.8775625, 342873658), new Intersection(45.76038, 4.8775625, 342873658), 0, 0);
@@ -57,7 +57,7 @@ public void before() throws Exception {
 }
 
 @After
-public void after() throws Exception { 
+public void after() {
 } 
 
 /** 
@@ -66,7 +66,7 @@ public void after() throws Exception {
 * 
 */ 
 @Test
-public void testDoCommand() throws Exception {
+public void testDoCommand() {
 
     /* prepare test sample */
     map = new Map("data/smallMap.xml");
@@ -78,13 +78,11 @@ public void testDoCommand() throws Exception {
     ltcList.add(newPickupLtc);
     ltcList.add(newDeliveryLtc);
     ltcList.add(depotLtc);
-    System.out.println(planningRequest.toString());
-    System.out.println(ltcList.toString());
-    ApplyModificationCommand appl = new ApplyModificationCommand(map, planningRequest, ltcList);
+    applyModificationCommand = new ApplyModificationCommand(map, planningRequest, ltcList);
     /* prepare expected sample */
     Tournee expTournee = ComputeTour.recreateTourneeWithOrder(map, planningRequest, ltcList);
     /* run command */
-    appl.doCommand(mvcController);
+    applyModificationCommand.doCommand(mvcController);
     /* assert */
     Assert.assertEquals(expTournee, mvcController.getTour());
 
