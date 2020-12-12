@@ -223,7 +223,15 @@ public class Map {
         // Compare the data members and return accordingly
         return intersectionList.equals(m.getIntersectionList())
                 && segmentList.equals(m.getSegmentList())
-                    && noOfIntersections.equals(m.getNoOfIntersections())
-                        && noOfSegments.equals(m.getNoOfSegments());
+                    && noOfIntersections == m.getNoOfIntersections()
+                        && noOfSegments == m.getNoOfSegments();
+    }
+
+    @Override
+    public String toString(){
+        return "Intersection List : " + intersectionList +
+                "\n Segment List : " + segmentList +
+                "\n number of Intersections : " + noOfIntersections +
+                "\n number of Segments : " + noOfSegments;
     }
 }
