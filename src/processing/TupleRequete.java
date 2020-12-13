@@ -8,12 +8,49 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Objects;
 
+/**
+ * Class that represents an interest point, as a starting point or end point of a Request.
+ *
+ * @author H4302
+ * @see ComputeTour
+ */
 public class TupleRequete {
 
+    /**
+     * The Request which starting point or end point is the interest point that this object represents.
+     */
     Request requete;
-    boolean isDepart;       // vrai si l'objet TupleRequete correspond au départ de sa Request
-    LocalTime time;     // pickup or delivery starting time according to isDepart
-    ArrayList<Segment> chemin;      // chemin pour aller du point de pickup/delivery precedent a ce point
+
+    /**
+     * Indicates whether the interest point is the starting point of the end point of the Request.
+     */
+    boolean isDepart;
+
+    /**
+     * The time at which the pickup or delivery will start, according to the Tour computation.
+     */
+    LocalTime time;
+
+    /**
+     * The path to go from the previous interest point to this point, in the order of the computed Tour.
+     */
+    ArrayList<Segment> chemin;
+
+    // Constructors
+
+    public TupleRequete(Request requete, boolean isDepart) {
+        this.requete = requete;
+        this.isDepart = isDepart;
+    }
+
+    public TupleRequete(Request requete, boolean isDepart, LocalTime time, ArrayList<Segment> chemin) {
+        this.requete = requete;
+        this.isDepart = isDepart;
+        this.time = time;
+        this.chemin = chemin;
+    }
+
+    // Getters and setters
 
     public ArrayList<Segment> getChemin() {
         return chemin;
@@ -32,7 +69,7 @@ public class TupleRequete {
     }
 
     public Intersection getCurrentGoal() {
-        if(isDepart) {
+        if (isDepart) {
             return requete.getPickup();
         } else {
             return requete.getDelivery();
@@ -60,17 +97,7 @@ public class TupleRequete {
         this.setDepart(tupleRequete.isDepart());
     }
 
-    public TupleRequete(Request requete, boolean isDepart) {
-        this.requete = requete;
-        this.isDepart = isDepart;
-    }
-
-    public TupleRequete(Request requete, boolean isDepart, LocalTime time, ArrayList<Segment> chemin) {
-        this.requete = requete;
-        this.isDepart = isDepart;
-        this.time = time;
-        this.chemin = chemin;
-    }
+    // Overrides
 
     @Override
     public boolean equals(Object o) {
