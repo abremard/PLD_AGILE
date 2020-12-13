@@ -9,9 +9,19 @@ import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * <h1>Main Class</h1>
+ * The main class that initialises the JavaFX scene and launches the app.
+ * <p>
+ *
+ * @author H4302
+ */
+
 public class Main extends Application {
 
-    /** Logger for the class */
+    /**
+     * Logger for the class (debug purposes)
+     */
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
     @Override

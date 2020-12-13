@@ -41,6 +41,8 @@ import processing.TupleRequete;
  * The JavaFX controller helps display all the UI elements, and defines the interaction between the user and these
  * elements.
  * <p>
+ *
+ * @author H4302
  */
 
 public class Controller {
