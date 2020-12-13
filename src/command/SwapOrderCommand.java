@@ -1,7 +1,5 @@
 package command;
 
-// TODO : on change l'objet manipulé : planningRequest -> tournee et on fait initCardContent pour raffraichir les cartes sur Controller.
-
 import controller.MVCController;
 import objects.PlanningRequest;
 import sample.Controller;

@@ -67,21 +67,4 @@ public class RemoveRequestCommand implements Command {
         }
         c.setPlanningRequest(this.oldPlanningRequest);
     }
-
-    public Controller.LocationTagContent getRemovedCard1() {
-        return removedCard1;
-    }
-
-    public void setRemovedCard1(Controller.LocationTagContent removedCard1) {
-        this.removedCard1 = removedCard1;
-    }
-
-    public Controller.LocationTagContent getRemovedCard2() {
-        return removedCard2;
-    }
-
-    public void setRemovedCard2(Controller.LocationTagContent removedCard2) {
-        this.removedCard2 = removedCard2;
-    }
-
 }

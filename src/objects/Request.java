@@ -109,8 +109,33 @@ public class Request {
     }
 
     @Override
-    public boolean equals(Object object) {
-        if (this.getClass() == object.getClass()) {
+    public boolean equals(Object o) {
+
+        // If the object is compared with itself then return true
+        if (o == this) {
+            return true;
+        }
+
+        /* Check if o is an instance of Complex or not
+          "null instanceof [type]" also returns false */
+        if (!(o instanceof Request)) {
+            return false;
+        }
+
+        // typecast o to Complex so that we can compare data members
+        Request r = (Request) o;
+
+        // Compare the data members and return accordingly
+        return delivery.equals(r.getDelivery())
+                && pickup.equals(r.getPickup())
+                && pickupDur == r.getPickupDur()
+                && deliveryDur == r.getDeliveryDur()
+                && id == r.getId();
+
+
+
+
+        /*if (this.getClass() == object.getClass()) {
             Request request = (Request) object;
             if ((this.getDelivery() == request.getDelivery()) && (this.getPickup() == request.getPickup()) && (this.getDeliveryDur() == request.getDeliveryDur()) && (this.getPickupDur() == request.getPickupDur())) {
                 return true;
@@ -119,7 +144,7 @@ public class Request {
             }
         } else {
             return false;
-        }
+        }*/
     }
 
     @Override
