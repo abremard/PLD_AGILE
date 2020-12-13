@@ -11,9 +11,10 @@ import static java.lang.StrictMath.*;
 
 
 /**
- * Heuristic-based pickup-delivery TSP (TSPPC) solution adapted from the paper
- * "A heuristic for the pickup and delivery traveling salesman problem" of J.
- * Renaud, F. F. Boctor and J. Ouenniche (2000).
+ * Heuristic-based pickup-delivery traveling salesman problem (TSPPC) solution
+ * adapted from the paper "A heuristic for the pickup and delivery traveling
+ * salesman problem" of J. Renaud, F. F. Boctor and J. Ouenniche (2000).
+ *
  * Only the first part is implemented here, and in the case of our application,
  * it does not seem relevant to try to optimize the solution computed any
  * further.
@@ -23,12 +24,12 @@ public class DoubleInsertionTSP {
     enum InsertionMethod {CONSECUTIVE, SPLIT}
 
     /**
-     * Ways of assemblin a given path A-B-C-D to which we removed the 3 edges
+     * Ways of assembling a given path A-B-C-D to which we removed the 3 edges
      * A-B, B-C and C-D, these 4 letters each representing a portion of this
-     * path, made up of one or more vertice(s), without considering cases that
+     * path, made up of one or more vertex(es), without considering cases that
      * can be reduced as 2-opt cases (when an edge that has been removed is
      * added back at the same place and in the same direction as before).
-     * <p>
+     *
      * - DOUBLE_REVERSE : A - B reversed - C reversed - D
      * - INVERT-ORDER : A - C - B - D
      * - REVERSE_B : B - C - B reversed - D
@@ -65,8 +66,8 @@ public class DoubleInsertionTSP {
     }
 
     /**
-     * Class used to represent a 3-integer tuple corresponding to the 3 cut
-     * points in the sub-path in 3-opt optimization
+     * Class used to represent a 3-integers tuple corresponding to the 3 cut
+     * points in the sub-path used in 3-opt optimization.
      *
      * @see DoubleInsertionTSP#allPossibleCuts(int)
      */
@@ -326,12 +327,13 @@ public class DoubleInsertionTSP {
     }
 
     /**
-     * Computes the cost of the given 3-opt permutation according to the given
+     * Compute the cost of the given 3-opt permutation according to the given
      * method of assembling.
      * This cost corresponds to the length of the sub-path considered after
      * being reordered according to the given method, that is to say the length
      * of the path starting at index cut1 and ending at index cu3 + 1 included.
-     * The length of this sub-path is 2r+1.
+     * This sub-path is made up of 2r+1 vertices (points) and the edges
+     * connecting them.
      *
      * @param cut1  The index in the current tour of the point from which we
      *              'cut' the first edge.
@@ -339,8 +341,8 @@ public class DoubleInsertionTSP {
      *              'cut' the second edge.
      * @param cut3  The index in the current tour of the point from which we
      *              'cut' the third edge.
-     * @param order The order accordind to which we reorder the sub-paths
-     *              obtained after cutting the first sub-path
+     * @param order The order according to which we reorder the sub-paths
+     *              obtained after cutting the first sub-path.
      * @see InsertionMethod
      * @see DoubleInsertionTSP#doubleInsertionHeuristic()
      */
@@ -438,8 +440,8 @@ public class DoubleInsertionTSP {
      *               'cut' the second edge.
      * @param cut3   The index in the current tour of the point from which we
      *               'cut' the third edge.
-     * @param order  The order accordind to which we reorder the sub-paths
-     *               obtained after cutting the first sub-path
+     * @param order  The order according to which we reorder the sub-paths
+     *               obtained after cutting the first sub-path.
      * @return true if the given optimization has been applied (= if it was
      * valid), else false
      * @see InsertionMethod
@@ -721,7 +723,7 @@ public class DoubleInsertionTSP {
     }
 
     /**
-     * Add a given point to the current tour.
+     * Add a given point to the current tour at a given index.
      *
      * @param index        The index in the current tour where the point is to
      *                     be inserted (its index after insertion)
