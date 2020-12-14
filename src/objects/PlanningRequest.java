@@ -158,12 +158,13 @@ public class PlanningRequest {
             if (request == requestToRemove) {
                 requestList.remove(requestToRemove);
                 requestList.add(requestToAdd);
+                break;
             }
         }
     }
 
     public int findIndexOfRequest(Request request){
-        int index = 0;
+        int index = -1;
         for (int i=0; i<requestList.size(); i++){
             if (request == requestList.get(i)){
                 index = i;
