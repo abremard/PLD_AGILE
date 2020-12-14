@@ -103,7 +103,7 @@ public class DoubleInsertionTSP {
     // !!! le premier & le dernier élément d'un trajet complet sont des null car
     // pas de requête depuis/vers le dépôt !
 
-    DoubleInsertionTSP(SuperArete[][] matAdj, PlanningRequest planning, HashMap<Long, Integer> ptsIdToIndex) {
+    public DoubleInsertionTSP(SuperArete[][] matAdj, PlanningRequest planning, HashMap<Long, Integer> ptsIdToIndex) {
         this.matAdj = matAdj;
         this.planning = planning;
         this.ptsIdToIndex = ptsIdToIndex;
@@ -121,7 +121,7 @@ public class DoubleInsertionTSP {
      * inserting one by one each request and applying a local optimization
      * after each insertion.
      */
-    void doubleInsertionHeuristic() {
+    public void doubleInsertionHeuristic() {
 
         // --------- Etape 1.1 : initialisation
         // Principe : choisir la requête qui maximise la longueur du trajet
@@ -255,7 +255,7 @@ public class DoubleInsertionTSP {
      * combination found, as well as the position(s) and method of insertion
      * @see DeltaI
      */
-    DeltaI minWeightedInsertionCost(Request request) {
+    private DeltaI minWeightedInsertionCost(Request request) {
 
         // (i, j) paire de pickup-delivery de la requête en paramètre
         int i_index = ptsIdToIndex.get(request.getPickup().getId());
@@ -346,7 +346,7 @@ public class DoubleInsertionTSP {
      * @see InsertionMethod
      * @see DoubleInsertionTSP#doubleInsertionHeuristic()
      */
-    public float threeOptCost(int cut1, int cut2, int cut3, AssembleOrder order) {
+    private float threeOptCost(int cut1, int cut2, int cut3, AssembleOrder order) {
 
         float cost = 0;
 
@@ -447,7 +447,7 @@ public class DoubleInsertionTSP {
      * @see InsertionMethod
      * @see #threeOptCost(int, int, int, AssembleOrder)
      */
-    boolean applyThreeOptIfValid(int cut1, int cut2, int cut3, AssembleOrder order) {
+    private boolean applyThreeOptIfValid(int cut1, int cut2, int cut3, AssembleOrder order) {
 
         // indices dans le trajet initial du début de chacun des sous-chemins A et B
         int firstB = cut1 + 1;
@@ -597,7 +597,7 @@ public class DoubleInsertionTSP {
      * current tour) from which we can 'cut' an edge and apply the 3-opt method.
      * @see DoubleInsertionTSP.ThreeOptCuts
      */
-    ArrayList<ThreeOptCuts> allPossibleCuts(int center) {
+    private ArrayList<ThreeOptCuts> allPossibleCuts(int center) {
 
         // prendre en compte les bounds du trajet pour ne pas dépasser
         int first = max(0, center - r);
@@ -628,7 +628,7 @@ public class DoubleInsertionTSP {
      *
      * @return The fully usable Tournee object
      */
-    Tournee buildTour() {
+    public Tournee buildTour() {
 
         // initialisation des éléments à passer au constructeur de Tournee
         ArrayList<Request> requestList = planning.getRequestList();
@@ -729,7 +729,7 @@ public class DoubleInsertionTSP {
      *                     be inserted (its index after insertion)
      * @param tupleRequete The point to be inserted
      */
-    void ajouterPointTournee(TupleRequete tupleRequete, int index) {
+    private void ajouterPointTournee(TupleRequete tupleRequete, int index) {
         if (tupleRequete != null) {
             currentTourIndexes.add(index, ptsIdToIndex.get(tupleRequete.getCurrentGoal().getId()));
         } else {
@@ -745,7 +745,7 @@ public class DoubleInsertionTSP {
      * @param tupleRequete The point to add at the end ot the tour
      * @see DoubleInsertionTSP#ajouterPointTournee(TupleRequete, int)
      */
-    void ajouterPointTournee(TupleRequete tupleRequete) {
+    private void ajouterPointTournee(TupleRequete tupleRequete) {
         ajouterPointTournee(tupleRequete, currentTourIndexes.size());
     }
 
