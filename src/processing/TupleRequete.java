@@ -100,6 +100,15 @@ public class TupleRequete {
     // Overrides
 
     @Override
+    public String toString() {
+        return "TupleRequete{Requete=" + requete +
+                ", isDepart=" + isDepart +
+                ", time=" + time +
+                ", chemin=" + chemin +
+                "}";
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
