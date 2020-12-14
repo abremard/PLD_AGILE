@@ -2,6 +2,7 @@ package processing;
 
 import objects.Map;
 import objects.PlanningRequest;
+import org.junit.Assert;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
@@ -37,7 +38,7 @@ public class DoubleInsertionTSPTest {
         }
 
         // compute a solution and build a Tournee object with it
-        ComputeTour.planTour(map, planningRequest, Heuristique.DOUBLEINSERTION);
+        Assert.assertNotNull(ComputeTour.planTour(map, planningRequest, Heuristique.DOUBLEINSERTION));
     }
 
     /**
@@ -60,7 +61,7 @@ public class DoubleInsertionTSPTest {
         }
 
         // compute a solution and build a Tournee object with it
-        ComputeTour.planTour(map, planningRequest, Heuristique.DOUBLEINSERTION);
+        Assert.assertNotNull(ComputeTour.planTour(map, planningRequest, Heuristique.DOUBLEINSERTION));
     }
 
     /**
@@ -83,7 +84,7 @@ public class DoubleInsertionTSPTest {
         }
 
         // compute a solution and build a Tournee object with it
-        ComputeTour.planTour(map, planningRequest, Heuristique.DOUBLEINSERTION);
+        Assert.assertNotNull(ComputeTour.planTour(map, planningRequest, Heuristique.DOUBLEINSERTION));
     }
 
 } 
