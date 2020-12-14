@@ -5,20 +5,11 @@ import java.time.LocalTime;
 import java.util.*;
 
 import Branch_And_Bound_TSP.BnB_TSP;
+import Branch_And_Bound_TSP.BnB_TSP1;
 import Branch_And_Bound_TSP.BnB_TSP2;
 import objects.*;
 import objects.Map;
 import sample.Controller;
-
-/*
- * TODO
- *  - arrêter Dijsktra quand on a traité tous les points d'intérêt
- *  - heuristique du paper
- *  - JavaDoc
- *
- * FIXME
- *  - random passe pas par tous les points :'( (notamment largeMap + requestsLarge9)
- * */
 
 /**
  * Class that groups the tour computation algorithms.
@@ -63,9 +54,13 @@ public class ComputeTour {
                 // version genetique
                 return null;
             case BRANCHANDBOUND:
-                // version greedy
                 matAdj = getOptimalFullGraph(map, planning, intersecIdToIndex);
                 tournee = branchAndBoundOpti(matAdj, planning);
+                recreateTimesTournee(tournee, planning);
+                return tournee;
+            case BRANCHANDBOUNDEXHAUSTIF:
+                matAdj = getOptimalFullGraph(map, planning, intersecIdToIndex);
+                tournee = branchAndBoundExhaustif(matAdj, planning);
                 recreateTimesTournee(tournee, planning);
                 return tournee;
             case DOUBLEINSERTION:
@@ -110,11 +105,6 @@ public class ComputeTour {
         Tournee tournee = new Tournee(chemin, planning.getRequestList());
         recreateTimesTournee(tournee, planning);
         return tournee;
-    }
-
-    public static SuperArete[][] testFullGraph(Map map, PlanningRequest planning) {
-        HashMap<Long, Integer> intersecIdToIndex = indexationIntersections(map);
-        return getOptimalFullGraph(map, planning, intersecIdToIndex);
     }
 
     // ----------------------------- Utilitarian functions
@@ -829,6 +819,36 @@ public class ComputeTour {
     private static Tournee branchAndBoundOpti(SuperArete[][] matAdj, PlanningRequest planning) {
 
         BnB_TSP tsp = new BnB_TSP2();
+        tsp.searchSolution(20 * 1000, matAdj, planning.getRequestList());
+//        System.out.println("Solution trouvee en " + tsp.getExecTime() + " secondes");
+        Integer[] solution = tsp.getSolution();
+
+        ArrayList<Segment> chemin = new ArrayList<Segment>();
+
+        for (int i = 1; i < solution.length; i++) {
+            if (!solution[i - 1].equals(solution[i])) {
+                chemin.addAll(matAdj[solution[i - 1]][solution[i]].getChemin());
+            }
+        }
+        if (!solution[solution.length - 1].equals(0)) {
+            chemin.addAll(matAdj[solution[solution.length - 1]][0].getChemin());
+        }
+        return new Tournee(chemin, planning.getRequestList());
+    }
+
+    /**
+     * Computes a Tour using the Branch and Bound paradigm. The computed tour is optimal : its path is
+     * the shortest possible. Execution time may as such be longer than the other heuristics.
+     * Uses a worse heuristic than the function above, making it a near-exhaustive search.
+     *
+     * @param matAdj       The optimal full sub-graph of the map as an adjacence matrix
+     * @param planning     The planning that includes a list of requests to deal with as well as the
+     *                     departure address
+     * @return the computed Tour
+     */
+    private static Tournee branchAndBoundExhaustif(SuperArete[][] matAdj, PlanningRequest planning) {
+
+        BnB_TSP tsp = new BnB_TSP1();
         tsp.searchSolution(20 * 1000, matAdj, planning.getRequestList());
 //        System.out.println("Solution trouvee en " + tsp.getExecTime() + " secondes");
         Integer[] solution = tsp.getSolution();

@@ -79,6 +79,7 @@ public class Tournee {
         return "Tournee{" +
                 "segmentList=" + segmentList +
                 ", requestList=" + requestList +
+                ", ptsPassage=" + ptsPassage +
                 '}';
     }
 
