@@ -177,6 +177,9 @@ public class Controller {
      */
     private Request tempRequest;
     private Request oldRequest;
+    /**
+     * temporary location tag content
+     */
     private LocationTagContent tempItem;
     private LocationTagContent NewPickupLtc;
     private LocationTagContent NewDeliveryLtc;
