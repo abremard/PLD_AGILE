@@ -47,4 +47,21 @@ public class Branch_And_Bound_TSP_Test {
         Assert.assertNotNull(ComputeTour.planTour(map, planningRequest, Heuristique.BRANCHANDBOUND));
     }
 
+    @Test
+    public void testBnBExhaustif() {
+
+        // initialize necessary objects
+        PlanningRequest planningRequest = new PlanningRequest();
+        Map map = new Map("data/mediumMap.xml");
+
+        try {
+            planningRequest.parseRequest("data/requestsMedium5.xml");
+        } catch (ParserConfigurationException | IOException | SAXException e) {
+            e.printStackTrace();
+        }
+
+        // compute a solution and build a Tournee object with it
+        Assert.assertNotNull(ComputeTour.planTour(map, planningRequest, Heuristique.BRANCHANDBOUNDEXHAUSTIF));
+    }
+
 }
