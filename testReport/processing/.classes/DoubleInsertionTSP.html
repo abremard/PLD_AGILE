@@ -1,0 +1,945 @@
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html id="htmlId">
+<head>
+  <title>Coverage Report :: DoubleInsertionTSP</title>
+  <style type="text/css">
+    @import "../../.css/coverage.css";
+  </style>
+</head>
+
+<body>
+<div class="header"></div>
+
+<div class="content">
+<div class="breadCrumbs">
+    [ <a href="../../index.html">all classes</a> ]
+    [ <a href="../index.html">processing</a> ]
+</div>
+
+<h1>Coverage Summary for Class: DoubleInsertionTSP (processing)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">DoubleInsertionTSP</td>
+<td class="coverageStat">
+  <span class="percent">
+    92.3%
+  </span>
+  <span class="absValue">
+    (12/ 13)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    94.5%
+  </span>
+  <span class="absValue">
+    (242/ 256)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">DoubleInsertionTSP$1</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/ 1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/ 1)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">DoubleInsertionTSP$AssembleOrder</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/ 1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/ 1)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">DoubleInsertionTSP$DeltaI</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (2/ 2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (12/ 12)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">DoubleInsertionTSP$InsertionMethod</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/ 1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/ 1)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">DoubleInsertionTSP$ThreeOptCuts</td>
+<td class="coverageStat">
+  <span class="percent">
+    50%
+  </span>
+  <span class="absValue">
+    (1/ 2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    83.3%
+  </span>
+  <span class="absValue">
+    (5/ 6)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    90%
+  </span>
+  <span class="absValue">
+    (18/ 20)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    94.6%
+  </span>
+  <span class="absValue">
+    (262/ 277)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<div class="sourceCode"><i>1</i>&nbsp;package processing;
+<i>2</i>&nbsp;
+<i>3</i>&nbsp;import objects.PlanningRequest;
+<i>4</i>&nbsp;import objects.Request;
+<i>5</i>&nbsp;import objects.Segment;
+<i>6</i>&nbsp;import objects.Tournee;
+<i>7</i>&nbsp;
+<i>8</i>&nbsp;import java.util.*;
+<i>9</i>&nbsp;
+<i>10</i>&nbsp;import static java.lang.StrictMath.*;
+<i>11</i>&nbsp;
+<i>12</i>&nbsp;
+<i>13</i>&nbsp;/**
+<i>14</i>&nbsp; * Heuristic-based pickup-delivery traveling salesman problem (TSPPC) solution
+<i>15</i>&nbsp; * adapted from the paper &quot;A heuristic for the pickup and delivery traveling
+<i>16</i>&nbsp; * salesman problem&quot; of J. Renaud, F. F. Boctor and J. Ouenniche (2000).
+<i>17</i>&nbsp; *
+<i>18</i>&nbsp; * Only the first part is implemented here, and in the case of our application,
+<i>19</i>&nbsp; * it does not seem relevant to try to optimize the solution computed any
+<i>20</i>&nbsp; * further.
+<i>21</i>&nbsp; */
+<i>22</i>&nbsp;public class DoubleInsertionTSP {
+<i>23</i>&nbsp;
+<b class="fc"><i>24</i>&nbsp;    enum InsertionMethod {CONSECUTIVE, SPLIT}</b>
+<i>25</i>&nbsp;
+<i>26</i>&nbsp;    /**
+<i>27</i>&nbsp;     * Ways of assembling a given path A-B-C-D to which we removed the 3 edges
+<i>28</i>&nbsp;     * A-B, B-C and C-D, these 4 letters each representing a portion of this
+<i>29</i>&nbsp;     * path, made up of one or more vertex(es), without considering cases that
+<i>30</i>&nbsp;     * can be reduced as 2-opt cases (when an edge that has been removed is
+<i>31</i>&nbsp;     * added back at the same place and in the same direction as before).
+<i>32</i>&nbsp;     *
+<i>33</i>&nbsp;     * - DOUBLE_REVERSE : A - B reversed - C reversed - D
+<i>34</i>&nbsp;     * - INVERT-ORDER : A - C - B - D
+<i>35</i>&nbsp;     * - REVERSE_B : B - C - B reversed - D
+<i>36</i>&nbsp;     * - REVERSE_C : A - C reversed - B - D
+<i>37</i>&nbsp;     * - INVERT_REVERSE : A - C reversed - C reversed - D
+<i>38</i>&nbsp;     */
+<b class="fc"><i>39</i>&nbsp;    enum AssembleOrder {DOUBLE_REVERSE, INVERT_ORDER, REVERSE_B, REVERSE_C, INVERT_REVERSE}</b>
+<i>40</i>&nbsp;
+<i>41</i>&nbsp;    /**
+<i>42</i>&nbsp;     * Class used as the return of the method computing the delta_i of a given
+<i>43</i>&nbsp;     * request on the current path.
+<i>44</i>&nbsp;     *
+<i>45</i>&nbsp;     * @see DoubleInsertionTSP#minWeightedInsertionCost(Request)
+<i>46</i>&nbsp;     */
+<i>47</i>&nbsp;    private class DeltaI {
+<i>48</i>&nbsp;        public InsertionMethod insertionMethod;
+<i>49</i>&nbsp;        public float cost;
+<i>50</i>&nbsp;        public int index1;
+<i>51</i>&nbsp;        public int index2;
+<i>52</i>&nbsp;
+<b class="fc"><i>53</i>&nbsp;        DeltaI(InsertionMethod insertionMethod, float cost, int index1, int index2) {</b>
+<b class="fc"><i>54</i>&nbsp;            this.insertionMethod = insertionMethod;</b>
+<b class="fc"><i>55</i>&nbsp;            this.cost = cost;</b>
+<b class="fc"><i>56</i>&nbsp;            this.index1 = index1;</b>
+<b class="fc"><i>57</i>&nbsp;            this.index2 = index2;</b>
+<b class="fc"><i>58</i>&nbsp;        }</b>
+<i>59</i>&nbsp;
+<b class="fc"><i>60</i>&nbsp;        DeltaI(InsertionMethod insertionMethod, float cost, int index) {</b>
+<b class="fc"><i>61</i>&nbsp;            this.insertionMethod = insertionMethod;</b>
+<b class="fc"><i>62</i>&nbsp;            this.cost = cost;</b>
+<b class="fc"><i>63</i>&nbsp;            this.index1 = index;</b>
+<b class="fc"><i>64</i>&nbsp;            this.index2 = -1;</b>
+<b class="fc"><i>65</i>&nbsp;        }</b>
+<i>66</i>&nbsp;    }
+<i>67</i>&nbsp;
+<i>68</i>&nbsp;    /**
+<i>69</i>&nbsp;     * Class used to represent a 3-integers tuple corresponding to the 3 cut
+<i>70</i>&nbsp;     * points in the sub-path used in 3-opt optimization.
+<i>71</i>&nbsp;     *
+<i>72</i>&nbsp;     * @see DoubleInsertionTSP#allPossibleCuts(int)
+<i>73</i>&nbsp;     */
+<i>74</i>&nbsp;    private class ThreeOptCuts {
+<i>75</i>&nbsp;
+<i>76</i>&nbsp;        public int cut1;
+<i>77</i>&nbsp;        public int cut2;
+<i>78</i>&nbsp;        public int cut3;
+<i>79</i>&nbsp;
+<b class="fc"><i>80</i>&nbsp;        ThreeOptCuts(int cut1, int cut2, int cut3) {</b>
+<b class="fc"><i>81</i>&nbsp;            this.cut1 = cut1;</b>
+<b class="fc"><i>82</i>&nbsp;            this.cut2 = cut2;</b>
+<b class="fc"><i>83</i>&nbsp;            this.cut3 = cut3;</b>
+<b class="fc"><i>84</i>&nbsp;        }</b>
+<i>85</i>&nbsp;
+<i>86</i>&nbsp;        @Override
+<i>87</i>&nbsp;        public String toString() {
+<b class="nc"><i>88</i>&nbsp;            return &quot;ThreeOptCuts{&quot; + cut1 + &quot;, &quot; + cut2 + &quot;, &quot; + cut3 + &#39;}&#39;;</b>
+<i>89</i>&nbsp;        }
+<i>90</i>&nbsp;    }
+<i>91</i>&nbsp;
+<b class="fc"><i>92</i>&nbsp;    static float alpha = 1;     // pour le calcul de delta_i, 0 &lt; alpha &lt; 2</b>
+<b class="fc"><i>93</i>&nbsp;    static int r = 3;           // détermine la longueur des chaînes à utiliser pour 3-opt</b>
+<b class="fc"><i>94</i>&nbsp;    boolean verbose = false;    // (dés)active les prints sur stderr</b>
+<i>95</i>&nbsp;
+<i>96</i>&nbsp;    int nbRequest;
+<i>97</i>&nbsp;    SuperArete[][] matAdj;
+<i>98</i>&nbsp;    PlanningRequest planning;
+<i>99</i>&nbsp;    HashMap&lt;Long, Integer&gt; ptsIdToIndex;
+<i>100</i>&nbsp;    LinkedList&lt;Integer&gt; currentTourIndexes;
+<i>101</i>&nbsp;    LinkedList&lt;TupleRequete&gt; currentTourPoints;     // stocke les indices des points dans la tournée
+<i>102</i>&nbsp;    ArrayList&lt;Request&gt; requestList;     // pour stocker les requêtes associées aux points qu&#39;on a choisi
+<i>103</i>&nbsp;    // !!! le premier &amp; le dernier élément d&#39;un trajet complet sont des null car
+<i>104</i>&nbsp;    // pas de requête depuis/vers le dépôt !
+<i>105</i>&nbsp;
+<b class="fc"><i>106</i>&nbsp;    public DoubleInsertionTSP(SuperArete[][] matAdj, PlanningRequest planning, HashMap&lt;Long, Integer&gt; ptsIdToIndex) {</b>
+<b class="fc"><i>107</i>&nbsp;        this.matAdj = matAdj;</b>
+<b class="fc"><i>108</i>&nbsp;        this.planning = planning;</b>
+<b class="fc"><i>109</i>&nbsp;        this.ptsIdToIndex = ptsIdToIndex;</b>
+<b class="fc"><i>110</i>&nbsp;        this.currentTourIndexes = new LinkedList&lt;&gt;();</b>
+<b class="fc"><i>111</i>&nbsp;        this.currentTourPoints = new LinkedList&lt;&gt;();</b>
+<i>112</i>&nbsp;
+<b class="fc"><i>113</i>&nbsp;        this.requestList = planning.getRequestList();</b>
+<b class="fc"><i>114</i>&nbsp;        this.nbRequest = requestList.size();</b>
+<b class="fc"><i>115</i>&nbsp;    }</b>
+<i>116</i>&nbsp;
+<i>117</i>&nbsp;    // --------------------------- Algorithm core methods
+<i>118</i>&nbsp;
+<i>119</i>&nbsp;    /**
+<i>120</i>&nbsp;     * First step of the algorithm : Iteratively building an initial tour by
+<i>121</i>&nbsp;     * inserting one by one each request and applying a local optimization
+<i>122</i>&nbsp;     * after each insertion.
+<i>123</i>&nbsp;     */
+<i>124</i>&nbsp;    public void doubleInsertionHeuristic() {
+<i>125</i>&nbsp;
+<i>126</i>&nbsp;        // --------- Etape 1.1 : initialisation
+<i>127</i>&nbsp;        // Principe : choisir la requête qui maximise la longueur du trajet
+<i>128</i>&nbsp;        // dépôt -&gt; pickup -&gt; delivery -&gt; dépôt et initialiser le trajet avec.
+<i>129</i>&nbsp;
+<i>130</i>&nbsp;        // choix du chemin le + long
+<b class="fc"><i>131</i>&nbsp;        float maxCost = 0;</b>
+<b class="fc"><i>132</i>&nbsp;        int maxCostRequestIndex = 0;</b>
+<i>133</i>&nbsp;        float cost;
+<i>134</i>&nbsp;
+<i>135</i>&nbsp;        // initialisation des requêtes à ajouter dans le trajet final
+<b class="fc"><i>136</i>&nbsp;        Set&lt;Request&gt; requestsToProcess = new HashSet&lt;&gt;();</b>
+<b class="fc"><i>137</i>&nbsp;        requestsToProcess.addAll(requestList);</b>
+<i>138</i>&nbsp;
+<b class="fc"><i>139</i>&nbsp;        for (int i = 0; i &lt; nbRequest; i++) {</b>
+<b class="fc"><i>140</i>&nbsp;            Request request = requestList.get(i);</b>
+<b class="fc"><i>141</i>&nbsp;            cost = longueurEntre(0, ptsIdToIndex.get(request.getPickup().getId()))</b>
+<b class="fc"><i>142</i>&nbsp;                    + longueurEntre(ptsIdToIndex.get(request.getPickup().getId()), ptsIdToIndex.get(request.getDelivery().getId()))</b>
+<b class="fc"><i>143</i>&nbsp;                    + longueurEntre(ptsIdToIndex.get(request.getDelivery().getId()), 0);</b>
+<i>144</i>&nbsp;
+<b class="fc"><i>145</i>&nbsp;            if (cost &gt; maxCost) {</b>
+<b class="fc"><i>146</i>&nbsp;                maxCost = cost;</b>
+<b class="fc"><i>147</i>&nbsp;                maxCostRequestIndex = i;</b>
+<i>148</i>&nbsp;            }
+<i>149</i>&nbsp;        }
+<i>150</i>&nbsp;
+<i>151</i>&nbsp;        // initialisation du trajet
+<b class="fc"><i>152</i>&nbsp;        ajouterPointTournee(null);</b>
+<b class="fc"><i>153</i>&nbsp;        ajouterPointTournee(new TupleRequete(requestList.get(maxCostRequestIndex), true));</b>
+<b class="fc"><i>154</i>&nbsp;        ajouterPointTournee(new TupleRequete(requestList.get(maxCostRequestIndex), false));</b>
+<b class="fc"><i>155</i>&nbsp;        ajouterPointTournee(null);</b>
+<i>156</i>&nbsp;
+<i>157</i>&nbsp;        // on enlève la requête qu&#39;on vient de process de la liste des requêtes à ajouter
+<b class="fc"><i>158</i>&nbsp;        requestsToProcess.remove(requestList.get(maxCostRequestIndex));</b>
+<i>159</i>&nbsp;
+<b class="fc"><i>160</i>&nbsp;        if (verbose)</b>
+<b class="nc"><i>161</i>&nbsp;            System.err.println(&quot;Initial tour indexes: &quot; + this.currentTourIndexes);</b>
+<i>162</i>&nbsp;
+<i>163</i>&nbsp;        DeltaI currDelta;
+<b class="fc"><i>164</i>&nbsp;        while (requestsToProcess.size() &gt; 0) {</b>
+<i>165</i>&nbsp;
+<i>166</i>&nbsp;            // --------- Etape 1.2 : calcul des delta_i
+<b class="fc"><i>167</i>&nbsp;            DeltaI minDeltaI = new DeltaI(InsertionMethod.CONSECUTIVE, 10000000, 0);</b>
+<b class="fc"><i>168</i>&nbsp;            Request bestChoice = null;</b>
+<i>169</i>&nbsp;
+<b class="fc"><i>170</i>&nbsp;            for (Request possibleRequest : requestsToProcess) {</b>
+<b class="fc"><i>171</i>&nbsp;                currDelta = minWeightedInsertionCost(possibleRequest);</b>
+<b class="fc"><i>172</i>&nbsp;                if (currDelta.cost &lt; minDeltaI.cost) {</b>
+<b class="fc"><i>173</i>&nbsp;                    bestChoice = possibleRequest;</b>
+<b class="fc"><i>174</i>&nbsp;                    minDeltaI = currDelta;</b>
+<i>175</i>&nbsp;                }
+<b class="fc"><i>176</i>&nbsp;            }</b>
+<i>177</i>&nbsp;
+<i>178</i>&nbsp;            // --------- Etape 1.3 : insertion de la requête avec le delta_i min
+<i>179</i>&nbsp;            // ajout du point de delivery
+<b class="fc"><i>180</i>&nbsp;            if (minDeltaI.insertionMethod == InsertionMethod.CONSECUTIVE) {</b>
+<b class="fc"><i>181</i>&nbsp;                ajouterPointTournee(new TupleRequete(bestChoice, false), minDeltaI.index1);</b>
+<i>182</i>&nbsp;            } else {
+<b class="fc"><i>183</i>&nbsp;                ajouterPointTournee(new TupleRequete(bestChoice, false), minDeltaI.index2);</b>
+<i>184</i>&nbsp;            }
+<i>185</i>&nbsp;            // ajout du point de pickup après (pour utiliser le même indice)
+<b class="fc"><i>186</i>&nbsp;            ajouterPointTournee(new TupleRequete(bestChoice, true), minDeltaI.index1);</b>
+<i>187</i>&nbsp;
+<i>188</i>&nbsp;            // fin du traitement de cette requête
+<i>189</i>&nbsp;//            System.err.println(&quot;Removing request &quot; + bestChoice);
+<b class="fc"><i>190</i>&nbsp;            requestsToProcess.remove(bestChoice);</b>
+<i>191</i>&nbsp;//            System.err.println(&quot;Requests to process: &quot; + requestsToProcess);
+<b class="fc"><i>192</i>&nbsp;            if (verbose)</b>
+<b class="nc"><i>193</i>&nbsp;                System.err.println(&quot;Current tour indexes: &quot; + currentTourIndexes);</b>
+<i>194</i>&nbsp;
+<i>195</i>&nbsp;
+<i>196</i>&nbsp;            // --------- Etape 1.4 : Optimisation locale (3-opt)
+<b class="fc"><i>197</i>&nbsp;            if (currentTourIndexes.size() &gt; 4) {        // 3-opt uniquement si + d&#39;1 requête dans le trajet</b>
+<i>198</i>&nbsp;
+<i>199</i>&nbsp;                // stocker les deux centres des chemins sur lesquels on applique le 3-opt
+<b class="fc"><i>200</i>&nbsp;                ArrayList&lt;Integer&gt; centers = new ArrayList&lt;&gt;();</b>
+<i>201</i>&nbsp;                // point de pickup
+<b class="fc"><i>202</i>&nbsp;                centers.add(minDeltaI.index1);</b>
+<i>203</i>&nbsp;                // delivery
+<b class="fc"><i>204</i>&nbsp;                if (minDeltaI.insertionMethod == InsertionMethod.CONSECUTIVE) {</b>
+<b class="fc"><i>205</i>&nbsp;                    centers.add(minDeltaI.index1 + 1);</b>
+<i>206</i>&nbsp;                } else {
+<b class="fc"><i>207</i>&nbsp;                    centers.add(minDeltaI.index2 + 1);  // delivery (+1 car décalé après insertion du pickup)</b>
+<i>208</i>&nbsp;                }
+<i>209</i>&nbsp;
+<i>210</i>&nbsp;                float initialCost;
+<i>211</i>&nbsp;                float newCost;
+<i>212</i>&nbsp;
+<b class="fc"><i>213</i>&nbsp;                for (int center : centers) {        // 3-opt autour du pickup et du delivery</b>
+<i>214</i>&nbsp;
+<i>215</i>&nbsp;                    // combinaisons possibles pour les &quot;coupures&quot; d&#39;arêtes sur le chemin
+<b class="fc"><i>216</i>&nbsp;                    ArrayList&lt;ThreeOptCuts&gt; possibleCuts = allPossibleCuts(minDeltaI.index1);</b>
+<b class="fc"><i>217</i>&nbsp;                    boolean stop = false;</b>
+<i>218</i>&nbsp;
+<i>219</i>&nbsp;                    // pour chaque possibilité de 3-opt, évaluer son coût, et la garder si meilleure que l&#39;originale
+<b class="fc"><i>220</i>&nbsp;                    for (ThreeOptCuts cuts : possibleCuts) {</b>
+<b class="fc"><i>221</i>&nbsp;                        initialCost = longueurCheminEntre(cuts.cut1, cuts.cut3 + 1);</b>
+<i>222</i>&nbsp;
+<b class="fc"><i>223</i>&nbsp;                        for (AssembleOrder order : AssembleOrder.values()) {</b>
+<b class="fc"><i>224</i>&nbsp;                            newCost = threeOptCost(cuts.cut1, cuts.cut2, cuts.cut3, order);</b>
+<i>225</i>&nbsp;
+<i>226</i>&nbsp;                            // si on trouve un meilleur trajet et qu&#39;il respecte les contraintes de précédence, on l&#39;applique
+<b class="fc"><i>227</i>&nbsp;                            if (newCost &lt; initialCost) {</b>
+<i>228</i>&nbsp;                                // on applique l&#39;optimisation si elle est valide
+<b class="fc"><i>229</i>&nbsp;                                if (applyThreeOptIfValid(cuts.cut1, cuts.cut2, cuts.cut3, order)) {</b>
+<b class="fc"><i>230</i>&nbsp;                                    if (verbose)</b>
+<b class="nc"><i>231</i>&nbsp;                                        System.err.println(&quot;Optimized path from cost &quot; + initialCost + &quot; to &quot; + newCost);</b>
+<b class="fc"><i>232</i>&nbsp;                                    stop = true;        // propage le break à la boucle du dessus</b>
+<b class="fc"><i>233</i>&nbsp;                                    break;</b>
+<i>234</i>&nbsp;                                }
+<i>235</i>&nbsp;                            }
+<i>236</i>&nbsp;                        }
+<i>237</i>&nbsp;
+<i>238</i>&nbsp;                        // ne plus considérer les autres possibilités de cuts si on a déjà amélioré le chemin
+<b class="fc"><i>239</i>&nbsp;                        if (stop) {</b>
+<b class="fc"><i>240</i>&nbsp;                            break;</b>
+<i>241</i>&nbsp;                        }
+<b class="fc"><i>242</i>&nbsp;                    }</b>
+<b class="fc"><i>243</i>&nbsp;                }</b>
+<i>244</i>&nbsp;            }   // fin 3-opt
+<b class="fc"><i>245</i>&nbsp;        }</b>
+<b class="fc"><i>246</i>&nbsp;    }</b>
+<i>247</i>&nbsp;
+<i>248</i>&nbsp;    /**
+<i>249</i>&nbsp;     * Computes the &#39;minimum weighted insertion cost&#39; (delta_i) for a given
+<i>250</i>&nbsp;     * request given the current state of the tour.
+<i>251</i>&nbsp;     * Used in parts 1.2 and 2.2 of the main algorithm.
+<i>252</i>&nbsp;     *
+<i>253</i>&nbsp;     * @param request The request for which we compute delta_i
+<i>254</i>&nbsp;     * @return delta_i, the minimum weighted insertion cost of the best
+<i>255</i>&nbsp;     * combination found, as well as the position(s) and method of insertion
+<i>256</i>&nbsp;     * @see DeltaI
+<i>257</i>&nbsp;     */
+<i>258</i>&nbsp;    private DeltaI minWeightedInsertionCost(Request request) {
+<i>259</i>&nbsp;
+<i>260</i>&nbsp;        // (i, j) paire de pickup-delivery de la requête en paramètre
+<b class="fc"><i>261</i>&nbsp;        int i_index = ptsIdToIndex.get(request.getPickup().getId());</b>
+<b class="fc"><i>262</i>&nbsp;        int j_index = ptsIdToIndex.get(request.getDelivery().getId());</b>
+<i>263</i>&nbsp;
+<i>264</i>&nbsp;        // première partie de l&#39;équation : coût min si on insère le pickup
+<i>265</i>&nbsp;        // et le delivery à la suite
+<b class="fc"><i>266</i>&nbsp;        float minConsecutiveInsertion = 1000000000;</b>
+<b class="fc"><i>267</i>&nbsp;        int consecutiveInsertionIndex = -1;</b>
+<i>268</i>&nbsp;
+<i>269</i>&nbsp;        // deuxième partie de l&#39;équation : coût min si on insère le delivery
+<i>270</i>&nbsp;        // non pas directement après le pickup mais plus loin dans le trajet
+<b class="fc"><i>271</i>&nbsp;        float minSplitInsertion = 1000000000;</b>
+<b class="fc"><i>272</i>&nbsp;        int pickupSplitInsertionIndex = -1;</b>
+<b class="fc"><i>273</i>&nbsp;        int deliverySplitInsertionIndex = -1;</b>
+<i>274</i>&nbsp;
+<i>275</i>&nbsp;        // variable temporaire servant à stocker les résultats intermédiaires
+<i>276</i>&nbsp;        float cost;
+<i>277</i>&nbsp;        // variables conservant les indices des k, l, s et t actuels dans
+<i>278</i>&nbsp;        // la matrice d&#39;adjacence
+<i>279</i>&nbsp;        int k_index, l_index, s_index, t_index;
+<i>280</i>&nbsp;
+<b class="fc"><i>281</i>&nbsp;        for (int k = 0; k &lt; currentTourIndexes.size() - 1; ++k) {</b>
+<b class="fc"><i>282</i>&nbsp;            k_index = currentTourIndexes.get(k);</b>
+<b class="fc"><i>283</i>&nbsp;            l_index = currentTourIndexes.get(k + 1);</b>
+<i>284</i>&nbsp;
+<i>285</i>&nbsp;            // premier min : insertion consécutive
+<i>286</i>&nbsp;//            System.err.println(&quot;i: &quot; + i_index + &quot;, j: &quot; + j_index + &quot;, k: &quot; + k_index + &quot;, l: &quot; + l_index);       // debug
+<b class="fc"><i>287</i>&nbsp;            cost = alpha * longueurEntre(k_index, i_index)</b>
+<b class="fc"><i>288</i>&nbsp;                    + longueurEntre(i_index, j_index)</b>
+<b class="fc"><i>289</i>&nbsp;                    + (2 - alpha) * longueurEntre(j_index, l_index)</b>
+<b class="fc"><i>290</i>&nbsp;                    - longueurEntre(k_index, l_index);</b>
+<i>291</i>&nbsp;
+<i>292</i>&nbsp;            // màj du coût min &amp; de la position trouvée
+<b class="fc"><i>293</i>&nbsp;            if (cost &lt; minConsecutiveInsertion) {</b>
+<b class="fc"><i>294</i>&nbsp;                minConsecutiveInsertion = cost;</b>
+<b class="fc"><i>295</i>&nbsp;                consecutiveInsertionIndex = k + 1;</b>
+<i>296</i>&nbsp;            }
+<i>297</i>&nbsp;
+<i>298</i>&nbsp;            // deuxième min : insertion séparée
+<b class="fc"><i>299</i>&nbsp;            if (k &lt; currentTourIndexes.size() - 3) {</b>
+<b class="fc"><i>300</i>&nbsp;                for (int s = k + 1; s &lt; currentTourIndexes.size() - 1; ++s) {</b>
+<b class="fc"><i>301</i>&nbsp;                    s_index = currentTourIndexes.get(s);</b>
+<b class="fc"><i>302</i>&nbsp;                    t_index = currentTourIndexes.get(s + 1);</b>
+<i>303</i>&nbsp;//                    System.err.println(&quot;i: &quot; + i_index + &quot;, j: &quot; + j_index + &quot;, k: &quot; + k_index + &quot;, l: &quot; + l_index + &quot;, s: &quot; + s_index + &quot;, t: &quot; + t_index);       // debug
+<i>304</i>&nbsp;
+<b class="fc"><i>305</i>&nbsp;                    cost = alpha * (longueurEntre(k_index, i_index)</b>
+<b class="fc"><i>306</i>&nbsp;                            + longueurEntre(i_index, l_index)</b>
+<b class="fc"><i>307</i>&nbsp;                            - longueurEntre(k_index, l_index))</b>
+<b class="fc"><i>308</i>&nbsp;                            + (2 - alpha) * (longueurEntre(s_index, j_index)</b>
+<b class="fc"><i>309</i>&nbsp;                            + longueurEntre(j_index, t_index)</b>
+<b class="fc"><i>310</i>&nbsp;                            - longueurEntre(s_index, t_index));</b>
+<i>311</i>&nbsp;
+<b class="fc"><i>312</i>&nbsp;                    if (cost &lt; minSplitInsertion) {</b>
+<b class="fc"><i>313</i>&nbsp;                        minSplitInsertion = cost;</b>
+<b class="fc"><i>314</i>&nbsp;                        pickupSplitInsertionIndex = k + 1;</b>
+<b class="fc"><i>315</i>&nbsp;                        deliverySplitInsertionIndex = s + 1;</b>
+<i>316</i>&nbsp;                    }
+<i>317</i>&nbsp;                }
+<i>318</i>&nbsp;            }
+<i>319</i>&nbsp;        }
+<i>320</i>&nbsp;
+<i>321</i>&nbsp;        // return le min entre les deux méthodes d&#39;insertion
+<b class="fc"><i>322</i>&nbsp;        if (minConsecutiveInsertion &lt; minSplitInsertion) {</b>
+<b class="fc"><i>323</i>&nbsp;            return new DeltaI(InsertionMethod.CONSECUTIVE, minConsecutiveInsertion, consecutiveInsertionIndex);</b>
+<i>324</i>&nbsp;        } else {
+<b class="fc"><i>325</i>&nbsp;            return new DeltaI(InsertionMethod.SPLIT, minSplitInsertion, pickupSplitInsertionIndex, deliverySplitInsertionIndex);</b>
+<i>326</i>&nbsp;        }
+<i>327</i>&nbsp;    }
+<i>328</i>&nbsp;
+<i>329</i>&nbsp;    /**
+<i>330</i>&nbsp;     * Compute the cost of the given 3-opt permutation according to the given
+<i>331</i>&nbsp;     * method of assembling.
+<i>332</i>&nbsp;     * This cost corresponds to the length of the sub-path considered after
+<i>333</i>&nbsp;     * being reordered according to the given method, that is to say the length
+<i>334</i>&nbsp;     * of the path starting at index cut1 and ending at index cu3 + 1 included.
+<i>335</i>&nbsp;     * This sub-path is made up of 2r+1 vertices (points) and the edges
+<i>336</i>&nbsp;     * connecting them.
+<i>337</i>&nbsp;     *
+<i>338</i>&nbsp;     * @param cut1  The index in the current tour of the point from which we
+<i>339</i>&nbsp;     *              &#39;cut&#39; the first edge.
+<i>340</i>&nbsp;     * @param cut2  The index in the current tour of the point from which we
+<i>341</i>&nbsp;     *              &#39;cut&#39; the second edge.
+<i>342</i>&nbsp;     * @param cut3  The index in the current tour of the point from which we
+<i>343</i>&nbsp;     *              &#39;cut&#39; the third edge.
+<i>344</i>&nbsp;     * @param order The order according to which we reorder the sub-paths
+<i>345</i>&nbsp;     *              obtained after cutting the first sub-path.
+<i>346</i>&nbsp;     * @see InsertionMethod
+<i>347</i>&nbsp;     * @see DoubleInsertionTSP#doubleInsertionHeuristic()
+<i>348</i>&nbsp;     */
+<i>349</i>&nbsp;    private float threeOptCost(int cut1, int cut2, int cut3, AssembleOrder order) {
+<i>350</i>&nbsp;
+<b class="fc"><i>351</i>&nbsp;        float cost = 0;</b>
+<i>352</i>&nbsp;
+<i>353</i>&nbsp;        /*
+<i>354</i>&nbsp;         * Ordres possibles :
+<i>355</i>&nbsp;         * - DOUBLE_REVERSE : A - B à l&#39;envers - C à l&#39;envers - D
+<i>356</i>&nbsp;         * - INVERT-ORDER : A - C - B - D
+<i>357</i>&nbsp;         * - REVERSE_B : A - C - B à l&#39;envers - D
+<i>358</i>&nbsp;         * - REVERSE_C : A - C à l&#39;envers - B - D
+<i>359</i>&nbsp;         * - INVERT_REVERSE : A - C à l&#39;envers - B à l&#39;envers - D
+<i>360</i>&nbsp;         * */
+<b class="fc"><i>361</i>&nbsp;        switch (order) {</b>
+<i>362</i>&nbsp;            case DOUBLE_REVERSE:        // A - B à l&#39;envers - C à l&#39;envers - D
+<i>363</i>&nbsp;                // fin de A -&gt; fin de B
+<b class="fc"><i>364</i>&nbsp;                cost += longueurEntre(currentTourIndexes.get(cut1), currentTourIndexes.get(cut2));</b>
+<i>365</i>&nbsp;                // B à l&#39;envers (fin -&gt; début)
+<b class="fc"><i>366</i>&nbsp;                cost += longueurCheminEntre(cut2, cut1 + 1);</b>
+<i>367</i>&nbsp;                // début de B -&gt; fin de C
+<b class="fc"><i>368</i>&nbsp;                cost += longueurEntre(currentTourIndexes.get(cut1 + 1), currentTourIndexes.get(cut3));</b>
+<i>369</i>&nbsp;                // C à l&#39;envers (fin -&gt; début)
+<b class="fc"><i>370</i>&nbsp;                cost += longueurCheminEntre(cut3, cut2 + 1);</b>
+<i>371</i>&nbsp;                // début de C -&gt; début de D
+<b class="fc"><i>372</i>&nbsp;                cost += longueurEntre(currentTourIndexes.get(cut2 + 1), currentTourIndexes.get(cut3 + 1));</b>
+<b class="fc"><i>373</i>&nbsp;                break;</b>
+<i>374</i>&nbsp;
+<i>375</i>&nbsp;            case INVERT_ORDER:          // A - C - B - D
+<i>376</i>&nbsp;                // fin de A -&gt; début de C
+<b class="fc"><i>377</i>&nbsp;                cost += longueurEntre(currentTourIndexes.get(cut1), currentTourIndexes.get(cut2 + 1));</b>
+<i>378</i>&nbsp;                // C à l&#39;endroit (début -&gt; fin)
+<b class="fc"><i>379</i>&nbsp;                cost += longueurCheminEntre(cut2 + 1, cut3);</b>
+<i>380</i>&nbsp;                // fin de C -&gt; début de B
+<b class="fc"><i>381</i>&nbsp;                cost += longueurEntre(currentTourIndexes.get(cut3), currentTourIndexes.get(cut1 + 1));</b>
+<i>382</i>&nbsp;                // B à l&#39;endroit (début -&gt; fin)
+<b class="fc"><i>383</i>&nbsp;                cost += longueurCheminEntre(cut1 + 1, cut2);</b>
+<i>384</i>&nbsp;                // fin de B -&gt; début de D
+<b class="fc"><i>385</i>&nbsp;                cost += longueurEntre(currentTourIndexes.get(cut2), currentTourIndexes.get(cut3 + 1));</b>
+<b class="fc"><i>386</i>&nbsp;                break;</b>
+<i>387</i>&nbsp;
+<i>388</i>&nbsp;            case REVERSE_B:          // A - C - B à l&#39;envers - D
+<i>389</i>&nbsp;                // fin de A -&gt; début de C
+<b class="fc"><i>390</i>&nbsp;                cost += longueurEntre(currentTourIndexes.get(cut1), currentTourIndexes.get(cut2 + 1));</b>
+<i>391</i>&nbsp;                // C à l&#39;endroit (début -&gt; fin)
+<b class="fc"><i>392</i>&nbsp;                cost += longueurCheminEntre(cut2 + 1, cut3);</b>
+<i>393</i>&nbsp;                // fin de C -&gt; fin de B
+<b class="fc"><i>394</i>&nbsp;                cost += longueurEntre(currentTourIndexes.get(cut3), currentTourIndexes.get(cut2));</b>
+<i>395</i>&nbsp;                // B à l&#39;envers (fin -&gt; début)
+<b class="fc"><i>396</i>&nbsp;                cost += longueurCheminEntre(cut2, cut1 + 1);</b>
+<i>397</i>&nbsp;                // début de B -&gt; début de D
+<b class="fc"><i>398</i>&nbsp;                cost += longueurEntre(currentTourIndexes.get(cut1 + 1), currentTourIndexes.get(cut3 + 1));</b>
+<b class="fc"><i>399</i>&nbsp;                break;</b>
+<i>400</i>&nbsp;
+<i>401</i>&nbsp;            case REVERSE_C:          // A - C à l&#39;envers - B - D
+<i>402</i>&nbsp;                // fin de A -&gt; fin de C
+<b class="fc"><i>403</i>&nbsp;                cost += longueurEntre(currentTourIndexes.get(cut1), currentTourIndexes.get(cut3));</b>
+<i>404</i>&nbsp;                // C à l&#39;envers (fin -&gt; début)
+<b class="fc"><i>405</i>&nbsp;                cost += longueurCheminEntre(cut3, cut2 + 1);</b>
+<i>406</i>&nbsp;                // début de C -&gt; début de B
+<b class="fc"><i>407</i>&nbsp;                cost += longueurEntre(currentTourIndexes.get(cut2 + 1), currentTourIndexes.get(cut1 + 1));</b>
+<i>408</i>&nbsp;                // B à l&#39;endroit (début -&gt; fin)
+<b class="fc"><i>409</i>&nbsp;                cost += longueurCheminEntre(cut1 + 1, cut2);</b>
+<i>410</i>&nbsp;                // fin de B -&gt; début de D
+<b class="fc"><i>411</i>&nbsp;                cost += longueurEntre(currentTourIndexes.get(cut2), currentTourIndexes.get(cut3 + 1));</b>
+<b class="fc"><i>412</i>&nbsp;                break;</b>
+<i>413</i>&nbsp;
+<i>414</i>&nbsp;            case INVERT_REVERSE:          // A - C à l&#39;envers - B à l&#39;envers - D
+<i>415</i>&nbsp;                // fin de A -&gt; fin de C
+<b class="fc"><i>416</i>&nbsp;                cost += longueurEntre(currentTourIndexes.get(cut1), currentTourIndexes.get(cut3));</b>
+<i>417</i>&nbsp;                // C à l&#39;envers (fin -&gt; début)
+<b class="fc"><i>418</i>&nbsp;                cost += longueurCheminEntre(cut3, cut2 + 1);</b>
+<i>419</i>&nbsp;                // début de C -&gt; fin de B
+<b class="fc"><i>420</i>&nbsp;                cost += longueurEntre(currentTourIndexes.get(cut2 + 1), currentTourIndexes.get(cut2));</b>
+<i>421</i>&nbsp;                // B à l&#39;envers (fin -&gt; début)
+<b class="fc"><i>422</i>&nbsp;                cost += longueurCheminEntre(cut2, cut1 + 1);</b>
+<i>423</i>&nbsp;                // début de B -&gt; début de D
+<b class="fc"><i>424</i>&nbsp;                cost += longueurEntre(currentTourIndexes.get(cut1 + 1), currentTourIndexes.get(cut3 + 1));</b>
+<i>425</i>&nbsp;                break;
+<i>426</i>&nbsp;
+<i>427</i>&nbsp;        }
+<i>428</i>&nbsp;
+<b class="fc"><i>429</i>&nbsp;        return cost;</b>
+<i>430</i>&nbsp;    }
+<i>431</i>&nbsp;
+<i>432</i>&nbsp;    /**
+<i>433</i>&nbsp;     * Applies the reordering method given to the current tour (once its cost
+<i>434</i>&nbsp;     * evaluated) ONLY IF the resulting path is valid (if each pickup is visited
+<i>435</i>&nbsp;     * before its associated delivery).
+<i>436</i>&nbsp;     *
+<i>437</i>&nbsp;     * @param cut1   The index in the current tour of the point from which we
+<i>438</i>&nbsp;     *               &#39;cut&#39; the first edge.
+<i>439</i>&nbsp;     * @param cut2   The index in the current tour of the point from which we
+<i>440</i>&nbsp;     *               &#39;cut&#39; the second edge.
+<i>441</i>&nbsp;     * @param cut3   The index in the current tour of the point from which we
+<i>442</i>&nbsp;     *               &#39;cut&#39; the third edge.
+<i>443</i>&nbsp;     * @param order  The order according to which we reorder the sub-paths
+<i>444</i>&nbsp;     *               obtained after cutting the first sub-path.
+<i>445</i>&nbsp;     * @return true if the given optimization has been applied (= if it was
+<i>446</i>&nbsp;     * valid), else false
+<i>447</i>&nbsp;     * @see InsertionMethod
+<i>448</i>&nbsp;     * @see #threeOptCost(int, int, int, AssembleOrder)
+<i>449</i>&nbsp;     */
+<i>450</i>&nbsp;    private boolean applyThreeOptIfValid(int cut1, int cut2, int cut3, AssembleOrder order) {
+<i>451</i>&nbsp;
+<i>452</i>&nbsp;        // indices dans le trajet initial du début de chacun des sous-chemins A et B
+<b class="fc"><i>453</i>&nbsp;        int firstB = cut1 + 1;</b>
+<b class="fc"><i>454</i>&nbsp;        int firstC = cut2 + 1;</b>
+<b class="fc"><i>455</i>&nbsp;        int lgB = cut2 - cut1;</b>
+<b class="fc"><i>456</i>&nbsp;        int lgC = cut3 - cut2;</b>
+<i>457</i>&nbsp;        int i, j;
+<i>458</i>&nbsp;
+<i>459</i>&nbsp;        // tableaux qui contiendront la portion de chemin modifiée
+<b class="fc"><i>460</i>&nbsp;        int[] newPathIndexes = new int[lgB + lgC];</b>
+<b class="fc"><i>461</i>&nbsp;        ArrayList&lt;TupleRequete&gt; newPathPoints = new ArrayList&lt;&gt;();</b>
+<i>462</i>&nbsp;
+<b class="fc"><i>463</i>&nbsp;        for (i = 0; i &lt; lgB + lgC; ++i) {</b>
+<b class="fc"><i>464</i>&nbsp;            newPathPoints.add(new TupleRequete(null, false));</b>
+<i>465</i>&nbsp;        }
+<i>466</i>&nbsp;
+<i>467</i>&nbsp;        /*
+<i>468</i>&nbsp;         * Ordres possibles :
+<i>469</i>&nbsp;         * - DOUBLE_REVERSE : A - B à l&#39;envers - C à l&#39;envers - D
+<i>470</i>&nbsp;         * - INVERT-ORDER : A - C - B - D
+<i>471</i>&nbsp;         * - REVERSE_B : A - C - B à l&#39;envers - D
+<i>472</i>&nbsp;         * - REVERSE_C : A - C à l&#39;envers - B - D
+<i>473</i>&nbsp;         * - INVERT_REVERSE : A - C à l&#39;envers - B à l&#39;envers - D
+<i>474</i>&nbsp;         * */
+<b class="fc"><i>475</i>&nbsp;        switch (order) {</b>
+<i>476</i>&nbsp;            case DOUBLE_REVERSE:        // A - B à l&#39;envers - C à l&#39;envers - D
+<i>477</i>&nbsp;                // B à l&#39;envers (fin -&gt; début)
+<b class="fc"><i>478</i>&nbsp;                for (i = 0; i &lt; lgB; ++i) {</b>
+<b class="fc"><i>479</i>&nbsp;                    newPathIndexes[i] = currentTourIndexes.get(cut2 - i);</b>
+<b class="fc"><i>480</i>&nbsp;                    newPathPoints.get(i).setFrom(currentTourPoints.get(cut2 - i));</b>
+<i>481</i>&nbsp;                }
+<i>482</i>&nbsp;                // C à l&#39;envers (fin -&gt; début)
+<b class="fc"><i>483</i>&nbsp;                for (j = 0; i &lt; lgB + lgC; ++i, ++j) {</b>
+<b class="fc"><i>484</i>&nbsp;                    newPathIndexes[i] = currentTourIndexes.get(cut3 - j);</b>
+<b class="fc"><i>485</i>&nbsp;                    newPathPoints.get(i).setFrom(currentTourPoints.get(cut3 - j));</b>
+<i>486</i>&nbsp;                }
+<i>487</i>&nbsp;                break;
+<i>488</i>&nbsp;
+<i>489</i>&nbsp;            case INVERT_ORDER:          // A - C - B - D
+<i>490</i>&nbsp;                // C à l&#39;endroit (début -&gt; fin)
+<b class="fc"><i>491</i>&nbsp;                for (i = 0; i &lt; lgC; ++i) {</b>
+<b class="fc"><i>492</i>&nbsp;                    newPathIndexes[i] = currentTourIndexes.get(firstC + i);</b>
+<b class="fc"><i>493</i>&nbsp;                    newPathPoints.get(i).setFrom(currentTourPoints.get(firstC + i));</b>
+<i>494</i>&nbsp;                }
+<i>495</i>&nbsp;                // B à l&#39;endroit (début -&gt; fin)
+<b class="fc"><i>496</i>&nbsp;                for (j = 0; i &lt; lgB + lgC; ++i, ++j) {</b>
+<b class="fc"><i>497</i>&nbsp;                    newPathIndexes[i] = currentTourIndexes.get(firstB + j);</b>
+<b class="fc"><i>498</i>&nbsp;                    newPathPoints.get(i).setFrom(currentTourPoints.get(firstB + j));</b>
+<i>499</i>&nbsp;                }
+<i>500</i>&nbsp;                break;
+<i>501</i>&nbsp;
+<i>502</i>&nbsp;            case REVERSE_B:          // A - C - B à l&#39;envers - D
+<i>503</i>&nbsp;                // C à l&#39;endroit (début -&gt; fin)
+<b class="fc"><i>504</i>&nbsp;                for (i = 0; i &lt; lgC; ++i) {</b>
+<b class="fc"><i>505</i>&nbsp;                    newPathIndexes[i] = currentTourIndexes.get(firstC + i);</b>
+<b class="fc"><i>506</i>&nbsp;                    newPathPoints.get(i).setFrom(currentTourPoints.get(firstC + i));</b>
+<i>507</i>&nbsp;                }
+<i>508</i>&nbsp;                // B à l&#39;envers (fin -&gt; début)
+<b class="fc"><i>509</i>&nbsp;                for (j = 0; i &lt; lgB + lgC; ++i, ++j) {</b>
+<b class="fc"><i>510</i>&nbsp;                    newPathIndexes[i] = currentTourIndexes.get(cut2 - j);</b>
+<b class="fc"><i>511</i>&nbsp;                    newPathPoints.get(i).setFrom(currentTourPoints.get(cut2 - j));</b>
+<i>512</i>&nbsp;                }
+<i>513</i>&nbsp;                break;
+<i>514</i>&nbsp;
+<i>515</i>&nbsp;            case REVERSE_C:          // A - C à l&#39;envers - B - D
+<i>516</i>&nbsp;                // C à l&#39;envers (fin -&gt; début)
+<b class="fc"><i>517</i>&nbsp;                for (i = 0; i &lt; lgC; ++i) {</b>
+<b class="fc"><i>518</i>&nbsp;                    newPathIndexes[i] = currentTourIndexes.get(cut3 - i);</b>
+<b class="fc"><i>519</i>&nbsp;                    newPathPoints.get(i).setFrom(currentTourPoints.get(cut3 - i));</b>
+<i>520</i>&nbsp;                }
+<i>521</i>&nbsp;                // B à l&#39;endroit (début -&gt; fin)
+<b class="fc"><i>522</i>&nbsp;                for (j = 0; i &lt; lgB + lgC; ++i, ++j) {</b>
+<b class="fc"><i>523</i>&nbsp;                    newPathIndexes[i] = currentTourIndexes.get(firstB + j);</b>
+<b class="fc"><i>524</i>&nbsp;                    newPathPoints.get(i).setFrom(currentTourPoints.get(firstB + j));</b>
+<i>525</i>&nbsp;                }
+<i>526</i>&nbsp;                break;
+<i>527</i>&nbsp;
+<i>528</i>&nbsp;            case INVERT_REVERSE:          // A - C à l&#39;envers - B à l&#39;envers - D
+<i>529</i>&nbsp;                // C à l&#39;envers (fin -&gt; début)
+<b class="fc"><i>530</i>&nbsp;                for (i = 0; i &lt; lgC; ++i) {</b>
+<b class="fc"><i>531</i>&nbsp;                    newPathIndexes[i] = currentTourIndexes.get(cut3 - i);</b>
+<b class="fc"><i>532</i>&nbsp;                    newPathPoints.get(i).setFrom(currentTourPoints.get(cut3 - i));</b>
+<i>533</i>&nbsp;                }
+<i>534</i>&nbsp;                // B à l&#39;envers (fin -&gt; début)
+<b class="fc"><i>535</i>&nbsp;                for (j = 0; i &lt; lgB + lgC; ++i, ++j) {</b>
+<b class="fc"><i>536</i>&nbsp;                    newPathIndexes[i] = currentTourIndexes.get(cut2 - j);</b>
+<b class="fc"><i>537</i>&nbsp;                    newPathPoints.get(i).setFrom(currentTourPoints.get(cut2 - j));</b>
+<i>538</i>&nbsp;                }
+<i>539</i>&nbsp;                break;
+<i>540</i>&nbsp;        }
+<i>541</i>&nbsp;
+<i>542</i>&nbsp;        // ----- vérification de la validité du nouvel ordre des points de passage
+<b class="fc"><i>543</i>&nbsp;        boolean isValid = true;</b>
+<b class="fc"><i>544</i>&nbsp;        HashSet&lt;Integer&gt; requestsStarted = new HashSet&lt;&gt;();</b>
+<i>545</i>&nbsp;
+<i>546</i>&nbsp;        // initialisation des requêtes dont on a déjà parcouru le pickup
+<b class="fc"><i>547</i>&nbsp;        for (i = 0; i &lt; firstB; ++i) {</b>
+<b class="fc"><i>548</i>&nbsp;            if (this.currentTourPoints.get(i) != null) {    // ne pas prendre les null du dépôt</b>
+<b class="fc"><i>549</i>&nbsp;                requestsStarted.add(this.currentTourPoints.get(i).requete.getId());</b>
+<i>550</i>&nbsp;            }
+<i>551</i>&nbsp;        }
+<i>552</i>&nbsp;
+<i>553</i>&nbsp;        // parcours des points qu&#39;on a réordonnés
+<b class="fc"><i>554</i>&nbsp;        for (i = 0; i &lt; lgB + lgC; ++i) {</b>
+<b class="fc"><i>555</i>&nbsp;            TupleRequete req = newPathPoints.get(i);</b>
+<b class="fc"><i>556</i>&nbsp;            if (req.isDepart()) {   // on ajoute le pickup à la liste des requêtes en cours (/finies)</b>
+<b class="fc"><i>557</i>&nbsp;                requestsStarted.add(req.requete.getId());</b>
+<i>558</i>&nbsp;            } else {        // on vérifie qu&#39;on a déjà parcouru le pickup du delivery actuel
+<b class="fc"><i>559</i>&nbsp;                if (!requestsStarted.contains(req.requete.getId())) {</b>
+<b class="fc"><i>560</i>&nbsp;                    isValid = false;</b>
+<b class="fc"><i>561</i>&nbsp;                    break;</b>
+<i>562</i>&nbsp;                }
+<i>563</i>&nbsp;            }
+<i>564</i>&nbsp;        }
+<i>565</i>&nbsp;
+<b class="fc"><i>566</i>&nbsp;        if (isValid) {</b>
+<i>567</i>&nbsp;
+<b class="fc"><i>568</i>&nbsp;            if (verbose) {</b>
+<b class="nc"><i>569</i>&nbsp;                System.err.println(&quot;Found a valid local optimization !!&quot;);</b>
+<b class="nc"><i>570</i>&nbsp;                System.err.println(&quot;- Old path: &quot; + this.currentTourIndexes);</b>
+<i>571</i>&nbsp;            }
+<i>572</i>&nbsp;
+<b class="fc"><i>573</i>&nbsp;            for (i = 0; i &lt; newPathIndexes.length; ++i) {</b>
+<b class="fc"><i>574</i>&nbsp;                this.currentTourIndexes.set(firstB + i, newPathIndexes[i]);</b>
+<b class="fc"><i>575</i>&nbsp;                this.currentTourPoints.set(firstB + i, newPathPoints.get(i));</b>
+<i>576</i>&nbsp;            }
+<i>577</i>&nbsp;
+<b class="fc"><i>578</i>&nbsp;            if (verbose)</b>
+<b class="nc"><i>579</i>&nbsp;                System.err.println(&quot;- New path: &quot; + this.currentTourIndexes);</b>
+<i>580</i>&nbsp;
+<b class="fc"><i>581</i>&nbsp;            return true;</b>
+<i>582</i>&nbsp;        } else {
+<i>583</i>&nbsp;//            System.err.println(&quot;Local optimization found was invalid and not applied&quot;);
+<b class="fc"><i>584</i>&nbsp;            return false;</b>
+<i>585</i>&nbsp;        }
+<i>586</i>&nbsp;    }
+<i>587</i>&nbsp;
+<i>588</i>&nbsp;    // --------------------------- Utilities
+<i>589</i>&nbsp;
+<i>590</i>&nbsp;    /**
+<i>591</i>&nbsp;     * Generate each possible combination of cutting 3 edges in the sub-path of
+<i>592</i>&nbsp;     * length 2r+1 centered around center for the 3-opt local optimization.
+<i>593</i>&nbsp;     *
+<i>594</i>&nbsp;     * @param center The index in the current tour of the point around which the
+<i>595</i>&nbsp;     *               sub-path is centered
+<i>596</i>&nbsp;     * @return A list of all possible sets of 3 points (their indexes in the
+<i>597</i>&nbsp;     * current tour) from which we can &#39;cut&#39; an edge and apply the 3-opt method.
+<i>598</i>&nbsp;     * @see DoubleInsertionTSP.ThreeOptCuts
+<i>599</i>&nbsp;     */
+<i>600</i>&nbsp;    private ArrayList&lt;ThreeOptCuts&gt; allPossibleCuts(int center) {
+<i>601</i>&nbsp;
+<i>602</i>&nbsp;        // prendre en compte les bounds du trajet pour ne pas dépasser
+<b class="fc"><i>603</i>&nbsp;        int first = max(0, center - r);</b>
+<b class="fc"><i>604</i>&nbsp;        int last = min(currentTourIndexes.size() - 1, center + r);</b>
+<i>605</i>&nbsp;
+<i>606</i>&nbsp;        // ne pas calculer si moins de 3 arêtes à couper
+<b class="fc"><i>607</i>&nbsp;        if (last - first &lt; 3) {</b>
+<b class="nc"><i>608</i>&nbsp;            if (verbose)</b>
+<b class="nc"><i>609</i>&nbsp;                System.err.println(&quot;WARNING: Asking for an optimization with a path too small!&quot;);</b>
+<b class="nc"><i>610</i>&nbsp;            return null;</b>
+<i>611</i>&nbsp;        }
+<i>612</i>&nbsp;
+<b class="fc"><i>613</i>&nbsp;        ArrayList&lt;ThreeOptCuts&gt; possibleCuts = new ArrayList&lt;&gt;();</b>
+<i>614</i>&nbsp;
+<b class="fc"><i>615</i>&nbsp;        for (int i = first; i &lt; last - 2; ++i) {</b>
+<b class="fc"><i>616</i>&nbsp;            for (int j = i + 1; j &lt; last - 1; ++j) {</b>
+<b class="fc"><i>617</i>&nbsp;                for (int k = j + 1; k &lt; last; ++k) {</b>
+<b class="fc"><i>618</i>&nbsp;                    possibleCuts.add(new ThreeOptCuts(i, j, k));</b>
+<i>619</i>&nbsp;                }
+<i>620</i>&nbsp;            }
+<i>621</i>&nbsp;        }
+<i>622</i>&nbsp;
+<b class="fc"><i>623</i>&nbsp;        return possibleCuts;</b>
+<i>624</i>&nbsp;    }
+<i>625</i>&nbsp;
+<i>626</i>&nbsp;    /**
+<i>627</i>&nbsp;     * Build an use-ready Tournee object from the current tour.
+<i>628</i>&nbsp;     *
+<i>629</i>&nbsp;     * @return The fully usable Tournee object
+<i>630</i>&nbsp;     */
+<i>631</i>&nbsp;    public Tournee buildTour() {
+<i>632</i>&nbsp;
+<i>633</i>&nbsp;        // initialisation des éléments à passer au constructeur de Tournee
+<b class="fc"><i>634</i>&nbsp;        ArrayList&lt;Request&gt; requestList = planning.getRequestList();</b>
+<i>635</i>&nbsp;
+<b class="fc"><i>636</i>&nbsp;        ArrayList&lt;TupleRequete&gt; ptsPassage = new ArrayList&lt;&gt;();</b>
+<b class="fc"><i>637</i>&nbsp;        for (TupleRequete tupleRequete : this.currentTourPoints) {</b>
+<b class="fc"><i>638</i>&nbsp;            ptsPassage.add(tupleRequete);       // laisser les null ! ils sont traités après !</b>
+<b class="fc"><i>639</i>&nbsp;        }</b>
+<i>640</i>&nbsp;
+<i>641</i>&nbsp;        // initialisation de la liste des segments avec le chemin dépôt -&gt; premier pickup
+<b class="fc"><i>642</i>&nbsp;        ArrayList&lt;Segment&gt; segmentList = new ArrayList&lt;&gt;(matAdj[0][currentTourIndexes.get(1)].chemin);</b>
+<i>643</i>&nbsp;
+<i>644</i>&nbsp;        // remplissage du chemin avec la suite de la tournée
+<b class="fc"><i>645</i>&nbsp;        for (int i = 1; i &lt; ptsPassage.size() - 1; ++i) {</b>
+<b class="fc"><i>646</i>&nbsp;            TupleRequete pt1 = ptsPassage.get(i);</b>
+<b class="fc"><i>647</i>&nbsp;            TupleRequete pt2 = ptsPassage.get(i + 1);</b>
+<i>648</i>&nbsp;
+<b class="fc"><i>649</i>&nbsp;            if (pt1 != null &amp;&amp; pt2 != null) {        // attention aux null</b>
+<b class="fc"><i>650</i>&nbsp;                if (pt1.getCurrentGoal().getId() != pt2.getCurrentGoal().getId()) {</b>
+<b class="fc"><i>651</i>&nbsp;                    segmentList.addAll(matAdj[ptsIdToIndex.get(pt1.getCurrentGoal().getId())][ptsIdToIndex.get(pt2.getCurrentGoal().getId())].chemin);</b>
+<i>652</i>&nbsp;                } else {
+<b class="fc"><i>653</i>&nbsp;                    if (verbose)</b>
+<b class="nc"><i>654</i>&nbsp;                        System.err.println(&quot;Not adding path with identical pickup &amp; delivery&quot;);</b>
+<i>655</i>&nbsp;                }
+<b class="fc"><i>656</i>&nbsp;            } else if (i == ptsPassage.size() - 2) {      // dernier delivery -&gt; dépôt</b>
+<b class="fc"><i>657</i>&nbsp;                segmentList.addAll(matAdj[ptsIdToIndex.get(pt1.getCurrentGoal().getId())][0].chemin);</b>
+<i>658</i>&nbsp;            } else {
+<b class="nc"><i>659</i>&nbsp;                if (verbose) {</b>
+<b class="nc"><i>660</i>&nbsp;                    System.err.println(&quot;AAAATTENTION AUX NUUUUUUUUUUUUUUUUUUL(L)S !! i = &quot; + i);</b>
+<b class="nc"><i>661</i>&nbsp;                    System.err.println(pt1 + &quot;, &quot; + pt2);</b>
+<i>662</i>&nbsp;                }
+<i>663</i>&nbsp;            }
+<i>664</i>&nbsp;        }
+<i>665</i>&nbsp;
+<i>666</i>&nbsp;        // ajout des heures d&#39;arrivée à chaque point de passage + le chemin qui y mène
+<b class="fc"><i>667</i>&nbsp;        Tournee tournee = new Tournee(segmentList, requestList);</b>
+<b class="fc"><i>668</i>&nbsp;        ComputeTour.recreateTimesTournee(tournee, planning);</b>
+<b class="fc"><i>669</i>&nbsp;        return tournee;</b>
+<i>670</i>&nbsp;    }
+<i>671</i>&nbsp;
+<i>672</i>&nbsp;    /**
+<i>673</i>&nbsp;     * Return the length of the shortest path between 2 points according to
+<i>674</i>&nbsp;     * matAdj.
+<i>675</i>&nbsp;     *
+<i>676</i>&nbsp;     * @param depart  The index in matAdj of the starting point of the desired
+<i>677</i>&nbsp;     *                path
+<i>678</i>&nbsp;     * @param arrivee The index in matAdj of the arrival point of the desired
+<i>679</i>&nbsp;     *                path
+<i>680</i>&nbsp;     * @return The length of the shortest path between depart and arrivee
+<i>681</i>&nbsp;     */
+<i>682</i>&nbsp;    private float longueurEntre(int depart, int arrivee) {
+<b class="fc"><i>683</i>&nbsp;        if (matAdj[depart][arrivee] != null) {</b>
+<b class="fc"><i>684</i>&nbsp;            return matAdj[depart][arrivee].getLongueur();</b>
+<i>685</i>&nbsp;        } else {
+<b class="fc"><i>686</i>&nbsp;            return 0;</b>
+<i>687</i>&nbsp;        }
+<i>688</i>&nbsp;    }
+<i>689</i>&nbsp;
+<i>690</i>&nbsp;    /**
+<i>691</i>&nbsp;     * Compute the length of the sub-path in the current tour between the given
+<i>692</i>&nbsp;     * starting and arrival points, possibly by taking it backwards if
+<i>693</i>&nbsp;     * arrivee &lt; depart.
+<i>694</i>&nbsp;     *
+<i>695</i>&nbsp;     * @param depart  The index in the current tour of the starting point of the
+<i>696</i>&nbsp;     *                desired path
+<i>697</i>&nbsp;     * @param arrivee The index in the current tour of the arrival point of the
+<i>698</i>&nbsp;     *                desired path
+<i>699</i>&nbsp;     * @return The length of the desired path
+<i>700</i>&nbsp;     * @see DoubleInsertionTSP#longueurEntre(int, int)
+<i>701</i>&nbsp;     */
+<i>702</i>&nbsp;    private float longueurCheminEntre(int depart, int arrivee) {
+<i>703</i>&nbsp;
+<b class="fc"><i>704</i>&nbsp;        if (depart == arrivee) {        // pas de chemin, points confondus</b>
+<b class="fc"><i>705</i>&nbsp;            return 0;</b>
+<b class="fc"><i>706</i>&nbsp;        } else if ((depart - arrivee == 1) || (depart - arrivee == -1)) {      // chemin trivial (depart, arrivee)</b>
+<b class="fc"><i>707</i>&nbsp;            return longueurEntre(currentTourIndexes.get(depart), currentTourIndexes.get(arrivee));</b>
+<i>708</i>&nbsp;        }
+<i>709</i>&nbsp;
+<i>710</i>&nbsp;        // chemin non trivial composé d&#39;au moins 3 points
+<b class="fc"><i>711</i>&nbsp;        float sum = 0;</b>
+<b class="fc"><i>712</i>&nbsp;        if (arrivee &gt; depart) {         // parcours dans le sens normal</b>
+<b class="fc"><i>713</i>&nbsp;            for (int i = depart; i &lt; arrivee; ++i) {</b>
+<b class="fc"><i>714</i>&nbsp;                sum += longueurEntre(currentTourIndexes.get(i), currentTourIndexes.get(i + 1));</b>
+<i>715</i>&nbsp;            }
+<i>716</i>&nbsp;        } else {                        // parcours dans le sens inverse
+<b class="fc"><i>717</i>&nbsp;            for (int i = depart; i &gt; arrivee; --i) {</b>
+<b class="fc"><i>718</i>&nbsp;                sum += longueurEntre(currentTourIndexes.get(i), currentTourIndexes.get(i - 1));</b>
+<i>719</i>&nbsp;            }
+<i>720</i>&nbsp;        }
+<i>721</i>&nbsp;
+<b class="fc"><i>722</i>&nbsp;        return sum;</b>
+<i>723</i>&nbsp;    }
+<i>724</i>&nbsp;
+<i>725</i>&nbsp;    /**
+<i>726</i>&nbsp;     * Add a given point to the current tour at a given index.
+<i>727</i>&nbsp;     *
+<i>728</i>&nbsp;     * @param index        The index in the current tour where the point is to
+<i>729</i>&nbsp;     *                     be inserted (its index after insertion)
+<i>730</i>&nbsp;     * @param tupleRequete The point to be inserted
+<i>731</i>&nbsp;     */
+<i>732</i>&nbsp;    private void ajouterPointTournee(TupleRequete tupleRequete, int index) {
+<b class="fc"><i>733</i>&nbsp;        if (tupleRequete != null) {</b>
+<b class="fc"><i>734</i>&nbsp;            currentTourIndexes.add(index, ptsIdToIndex.get(tupleRequete.getCurrentGoal().getId()));</b>
+<i>735</i>&nbsp;        } else {
+<b class="fc"><i>736</i>&nbsp;            currentTourIndexes.add(0);</b>
+<i>737</i>&nbsp;        }
+<b class="fc"><i>738</i>&nbsp;        currentTourPoints.add(index, tupleRequete);</b>
+<b class="fc"><i>739</i>&nbsp;    }</b>
+<i>740</i>&nbsp;
+<i>741</i>&nbsp;    /**
+<i>742</i>&nbsp;     * Overload of the identically-named method to add a point directly to the
+<i>743</i>&nbsp;     * end of the current tour.
+<i>744</i>&nbsp;     *
+<i>745</i>&nbsp;     * @param tupleRequete The point to add at the end ot the tour
+<i>746</i>&nbsp;     * @see DoubleInsertionTSP#ajouterPointTournee(TupleRequete, int)
+<i>747</i>&nbsp;     */
+<i>748</i>&nbsp;    private void ajouterPointTournee(TupleRequete tupleRequete) {
+<b class="fc"><i>749</i>&nbsp;        ajouterPointTournee(tupleRequete, currentTourIndexes.size());</b>
+<b class="fc"><i>750</i>&nbsp;    }</b>
+<i>751</i>&nbsp;
+<i>752</i>&nbsp;    @Override
+<i>753</i>&nbsp;    public String toString() {
+<b class="nc"><i>754</i>&nbsp;        return &quot;PaperHeuristicTSP{&quot; +</b>
+<i>755</i>&nbsp;                &quot;currentTourIndexes=&quot; + currentTourIndexes +
+<i>756</i>&nbsp;                &quot;, nbRequest=&quot; + nbRequest +
+<i>757</i>&nbsp;                &#39;}&#39;;
+<i>758</i>&nbsp;    }
+<i>759</i>&nbsp;
+<i>760</i>&nbsp;}
+</div>
+</div>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2020-12-15 11:46</div>
+</div>
+</body>
+</html>

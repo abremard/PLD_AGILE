@@ -1,0 +1,131 @@
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html id="htmlId">
+<head>
+  <title>Coverage Report :: BnB_TSP1</title>
+  <style type="text/css">
+    @import "../../.css/coverage.css";
+  </style>
+</head>
+
+<body>
+<div class="header"></div>
+
+<div class="content">
+<div class="breadCrumbs">
+    [ <a href="../../index.html">all classes</a> ]
+    [ <a href="../index.html">Branch_And_Bound_TSP</a> ]
+</div>
+
+<h1>Coverage Summary for Class: BnB_TSP1 (Branch_And_Bound_TSP)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">BnB_TSP1</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/ 1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (3/ 3)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (3/ 3)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<div class="sourceCode"><i>1</i>&nbsp;
+<i>2</i>&nbsp;package Branch_And_Bound_TSP;
+<i>3</i>&nbsp;
+<i>4</i>&nbsp;import processing.SuperArete;
+<i>5</i>&nbsp;import processing.TupleRequete;
+<i>6</i>&nbsp;
+<i>7</i>&nbsp;import java.util.ArrayList;
+<i>8</i>&nbsp;import java.util.Collection;
+<i>9</i>&nbsp;import java.util.HashMap;
+<i>10</i>&nbsp;import java.util.Iterator;
+<i>11</i>&nbsp;
+<i>12</i>&nbsp;/**
+<i>13</i>&nbsp; * Inheritor implementing trivial version of BnB_TSP heuristics, making it a near-exhaustive search.
+<i>14</i>&nbsp; *
+<i>15</i>&nbsp; * @see Template_BnB_TSP
+<i>16</i>&nbsp; */
+<b class="fc"><i>17</i>&nbsp;public class BnB_TSP1 extends Template_BnB_TSP {</b>
+<i>18</i>&nbsp;
+<i>19</i>&nbsp;    /**
+<i>20</i>&nbsp;     * Computes a lower bound of the length of the path left to travel to complete all remaining Requests.
+<i>21</i>&nbsp;     * Always returns 0, making the algorithm a near-exhaustive seach.
+<i>22</i>&nbsp;     *
+<i>23</i>&nbsp;     * @param currentVertex The index of the current node (interest point)
+<i>24</i>&nbsp;     * @param requetes      The list of Requests left to deal with
+<i>25</i>&nbsp;     * @return a lower bound of the cost of paths in &lt;code&gt;matAdj&lt;/code&gt; starting from &lt;code&gt;currentVertex&lt;/code&gt;,
+<i>26</i>&nbsp;     * visiting every interest point in &lt;code&gt;requetes&lt;/code&gt;, and returning back to vertex &lt;code&gt;0&lt;/code&gt;.
+<i>27</i>&nbsp;     */
+<i>28</i>&nbsp;    @Override
+<i>29</i>&nbsp;    protected float bound(Integer currentVertex, ArrayList&lt;TupleRequete&gt; requetes) {
+<b class="fc"><i>30</i>&nbsp;        return 0;</b>
+<i>31</i>&nbsp;    }
+<i>32</i>&nbsp;
+<i>33</i>&nbsp;    /**
+<i>34</i>&nbsp;     * Creates an iterator that scrolls through all remaining interest points.
+<i>35</i>&nbsp;     * Scrolls in the immediate order of &lt;code&gt;unvisited&lt;/code&gt;.
+<i>36</i>&nbsp;     *
+<i>37</i>&nbsp;     * @param currentVertex The index of the current node (interest point)
+<i>38</i>&nbsp;     * @param unvisited     The unordered list of nodes (interest points) that must still be visited
+<i>39</i>&nbsp;     * @param ptsIdToIndex  The dictionnary associating and Intersection ID with its index in the adjacence matrix
+<i>40</i>&nbsp;     * @param matAdj        The optimal full sub-graph of the map as an adjacence matrix
+<i>41</i>&nbsp;     * @return an iterator for visiting all remaining interest points in &lt;code&gt;requetes&lt;/code&gt;.
+<i>42</i>&nbsp;     */
+<i>43</i>&nbsp;    @Override
+<i>44</i>&nbsp;    protected Iterator&lt;Integer&gt; iterator(Integer currentVertex, Collection&lt;TupleRequete&gt; unvisited, HashMap&lt;Long, Integer&gt; ptsIdToIndex, SuperArete[][] matAdj) {
+<b class="fc"><i>45</i>&nbsp;        return new SeqIter(currentVertex, unvisited, ptsIdToIndex, matAdj);</b>
+<i>46</i>&nbsp;    }
+<i>47</i>&nbsp;
+<i>48</i>&nbsp;}
+</div>
+</div>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2020-12-15 11:46</div>
+</div>
+</body>
+</html>

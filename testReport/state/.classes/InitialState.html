@@ -1,0 +1,114 @@
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html id="htmlId">
+<head>
+  <title>Coverage Report :: InitialState</title>
+  <style type="text/css">
+    @import "../../.css/coverage.css";
+  </style>
+</head>
+
+<body>
+<div class="header"></div>
+
+<div class="content">
+<div class="breadCrumbs">
+    [ <a href="../../index.html">all classes</a> ]
+    [ <a href="../index.html">state</a> ]
+</div>
+
+<h1>Coverage Summary for Class: InitialState (state)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">InitialState</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/ 1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (2/ 2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (6/ 6)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<div class="sourceCode"><i>1</i>&nbsp;package state;
+<i>2</i>&nbsp;
+<i>3</i>&nbsp;import command.ListOfCommands;
+<i>4</i>&nbsp;import command.LoadMapCommand;
+<i>5</i>&nbsp;import controller.MVCController;
+<i>6</i>&nbsp;
+<i>7</i>&nbsp;/**
+<i>8</i>&nbsp; * &lt;h1&gt;Initial State Class&lt;/h1&gt;
+<i>9</i>&nbsp; * &lt;p&gt;The Initial State object that defines the state where user is at the very beginning of the application&lt;/p&gt;
+<i>10</i>&nbsp; *
+<i>11</i>&nbsp; * @author H4302
+<i>12</i>&nbsp; * @see State
+<i>13</i>&nbsp; * @see ListOfCommands
+<i>14</i>&nbsp; */
+<b class="fc"><i>15</i>&nbsp;public class InitialState implements State {</b>
+<i>16</i>&nbsp;    /**
+<i>17</i>&nbsp;     * When user picks a map file in the View, the LoadMapCommand is added and executed, state becomes Map State
+<i>18</i>&nbsp;     * @param l the history of commands in which will be added the new command to execute
+<i>19</i>&nbsp;     * @param c the MVCController object being passed to the command execution for updating purposes
+<i>20</i>&nbsp;     * @param p the path of the map file
+<i>21</i>&nbsp;     */
+<i>22</i>&nbsp;    public void loadMap(ListOfCommands l, MVCController c, String p) {
+<b class="fc"><i>23</i>&nbsp;        if (p != null) {</b>
+<b class="fc"><i>24</i>&nbsp;            l.Add(new LoadMapCommand(p), c);</b>
+<b class="fc"><i>25</i>&nbsp;            c.setCurrentState(c.getMapState());</b>
+<i>26</i>&nbsp;            if (debug) {
+<b class="fc"><i>27</i>&nbsp;                System.out.println(l.getI()+&quot; - Adding Load Map Command from Initial State to Map State&quot;);</b>
+<i>28</i>&nbsp;            }
+<i>29</i>&nbsp;        }
+<b class="fc"><i>30</i>&nbsp;    }</b>
+<i>31</i>&nbsp;}
+</div>
+</div>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2020-12-15 11:46</div>
+</div>
+</body>
+</html>

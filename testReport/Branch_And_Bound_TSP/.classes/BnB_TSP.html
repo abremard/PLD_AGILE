@@ -1,0 +1,79 @@
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html id="htmlId">
+<head>
+  <title>Coverage Report :: BnB_TSP</title>
+  <style type="text/css">
+    @import "../../.css/coverage.css";
+  </style>
+</head>
+
+<body>
+<div class="header"></div>
+
+<div class="content">
+<div class="breadCrumbs">
+    [ <a href="../../index.html">all classes</a> ]
+    [ <a href="../index.html">Branch_And_Bound_TSP</a> ]
+</div>
+
+<h1>Coverage Summary for Class: BnB_TSP (Branch_And_Bound_TSP)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+</tr>
+<tr>
+  <td class="name">BnB_TSP</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<div class="sourceCode"><i>1</i>&nbsp;
+<i>2</i>&nbsp;package Branch_And_Bound_TSP;
+<i>3</i>&nbsp;
+<i>4</i>&nbsp;import objects.Request;
+<i>5</i>&nbsp;import processing.SuperArete;
+<i>6</i>&nbsp;
+<i>7</i>&nbsp;import java.util.ArrayList;
+<i>8</i>&nbsp;
+<i>9</i>&nbsp;/**
+<i>10</i>&nbsp; * Interface for all BnB_TSP variants, which implement different heuristics to speed up computation.
+<i>11</i>&nbsp; *
+<i>12</i>&nbsp; * @see Template_BnB_TSP
+<i>13</i>&nbsp; */
+<i>14</i>&nbsp;public interface BnB_TSP {
+<i>15</i>&nbsp;
+<i>16</i>&nbsp;    /**
+<i>17</i>&nbsp;     * Start the computation for a given instance of the problem.
+<i>18</i>&nbsp;     * After running this method, the solution can be obtained using getSolution().
+<i>19</i>&nbsp;     *
+<i>20</i>&nbsp;     * @param timeLimit     The execution duration after which computing will automatically be stopped, in milliseconds
+<i>21</i>&nbsp;     * @param matAdj        The optimal full sub-graph of the map as an adjacence matrix
+<i>22</i>&nbsp;     * @param listeRequetes A list of Requests to deal with
+<i>23</i>&nbsp;     */
+<i>24</i>&nbsp;    public void searchSolution(int timeLimit, SuperArete[][] matAdj, ArrayList&lt;Request&gt; listeRequetes);
+<i>25</i>&nbsp;
+<i>26</i>&nbsp;    // Getters and setters
+<i>27</i>&nbsp;
+<i>28</i>&nbsp;    public Integer[] getSolution();
+<i>29</i>&nbsp;
+<i>30</i>&nbsp;    public float getExecTime();
+<i>31</i>&nbsp;
+<i>32</i>&nbsp;}
+</div>
+</div>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2020-12-15 11:46</div>
+</div>
+</body>
+</html>

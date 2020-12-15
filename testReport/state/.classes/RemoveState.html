@@ -1,0 +1,134 @@
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html id="htmlId">
+<head>
+  <title>Coverage Report :: RemoveState</title>
+  <style type="text/css">
+    @import "../../.css/coverage.css";
+  </style>
+</head>
+
+<body>
+<div class="header"></div>
+
+<div class="content">
+<div class="breadCrumbs">
+    [ <a href="../../index.html">all classes</a> ]
+    [ <a href="../index.html">state</a> ]
+</div>
+
+<h1>Coverage Summary for Class: RemoveState (state)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">RemoveState</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/ 1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (3/ 3)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (8/ 8)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<div class="sourceCode"><i>1</i>&nbsp;package state;
+<i>2</i>&nbsp;
+<i>3</i>&nbsp;import command.AddRequestCommand;
+<i>4</i>&nbsp;import command.ListOfCommands;
+<i>5</i>&nbsp;import command.RemoveRequestCommand;
+<i>6</i>&nbsp;import controller.MVCController;
+<i>7</i>&nbsp;import objects.PlanningRequest;
+<i>8</i>&nbsp;import objects.Request;
+<i>9</i>&nbsp;import sample.Controller;
+<i>10</i>&nbsp;
+<i>11</i>&nbsp;import java.util.ArrayList;
+<i>12</i>&nbsp;
+<i>13</i>&nbsp;/**
+<i>14</i>&nbsp; * &lt;h1&gt;Remove State Class&lt;/h1&gt;
+<i>15</i>&nbsp; * &lt;p&gt;The Remove State object that defines the state where user can remove a request from the tour&lt;/p&gt;
+<i>16</i>&nbsp; *
+<i>17</i>&nbsp; * @author H4302
+<i>18</i>&nbsp; * @see State
+<i>19</i>&nbsp; * @see ListOfCommands
+<i>20</i>&nbsp; */
+<b class="fc"><i>21</i>&nbsp;public class RemoveState implements State {</b>
+<i>22</i>&nbsp;
+<i>23</i>&nbsp;    /**
+<i>24</i>&nbsp;     * When the user clicks on the trash can on the IHM, the Remove Request Command is added to the history of commands (thus, executed) and current state becomes Modify State
+<i>25</i>&nbsp;     * @param l the history of commands in which will be added the new command to execute
+<i>26</i>&nbsp;     * @param c the MVCController object being passed to the command execution for updating purposes
+<i>27</i>&nbsp;     * @param oldPlanningRequest The requests&#39; planning before the removal
+<i>28</i>&nbsp;     * @param ltcList The LocationTagContents&#39; list before the removal
+<i>29</i>&nbsp;     * @param request The request to be removed
+<i>30</i>&nbsp;     * @param removedCardIndex1 The index of the first LocationTagContent to be removed in the MvcController&#39;s LtcList
+<i>31</i>&nbsp;     * @param removedCardIndex2 The index of the second LocationTagContent to be removed in the MvcController&#39;s LtcList
+<i>32</i>&nbsp;     */
+<i>33</i>&nbsp;    public void removeDone(ListOfCommands l, MVCController c, PlanningRequest oldPlanningRequest, ArrayList&lt;Controller.LocationTagContent&gt; ltcList, Request request, int removedCardIndex1, int removedCardIndex2) {
+<b class="fc"><i>34</i>&nbsp;        l.Add(new RemoveRequestCommand(oldPlanningRequest, ltcList, request, removedCardIndex1, removedCardIndex2), c);</b>
+<b class="fc"><i>35</i>&nbsp;        c.setCurrentState(c.getModifyState());</b>
+<i>36</i>&nbsp;        if (debug) {
+<b class="fc"><i>37</i>&nbsp;            System.out.println(l.getI()+&quot; - Calling RemoveRequestCommand from RemoveState to ModifyState&quot;);</b>
+<i>38</i>&nbsp;        }
+<b class="fc"><i>39</i>&nbsp;    }</b>
+<i>40</i>&nbsp;
+<i>41</i>&nbsp;    /**
+<i>42</i>&nbsp;     * Not used
+<i>43</i>&nbsp;     * @param c the MVCController object being passed to the command execution for updating purposes
+<i>44</i>&nbsp;     */
+<i>45</i>&nbsp;    public void cancel(MVCController c){
+<b class="fc"><i>46</i>&nbsp;        c.setCurrentState(c.getModifyState());</b>
+<i>47</i>&nbsp;        if (debug) {
+<b class="fc"><i>48</i>&nbsp;            System.out.println(&quot;Going from RemoveState to ModifyState without having changed anything&quot;);</b>
+<i>49</i>&nbsp;        }
+<b class="fc"><i>50</i>&nbsp;    }</b>
+<i>51</i>&nbsp;}
+</div>
+</div>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2020-12-15 11:46</div>
+</div>
+</body>
+</html>

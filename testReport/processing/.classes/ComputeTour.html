@@ -1,0 +1,978 @@
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html id="htmlId">
+<head>
+  <title>Coverage Report :: ComputeTour</title>
+  <style type="text/css">
+    @import "../../.css/coverage.css";
+  </style>
+</head>
+
+<body>
+<div class="header"></div>
+
+<div class="content">
+<div class="breadCrumbs">
+    [ <a href="../../index.html">all classes</a> ]
+    [ <a href="../index.html">processing</a> ]
+</div>
+
+<h1>Coverage Summary for Class: ComputeTour (processing)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">ComputeTour</td>
+<td class="coverageStat">
+  <span class="percent">
+    60%
+  </span>
+  <span class="absValue">
+    (12/ 20)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    48.2%
+  </span>
+  <span class="absValue">
+    (177/ 367)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">ComputeTour$1</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/ 1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/ 1)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    61.9%
+  </span>
+  <span class="absValue">
+    (13/ 21)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    48.4%
+  </span>
+  <span class="absValue">
+    (178/ 368)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<div class="sourceCode"><i>1</i>&nbsp;
+<i>2</i>&nbsp;package processing;
+<i>3</i>&nbsp;
+<i>4</i>&nbsp;import java.time.LocalTime;
+<i>5</i>&nbsp;import java.util.*;
+<i>6</i>&nbsp;
+<i>7</i>&nbsp;import Branch_And_Bound_TSP.BnB_TSP;
+<i>8</i>&nbsp;import Branch_And_Bound_TSP.BnB_TSP1;
+<i>9</i>&nbsp;import Branch_And_Bound_TSP.BnB_TSP2;
+<i>10</i>&nbsp;import objects.*;
+<i>11</i>&nbsp;import objects.Map;
+<i>12</i>&nbsp;import sample.Controller;
+<i>13</i>&nbsp;
+<i>14</i>&nbsp;/**
+<i>15</i>&nbsp; * Class that groups the tour computation algorithms.
+<i>16</i>&nbsp; * Use planTour() to get a Tour.
+<i>17</i>&nbsp; *
+<i>18</i>&nbsp; * @author H4302
+<i>19</i>&nbsp; * @see command.ComputeTourCommand
+<i>20</i>&nbsp; */
+<b class="nc"><i>21</i>&nbsp;public class ComputeTour {</b>
+<i>22</i>&nbsp;
+<b class="fc"><i>23</i>&nbsp;    static boolean verbose = false;</b>
+<i>24</i>&nbsp;
+<i>25</i>&nbsp;    /**
+<i>26</i>&nbsp;     * Main function of ComputeTour, computes a Tour according to the informations of the map and requests list
+<i>27</i>&nbsp;     * XML files, as well as a choice of heuristic.
+<i>28</i>&nbsp;     *
+<i>29</i>&nbsp;     * @param map         The map representing the graph on which we search
+<i>30</i>&nbsp;     * @param planning    The planning that includes a list of requests to deal with as well as the departure address
+<i>31</i>&nbsp;     * @param heuristique The heuristic to use (influences the quality of the result and execution speed)
+<i>32</i>&nbsp;     * @return the computed Tour
+<i>33</i>&nbsp;     */
+<i>34</i>&nbsp;    public static Tournee planTour(Map map, PlanningRequest planning, Heuristique heuristique) {
+<i>35</i>&nbsp;
+<i>36</i>&nbsp;        Tournee tournee;
+<b class="fc"><i>37</i>&nbsp;        HashMap&lt;Long, Integer&gt; intersecIdToIndex = indexationIntersections(map);</b>
+<i>38</i>&nbsp;        SuperArete[][] matAdj;
+<i>39</i>&nbsp;
+<b class="fc"><i>40</i>&nbsp;        switch (heuristique) {</b>
+<i>41</i>&nbsp;            case TRIVIALE:
+<i>42</i>&nbsp;                // version triviale
+<b class="nc"><i>43</i>&nbsp;                return tourneeTriviale(map, planning, intersecIdToIndex);</b>
+<i>44</i>&nbsp;            case RANDOM:
+<i>45</i>&nbsp;                // version random
+<b class="nc"><i>46</i>&nbsp;                return tourneeRandom(map, planning, intersecIdToIndex);</b>
+<i>47</i>&nbsp;            case GREEDY:
+<i>48</i>&nbsp;                // version greedy
+<b class="nc"><i>49</i>&nbsp;                matAdj = getOptimalFullGraph(map, planning, intersecIdToIndex);</b>
+<b class="nc"><i>50</i>&nbsp;                tournee = greedy(matAdj, planning, intersecIdToIndex);</b>
+<b class="nc"><i>51</i>&nbsp;                recreateTimesTournee(tournee, planning);</b>
+<b class="nc"><i>52</i>&nbsp;                return tournee;</b>
+<i>53</i>&nbsp;            case GENETIQUE:
+<i>54</i>&nbsp;                // version genetique
+<b class="nc"><i>55</i>&nbsp;                return null;</b>
+<i>56</i>&nbsp;            case BRANCHANDBOUND:
+<b class="fc"><i>57</i>&nbsp;                matAdj = getOptimalFullGraph(map, planning, intersecIdToIndex);</b>
+<b class="fc"><i>58</i>&nbsp;                tournee = branchAndBoundOpti(matAdj, planning);</b>
+<b class="fc"><i>59</i>&nbsp;                recreateTimesTournee(tournee, planning);</b>
+<b class="fc"><i>60</i>&nbsp;                return tournee;</b>
+<i>61</i>&nbsp;            case BRANCHANDBOUNDEXHAUSTIF:
+<b class="fc"><i>62</i>&nbsp;                matAdj = getOptimalFullGraph(map, planning, intersecIdToIndex);</b>
+<b class="fc"><i>63</i>&nbsp;                tournee = branchAndBoundExhaustif(matAdj, planning);</b>
+<b class="fc"><i>64</i>&nbsp;                recreateTimesTournee(tournee, planning);</b>
+<b class="fc"><i>65</i>&nbsp;                return tournee;</b>
+<i>66</i>&nbsp;            case DOUBLEINSERTION:
+<i>67</i>&nbsp;                // version double-insertion heuristic
+<b class="fc"><i>68</i>&nbsp;                matAdj = getOptimalFullGraph(map, planning, intersecIdToIndex);</b>
+<i>69</i>&nbsp;                // indexation des points d&#39;intérêt
+<b class="fc"><i>70</i>&nbsp;                HashMap&lt;Long, Integer&gt; ptsIdToIndex = indexerPtsInteret(planning);</b>
+<b class="fc"><i>71</i>&nbsp;                DoubleInsertionTSP doubleInsertion = new DoubleInsertionTSP(matAdj, planning, ptsIdToIndex);</b>
+<i>72</i>&nbsp;                // calcul étape 1
+<b class="fc"><i>73</i>&nbsp;                doubleInsertion.doubleInsertionHeuristic();</b>
+<i>74</i>&nbsp;
+<i>75</i>&nbsp;                // résultats
+<b class="fc"><i>76</i>&nbsp;                if (verbose) {</b>
+<b class="nc"><i>77</i>&nbsp;                    System.err.println(&quot;=== Double-insertion heuristic results ===&quot;);</b>
+<b class="nc"><i>78</i>&nbsp;                    System.err.println(doubleInsertion);</b>
+<i>79</i>&nbsp;                }
+<b class="fc"><i>80</i>&nbsp;                return doubleInsertion.buildTour();</b>
+<i>81</i>&nbsp;        }
+<i>82</i>&nbsp;
+<b class="nc"><i>83</i>&nbsp;        return null;</b>
+<i>84</i>&nbsp;    }
+<i>85</i>&nbsp;
+<i>86</i>&nbsp;    /**
+<i>87</i>&nbsp;     * Computes the Tour passing through all pickup and delivery points in a specific order.
+<i>88</i>&nbsp;     *
+<i>89</i>&nbsp;     * @param map         The map representing the graph on which we search
+<i>90</i>&nbsp;     * @param planning    The planning that includes a list of requests to deal with as well as the departure address
+<i>91</i>&nbsp;     * @param order       The points through which the Tour has to pass, in chronological order
+<i>92</i>&nbsp;     * @return the computed Tour
+<i>93</i>&nbsp;     */
+<i>94</i>&nbsp;    public static Tournee recreateTourneeWithOrder(Map map, PlanningRequest planning, ArrayList&lt;Controller.LocationTagContent&gt; order) {
+<b class="fc"><i>95</i>&nbsp;        HashMap&lt;Long, Integer&gt; intersecIdToIndex = indexationIntersections(map);</b>
+<b class="fc"><i>96</i>&nbsp;        HashMap&lt;Long, Integer&gt; indexPtsInterets = indexerPtsInteret(planning);</b>
+<b class="fc"><i>97</i>&nbsp;        SuperArete[][] matAdj = getOptimalFullGraph(map, planning, intersecIdToIndex);</b>
+<b class="fc"><i>98</i>&nbsp;        ArrayList&lt;Segment&gt; chemin = new ArrayList&lt;Segment&gt;();</b>
+<b class="fc"><i>99</i>&nbsp;        int previousInd = 0;</b>
+<b class="fc"><i>100</i>&nbsp;        for (int i = 0; i &lt; order.size(); i++) {</b>
+<b class="fc"><i>101</i>&nbsp;            chemin.addAll(matAdj[previousInd][indexPtsInterets.get(order.get(i).getDestination().getId())].getChemin());</b>
+<b class="fc"><i>102</i>&nbsp;            previousInd = indexPtsInterets.get(order.get(i).getDestination().getId());</b>
+<i>103</i>&nbsp;        }
+<i>104</i>&nbsp;
+<b class="fc"><i>105</i>&nbsp;        Tournee tournee = new Tournee(chemin, planning.getRequestList());</b>
+<b class="fc"><i>106</i>&nbsp;        recreateTimesTournee(tournee, planning);</b>
+<b class="fc"><i>107</i>&nbsp;        return tournee;</b>
+<i>108</i>&nbsp;    }
+<i>109</i>&nbsp;
+<i>110</i>&nbsp;    // ----------------------------- Utilitarian functions
+<i>111</i>&nbsp;
+<i>112</i>&nbsp;    /**
+<i>113</i>&nbsp;     * Dijkstra on the given map from a departure point to all interest points.
+<i>114</i>&nbsp;     *
+<i>115</i>&nbsp;     * @param map        The map representing the graph on which we search
+<i>116</i>&nbsp;     * @param depart     The starting point of the search
+<i>117</i>&nbsp;     * @param ptsInteret List of the interest points : points to which we want to know the shortest path from the
+<i>118</i>&nbsp;     *                   starting point
+<i>119</i>&nbsp;     * @return the predecessor list of each node according to the shortest path towards all interest points and nodes
+<i>120</i>&nbsp;     * on the path to interest nodes. The function stops when the shortest paths to all interest points are computed.
+<i>121</i>&nbsp;     */
+<i>122</i>&nbsp;    private static ArrayList&lt;Segment&gt; dijkstra(Map map, Intersection depart, LinkedList&lt;Intersection&gt; ptsInteret, HashMap&lt;Long, Integer&gt; intersecIdToIndex) {
+<i>123</i>&nbsp;
+<i>124</i>&nbsp;        // --------- indexation des Intersections
+<i>125</i>&nbsp;        // liste des intersections -&gt; todo changer les linkedlist vers arraylist ou qqch comme ça ?
+<b class="fc"><i>126</i>&nbsp;        ArrayList&lt;Intersection&gt; intersections = map.getIntersectionList();</b>
+<i>127</i>&nbsp;
+<i>128</i>&nbsp;        // On recupere la liste d&#39;adjacence
+<b class="fc"><i>129</i>&nbsp;        ArrayList&lt;ArrayList&lt;Segment&gt;&gt; adjList = getListeAdj(map, intersecIdToIndex);</b>
+<i>130</i>&nbsp;
+<i>131</i>&nbsp;        // tableau des distances
+<b class="fc"><i>132</i>&nbsp;        ArrayList&lt;TupleDijkstra&gt; dist = new ArrayList&lt;&gt;(map.getNoOfIntersections());</b>
+<b class="fc"><i>133</i>&nbsp;        for (int i = 0; i &lt; map.getNoOfIntersections(); ++i) {</b>
+<b class="fc"><i>134</i>&nbsp;            dist.add(new TupleDijkstra(intersections.get(i), (float) -1));</b>
+<i>135</i>&nbsp;        }
+<b class="fc"><i>136</i>&nbsp;        dist.get(intersecIdToIndex.get(depart.getId())).distance = 0;   // initialisation de la distance de la premiere Intersection</b>
+<i>137</i>&nbsp;
+<i>138</i>&nbsp;        // liste des prédécesseurs
+<b class="fc"><i>139</i>&nbsp;        ArrayList&lt;Segment&gt; pred = new ArrayList&lt;&gt;(map.getNoOfIntersections());</b>
+<b class="fc"><i>140</i>&nbsp;        for (int i = 0; i &lt; map.getNoOfIntersections(); ++i) {</b>
+<b class="fc"><i>141</i>&nbsp;            pred.add(null);</b>
+<i>142</i>&nbsp;        }
+<i>143</i>&nbsp;
+<i>144</i>&nbsp;        // methodes dispo sur la pQueue : add, poll, peek
+<b class="fc"><i>145</i>&nbsp;        PriorityQueue&lt;TupleDijkstra&gt; pQueue = new PriorityQueue&lt;TupleDijkstra&gt;();</b>
+<b class="fc"><i>146</i>&nbsp;        pQueue.add(dist.get(intersecIdToIndex.get(depart.getId())));       // initialisation de la pQueue</b>
+<i>147</i>&nbsp;
+<b class="fc"><i>148</i>&nbsp;        while (!pQueue.isEmpty()) {</b>
+<i>149</i>&nbsp;
+<b class="fc"><i>150</i>&nbsp;            TupleDijkstra curNoeud = pQueue.poll();</b>
+<b class="fc"><i>151</i>&nbsp;            int curIndex = intersecIdToIndex.get(curNoeud.intersection.getId());</b>
+<i>152</i>&nbsp;
+<b class="fc"><i>153</i>&nbsp;            for (Segment seg : adjList.get(curIndex)) {     // parcours des voisins/arcs sortants</b>
+<b class="fc"><i>154</i>&nbsp;                int indexArrivee = intersecIdToIndex.get(seg.getDestination());</b>
+<b class="fc"><i>155</i>&nbsp;                float distVoisin = dist.get(indexArrivee).distance;</b>
+<i>156</i>&nbsp;
+<i>157</i>&nbsp;                // relâcher l&#39;arc
+<b class="fc"><i>158</i>&nbsp;                if (distVoisin == -1 || distVoisin &gt; curNoeud.distance + seg.getLength()) {     // meilleur chemin qu&#39;avant</b>
+<b class="fc"><i>159</i>&nbsp;                    TupleDijkstra voisin = dist.get(indexArrivee);</b>
+<b class="fc"><i>160</i>&nbsp;                    if (pQueue.contains(voisin)) {</b>
+<b class="fc"><i>161</i>&nbsp;                        pQueue.remove(voisin);</b>
+<b class="fc"><i>162</i>&nbsp;                        voisin.distance = curNoeud.distance + seg.getLength();      // màj distance</b>
+<b class="fc"><i>163</i>&nbsp;                        pQueue.add(voisin);</b>
+<i>164</i>&nbsp;                    } else {
+<b class="fc"><i>165</i>&nbsp;                        voisin.distance = curNoeud.distance + seg.getLength();      // màj distance</b>
+<i>166</i>&nbsp;                    }
+<b class="fc"><i>167</i>&nbsp;                    pred.set(indexArrivee, seg);            // màj prédécesseur</b>
+<i>168</i>&nbsp;
+<b class="fc"><i>169</i>&nbsp;                    if (voisin.color == TupleDijkstra.Color.WHITE) {            // noeud pas encore traité</b>
+<b class="fc"><i>170</i>&nbsp;                        pQueue.add(voisin);</b>
+<b class="fc"><i>171</i>&nbsp;                        voisin.color = TupleDijkstra.Color.GREY;</b>
+<i>172</i>&nbsp;                    }
+<i>173</i>&nbsp;                }
+<b class="fc"><i>174</i>&nbsp;            } // fin du parcours des arcs sortants</b>
+<b class="fc"><i>175</i>&nbsp;        }</b>
+<i>176</i>&nbsp;
+<b class="fc"><i>177</i>&nbsp;        return pred;</b>
+<i>178</i>&nbsp;    }
+<i>179</i>&nbsp;
+<i>180</i>&nbsp;    /**
+<i>181</i>&nbsp;     * Computes the full graph in which all nodes are pickup, delivery points or the departure address
+<i>182</i>&nbsp;     * (interest points), and vertices are the shortest paths on the Map between those interest points.
+<i>183</i>&nbsp;     *
+<i>184</i>&nbsp;     * @param map               The map representing the graph on which we search
+<i>185</i>&nbsp;     * @param planning          The planning that includes a list of requests to deal with as well as the
+<i>186</i>&nbsp;     *                          departure address
+<i>187</i>&nbsp;     * @param intersecIdToIndex The dictionnary giving the index of an Intersection in the Intersection list of the map,
+<i>188</i>&nbsp;     *                          from its ID
+<i>189</i>&nbsp;     * @return the full graph as an adjacence matrix. Accessing it at indices [departure][destination] gives the
+<i>190</i>&nbsp;     * SuperArete object in which the path attibute is the shortest path (as list of map Segments) from the departure
+<i>191</i>&nbsp;     * node to the destination node.
+<i>192</i>&nbsp;     */
+<i>193</i>&nbsp;    private static SuperArete[][] getOptimalFullGraph(Map map, PlanningRequest planning, HashMap&lt;Long, Integer&gt; intersecIdToIndex) {
+<b class="fc"><i>194</i>&nbsp;        ArrayList&lt;Request&gt; requests = planning.getRequestList();</b>
+<b class="fc"><i>195</i>&nbsp;        ArrayList&lt;Intersection&gt; intersections = map.getIntersectionList();</b>
+<i>196</i>&nbsp;
+<b class="fc"><i>197</i>&nbsp;        LinkedList&lt;Intersection&gt; ptsInteret = new LinkedList&lt;Intersection&gt;();</b>
+<b class="fc"><i>198</i>&nbsp;        ptsInteret.add(planning.getDepot().getAdresse());</b>
+<i>199</i>&nbsp;        boolean found;
+<b class="fc"><i>200</i>&nbsp;        for (Request req : requests) {</b>
+<b class="fc"><i>201</i>&nbsp;            found = false;</b>
+<b class="fc"><i>202</i>&nbsp;            for (Intersection node : ptsInteret) {</b>
+<b class="fc"><i>203</i>&nbsp;                if (req.getPickup().getId() == node.getId()) {</b>
+<b class="fc"><i>204</i>&nbsp;                    found = true;</b>
+<b class="fc"><i>205</i>&nbsp;                    break;</b>
+<i>206</i>&nbsp;                }
+<b class="fc"><i>207</i>&nbsp;            }</b>
+<b class="fc"><i>208</i>&nbsp;            if (!found) {</b>
+<b class="fc"><i>209</i>&nbsp;                ptsInteret.add(req.getPickup());</b>
+<i>210</i>&nbsp;            }
+<i>211</i>&nbsp;
+<b class="fc"><i>212</i>&nbsp;            found = false;</b>
+<b class="fc"><i>213</i>&nbsp;            for (Intersection node : ptsInteret) {</b>
+<b class="fc"><i>214</i>&nbsp;                if (req.getDelivery().getId() == node.getId()) {</b>
+<b class="fc"><i>215</i>&nbsp;                    found = true;</b>
+<b class="fc"><i>216</i>&nbsp;                    break;</b>
+<i>217</i>&nbsp;                }
+<b class="fc"><i>218</i>&nbsp;            }</b>
+<b class="fc"><i>219</i>&nbsp;            if (!found) {</b>
+<b class="fc"><i>220</i>&nbsp;                ptsInteret.add(req.getDelivery());</b>
+<i>221</i>&nbsp;            }
+<i>222</i>&nbsp;
+<i>223</i>&nbsp;//            if(!ptsInteret.contains(req.getPickup())){
+<i>224</i>&nbsp;//                ptsInteret.add(req.getPickup());
+<i>225</i>&nbsp;//            }
+<i>226</i>&nbsp;//            if(!ptsInteret.contains(req.getDelivery())){
+<i>227</i>&nbsp;//                ptsInteret.add(req.getDelivery());
+<i>228</i>&nbsp;//            }
+<b class="fc"><i>229</i>&nbsp;        }</b>
+<i>230</i>&nbsp;
+<b class="fc"><i>231</i>&nbsp;        int nInodes = ptsInteret.size();</b>
+<b class="fc"><i>232</i>&nbsp;        SuperArete[][] adjMatrix = new SuperArete[nInodes][nInodes];</b>
+<i>233</i>&nbsp;
+<b class="fc"><i>234</i>&nbsp;        for (int i = 0; i &lt; nInodes; i++) {</b>
+<b class="fc"><i>235</i>&nbsp;            ArrayList&lt;Segment&gt; predList = dijkstra(map, ptsInteret.get(i), ptsInteret, intersecIdToIndex);</b>
+<b class="fc"><i>236</i>&nbsp;            for (int j = 0; j &lt; nInodes; j++) {</b>
+<b class="fc"><i>237</i>&nbsp;                if (i != j) {</b>
+<b class="fc"><i>238</i>&nbsp;                    ArrayList&lt;Segment&gt; chemin = recreateChemin(predList, ptsInteret.get(i), ptsInteret.get(j), intersections, intersecIdToIndex);</b>
+<b class="fc"><i>239</i>&nbsp;                    adjMatrix[i][j] = new SuperArete(chemin, intersections, intersecIdToIndex);</b>
+<i>240</i>&nbsp;                }
+<i>241</i>&nbsp;            }
+<i>242</i>&nbsp;        }
+<i>243</i>&nbsp;
+<b class="fc"><i>244</i>&nbsp;        return adjMatrix;</b>
+<i>245</i>&nbsp;    }
+<i>246</i>&nbsp;
+<i>247</i>&nbsp;    /**
+<i>248</i>&nbsp;     * Computes the adjacence list corresponding to the graph built from the Segments and Intersections of the Map
+<i>249</i>&nbsp;     * given as parameter.
+<i>250</i>&nbsp;     *
+<i>251</i>&nbsp;     * @param map               The map representing the graph on which we search
+<i>252</i>&nbsp;     * @param intersecIdToIndex The dictionnary giving the index of an Intersection in the Intersection list of the map,
+<i>253</i>&nbsp;     *                          from its ID
+<i>254</i>&nbsp;     * @return the adjacence list, indexed according to the indices given by the HashMap given as parameter,
+<i>255</i>&nbsp;     * and including for each Intersection the list of Segments having for origin this Intersection.
+<i>256</i>&nbsp;     */
+<i>257</i>&nbsp;    private static ArrayList&lt;ArrayList&lt;Segment&gt;&gt; getListeAdj(Map map, HashMap&lt;Long, Integer&gt; intersecIdToIndex) {
+<i>258</i>&nbsp;
+<i>259</i>&nbsp;        // capacité initiale (taille max atteignable sans réallouer de la mémoire)
+<b class="fc"><i>260</i>&nbsp;        ArrayList&lt;ArrayList&lt;Segment&gt;&gt; listeAdj = new ArrayList&lt;&gt;(map.getNoOfIntersections());</b>
+<i>261</i>&nbsp;
+<b class="fc"><i>262</i>&nbsp;        for (int i = 0; i &lt; map.getNoOfIntersections(); ++i) {</b>
+<b class="fc"><i>263</i>&nbsp;            listeAdj.add(new ArrayList&lt;Segment&gt;());     // optimisation possible : capacité initiale != 0</b>
+<i>264</i>&nbsp;        }
+<i>265</i>&nbsp;
+<b class="fc"><i>266</i>&nbsp;        for (Segment segment : map.getSegmentList()) {</b>
+<b class="fc"><i>267</i>&nbsp;            int departId = intersecIdToIndex.get(segment.getOrigin());</b>
+<b class="fc"><i>268</i>&nbsp;            listeAdj.get(departId).add(segment);</b>
+<b class="fc"><i>269</i>&nbsp;        }</b>
+<i>270</i>&nbsp;
+<b class="fc"><i>271</i>&nbsp;        return listeAdj;</b>
+<i>272</i>&nbsp;    }
+<i>273</i>&nbsp;
+<i>274</i>&nbsp;    /**
+<i>275</i>&nbsp;     * Creates a dictionnary giving the index of an Intersection in the Intersection list of the Map,
+<i>276</i>&nbsp;     * according to its ID.
+<i>277</i>&nbsp;     *
+<i>278</i>&nbsp;     * @param map        The map representing the graph on which we search
+<i>279</i>&nbsp;     * @return the dictionnary
+<i>280</i>&nbsp;     */
+<i>281</i>&nbsp;    private static HashMap&lt;Long, Integer&gt; indexationIntersections(Map map) {
+<i>282</i>&nbsp;        // dico id -&gt; index dans les tableaux indexés par intersections
+<i>283</i>&nbsp;        // pour le sens inverse : utiliser le tableau intersections
+<b class="fc"><i>284</i>&nbsp;        HashMap&lt;Long, Integer&gt; intersecIdToIndex = new HashMap&lt;Long, Integer&gt;();</b>
+<b class="fc"><i>285</i>&nbsp;        ArrayList&lt;Intersection&gt; intersections = map.getIntersectionList();</b>
+<i>286</i>&nbsp;
+<b class="fc"><i>287</i>&nbsp;        for (int i = 0; i &lt; map.getNoOfIntersections(); ++i) {</b>
+<b class="fc"><i>288</i>&nbsp;            intersecIdToIndex.put(intersections.get(i).getId(), i);</b>
+<i>289</i>&nbsp;        }
+<i>290</i>&nbsp;
+<b class="fc"><i>291</i>&nbsp;        return intersecIdToIndex;</b>
+<i>292</i>&nbsp;    }
+<i>293</i>&nbsp;
+<i>294</i>&nbsp;    /**
+<i>295</i>&nbsp;     * Recreates a path (as a Segments list) from a predecessor list, a departure node and a destination node.
+<i>296</i>&nbsp;     *
+<i>297</i>&nbsp;     * @param predList          The predecessor vertices list : at each index, the Segment leading to this node
+<i>298</i>&nbsp;     *                          from the previous node
+<i>299</i>&nbsp;     * @param depart            The Intersection at the departure of the path
+<i>300</i>&nbsp;     * @param arrivee           The Intersection at the destination of the path
+<i>301</i>&nbsp;     * @param intersections     The Intersection list of the map
+<i>302</i>&nbsp;     * @param intersecIdToIndex The dictionnary giving the index of an Intersection in the Intersection list of the map,
+<i>303</i>&nbsp;     *                          from its ID
+<i>304</i>&nbsp;     * @return the path from the departure node to the destination node
+<i>305</i>&nbsp;     */
+<i>306</i>&nbsp;    private static ArrayList&lt;Segment&gt; recreateChemin(ArrayList&lt;Segment&gt; predList, Intersection depart, Intersection arrivee, ArrayList&lt;Intersection&gt; intersections, HashMap&lt;Long, Integer&gt; intersecIdToIndex) {
+<b class="fc"><i>307</i>&nbsp;        ArrayList&lt;Segment&gt; chemin = new ArrayList&lt;Segment&gt;();</b>
+<b class="fc"><i>308</i>&nbsp;        Intersection curNode = arrivee;</b>
+<i>309</i>&nbsp;
+<b class="fc"><i>310</i>&nbsp;        while (curNode.getId() != depart.getId()) {</b>
+<b class="fc"><i>311</i>&nbsp;            Segment boutChemin = predList.get(intersecIdToIndex.get(curNode.getId()));</b>
+<b class="fc"><i>312</i>&nbsp;            chemin.add(0, boutChemin);</b>
+<b class="fc"><i>313</i>&nbsp;            curNode = intersections.get(intersecIdToIndex.get(boutChemin.getOrigin()));</b>
+<b class="fc"><i>314</i>&nbsp;        }</b>
+<i>315</i>&nbsp;
+<b class="fc"><i>316</i>&nbsp;        return chemin;</b>
+<i>317</i>&nbsp;    }
+<i>318</i>&nbsp;
+<i>319</i>&nbsp;    /**
+<i>320</i>&nbsp;     * Computes the arrival times of each pickup/delivery, as well as the associated path fragments.
+<i>321</i>&nbsp;     * Used when it would be more complicated to compute this during the main Tour calculations.
+<i>322</i>&nbsp;     *
+<i>323</i>&nbsp;     * @param tournee       The Tour to modify (no return, modifies the parameter directly)
+<i>324</i>&nbsp;     * @param planning      The planning that includes a list of requests to deal with as well as the
+<i>325</i>&nbsp;     *                      departure address
+<i>326</i>&nbsp;     */
+<i>327</i>&nbsp;    public static void recreateTimesTournee(Tournee tournee, PlanningRequest planning) {
+<i>328</i>&nbsp;
+<b class="fc"><i>329</i>&nbsp;        LocalTime curTime = planning.getDepot().getDepartureTime();</b>
+<b class="fc"><i>330</i>&nbsp;        ArrayList&lt;Segment&gt; curChemin = new ArrayList&lt;Segment&gt;();</b>
+<i>331</i>&nbsp;        // pool
+<b class="fc"><i>332</i>&nbsp;        LinkedList&lt;TupleRequete&gt; pool = new LinkedList&lt;TupleRequete&gt;();</b>
+<b class="fc"><i>333</i>&nbsp;        for (Request req : planning.getRequestList()) {</b>
+<b class="fc"><i>334</i>&nbsp;            pool.add(new TupleRequete(req, true));</b>
+<b class="fc"><i>335</i>&nbsp;        }</b>
+<b class="fc"><i>336</i>&nbsp;        pool.add(new TupleRequete(new Request(planning.getRequestList().size(), planning.getDepot().getAdresse(), planning.getDepot().getAdresse(), 0, 0), false));</b>
+<i>337</i>&nbsp;
+<b class="fc"><i>338</i>&nbsp;        ArrayList&lt;TupleRequete&gt; ptsPassage = new ArrayList&lt;TupleRequete&gt;();</b>
+<i>339</i>&nbsp;
+<b class="fc"><i>340</i>&nbsp;        for (Segment seg : tournee.getSegmentList()) {</b>
+<b class="fc"><i>341</i>&nbsp;            curTime = curTime.plusSeconds((long) (seg.getLength() * 3600 / 15000.0));</b>
+<b class="fc"><i>342</i>&nbsp;            curChemin.add(seg);</b>
+<i>343</i>&nbsp;
+<b class="fc"><i>344</i>&nbsp;            LinkedList&lt;TupleRequete&gt; aDelete = new LinkedList&lt;TupleRequete&gt;();</b>
+<b class="fc"><i>345</i>&nbsp;            boolean found = false;</b>
+<b class="fc"><i>346</i>&nbsp;            for (TupleRequete req : pool) {</b>
+<b class="fc"><i>347</i>&nbsp;                if (req.isDepart &amp;&amp; req.requete.getPickup().getId() == seg.getDestination()) {</b>
+<b class="fc"><i>348</i>&nbsp;                    req.isDepart = false;</b>
+<b class="fc"><i>349</i>&nbsp;                    curTime = curTime.plusSeconds((long) (req.getRequete().getPickupDur()));</b>
+<b class="fc"><i>350</i>&nbsp;                    if (verbose)</b>
+<b class="nc"><i>351</i>&nbsp;                        System.out.println(&quot;Pickup a &quot; + req.getRequete().getPickup().getId() + &quot; pendant &quot; + req.getRequete().getPickupDur());</b>
+<b class="fc"><i>352</i>&nbsp;                    ptsPassage.add(new TupleRequete(req.getRequete(), true, curTime, curChemin));</b>
+<b class="fc"><i>353</i>&nbsp;                    found = true;</b>
+<i>354</i>&nbsp;                }
+<b class="fc"><i>355</i>&nbsp;                if (!req.isDepart &amp;&amp; req.requete.getDelivery().getId() == seg.getDestination()) {</b>
+<b class="fc"><i>356</i>&nbsp;                    aDelete.add(req);</b>
+<b class="fc"><i>357</i>&nbsp;                    curTime = curTime.plusSeconds((long) (req.getRequete().getDeliveryDur()));</b>
+<b class="fc"><i>358</i>&nbsp;                    if (verbose)</b>
+<b class="nc"><i>359</i>&nbsp;                        System.out.println(&quot;Delivery a &quot; + req.getRequete().getDelivery().getId() + &quot; pendant &quot; + req.getRequete().getDeliveryDur());</b>
+<b class="fc"><i>360</i>&nbsp;                    ptsPassage.add(new TupleRequete(req.getRequete(), false, curTime, curChemin));</b>
+<b class="fc"><i>361</i>&nbsp;                    found = true;</b>
+<i>362</i>&nbsp;                }
+<b class="fc"><i>363</i>&nbsp;            }</b>
+<b class="fc"><i>364</i>&nbsp;            pool.removeAll(aDelete);</b>
+<b class="fc"><i>365</i>&nbsp;            if (found) {</b>
+<b class="fc"><i>366</i>&nbsp;                if (verbose)</b>
+<b class="nc"><i>367</i>&nbsp;                    System.out.println(&quot;On va de &quot; + curChemin.get(0).getOrigin() + &quot; a &quot; + curChemin.get(curChemin.size() - 1).getDestination());</b>
+<b class="fc"><i>368</i>&nbsp;                curChemin = new ArrayList&lt;Segment&gt;();</b>
+<i>369</i>&nbsp;            }
+<b class="fc"><i>370</i>&nbsp;        }</b>
+<i>371</i>&nbsp;
+<b class="fc"><i>372</i>&nbsp;        tournee.setPtsPassage(ptsPassage);</b>
+<b class="fc"><i>373</i>&nbsp;    }</b>
+<i>374</i>&nbsp;
+<i>375</i>&nbsp;    /**
+<i>376</i>&nbsp;     * Chooses a random element in any ArrayList.
+<i>377</i>&nbsp;     *
+<i>378</i>&nbsp;     * @param arrayList     The list in which the element is chosen
+<i>379</i>&nbsp;     * @return the chosen element
+<i>380</i>&nbsp;     */
+<i>381</i>&nbsp;    private static &lt;T&gt; T pickRandom(ArrayList&lt;T&gt; arrayList) {
+<b class="nc"><i>382</i>&nbsp;        int rnd = new Random().nextInt(arrayList.size());</b>
+<b class="nc"><i>383</i>&nbsp;        return arrayList.get(rnd);</b>
+<i>384</i>&nbsp;    }
+<i>385</i>&nbsp;
+<i>386</i>&nbsp;    /**
+<i>387</i>&nbsp;     * Indexes the pickup and delivery of each request as well as the departure address in the following way :
+<i>388</i>&nbsp;     * - index 0 : departure address
+<i>389</i>&nbsp;     * - index 1 and above : each interest point other than the departure address, indexed according to ptsIdToIndex
+<i>390</i>&nbsp;     * @param planning      The planning that includes a list of requests to deal with as well as the
+<i>391</i>&nbsp;     *                      departure address
+<i>392</i>&nbsp;     * @return the dictionnary associating the intersection ID to its index
+<i>393</i>&nbsp;     */
+<i>394</i>&nbsp;    private static HashMap&lt;Long, Integer&gt; indexerPtsInteret(PlanningRequest planning) {
+<b class="fc"><i>395</i>&nbsp;        HashMap&lt;Long, Integer&gt; ptsIdToIndex = new HashMap&lt;&gt;();</b>
+<i>396</i>&nbsp;
+<b class="fc"><i>397</i>&nbsp;        ptsIdToIndex.put(planning.getDepot().getAdresse().getId(), 0);</b>
+<i>398</i>&nbsp;
+<b class="fc"><i>399</i>&nbsp;        int index = 1;</b>
+<b class="fc"><i>400</i>&nbsp;        for (Request req : planning.getRequestList()) {</b>
+<b class="fc"><i>401</i>&nbsp;            if (!ptsIdToIndex.containsKey(req.getPickup().getId())) {     // pas sûr que c&#39;est nécessaire</b>
+<b class="fc"><i>402</i>&nbsp;                ptsIdToIndex.put(req.getPickup().getId(), index);</b>
+<b class="fc"><i>403</i>&nbsp;                ++index;</b>
+<i>404</i>&nbsp;            }
+<b class="fc"><i>405</i>&nbsp;            if (!ptsIdToIndex.containsKey(req.getDelivery().getId())) {     // pas sûr que c&#39;est nécessaire</b>
+<b class="fc"><i>406</i>&nbsp;                ptsIdToIndex.put(req.getDelivery().getId(), index);</b>
+<b class="fc"><i>407</i>&nbsp;                ++index;</b>
+<i>408</i>&nbsp;            }
+<b class="fc"><i>409</i>&nbsp;        }</b>
+<i>410</i>&nbsp;
+<b class="fc"><i>411</i>&nbsp;        return ptsIdToIndex;</b>
+<i>412</i>&nbsp;    }
+<i>413</i>&nbsp;
+<i>414</i>&nbsp;    /**
+<i>415</i>&nbsp;     * Rebuilds a Tour object from a full path and the given Requests.
+<i>416</i>&nbsp;     *
+<i>417</i>&nbsp;     * @param chemin    The path to use for the Tour
+<i>418</i>&nbsp;     * @return the computed Tour
+<i>419</i>&nbsp;     */
+<i>420</i>&nbsp;    private static Tournee cheminVersTournee(PlanningRequest planningRequest, ArrayList&lt;SuperArete&gt; chemin) {
+<b class="nc"><i>421</i>&nbsp;        ArrayList&lt;Segment&gt; segmentList = new ArrayList&lt;&gt;();</b>
+<b class="nc"><i>422</i>&nbsp;        for (SuperArete sa : chemin) {</b>
+<b class="nc"><i>423</i>&nbsp;            if (sa.chemin != null) {</b>
+<b class="nc"><i>424</i>&nbsp;                segmentList.addAll(sa.chemin);</b>
+<i>425</i>&nbsp;            }
+<b class="nc"><i>426</i>&nbsp;        }</b>
+<b class="nc"><i>427</i>&nbsp;        return new Tournee(segmentList, planningRequest.getRequestList());</b>
+<i>428</i>&nbsp;    }
+<i>429</i>&nbsp;
+<i>430</i>&nbsp;    /**
+<i>431</i>&nbsp;     * Crée un chemin aléatoire valide, c&#39;est-à-dire qui passe par tous les points de pickup et de delivery,
+<i>432</i>&nbsp;     * et que tous les pickups sont réalisés avant les deliveries associées.
+<i>433</i>&nbsp;     *
+<i>434</i>&nbsp;     * @param matAdj       The optimal full sub-graph of the map as an adjacence matrix
+<i>435</i>&nbsp;     * @param planning     The planning that includes a list of requests to deal with as well as the
+<i>436</i>&nbsp;     *                     departure address
+<i>437</i>&nbsp;     * @param ptsIdToIndex The dictionnary associating and Intersection ID with its index in the adjacence matrix
+<i>438</i>&nbsp;     * @return the path as a SuperAretes list, representing each the path between two consecutive interest points.
+<i>439</i>&nbsp;     * Contract : the first index in matAdj represents the departure address.
+<i>440</i>&nbsp;     */
+<i>441</i>&nbsp;    private static ArrayList&lt;SuperArete&gt; cheminAleatoire(SuperArete[][] matAdj, PlanningRequest planning, HashMap&lt;Long, Integer&gt; ptsIdToIndex) {
+<i>442</i>&nbsp;
+<i>443</i>&nbsp;        /* --- Principe :
+<i>444</i>&nbsp;         * Initialiser le pool d&#39;intersections à tous les départs des requêtes
+<i>445</i>&nbsp;         * Choisir un départ de requête au hasard dans le pool et le retirer
+<i>446</i>&nbsp;         * Initialiser le chemin à la SuperArete [dépôt -&gt; départ choisi]
+<i>447</i>&nbsp;         * Ajouter l&#39;arrivée de la requête associée départ choisi au pool
+<i>448</i>&nbsp;         * Tant que le pool n&#39;est pas vide :
+<i>449</i>&nbsp;         *  - Prendre un élément au hasard dans le pool
+<i>450</i>&nbsp;         *  - Ajouter au chemin la SuperArete [dernière Intersection du chemin -&gt; élément choisi]
+<i>451</i>&nbsp;         *  - Si cet élément est un départ de requête, ajouter son arrivée dans le pool
+<i>452</i>&nbsp;         * Ajouter la SuperArete [dernier point -&gt; dépôt]
+<i>453</i>&nbsp;         *
+<i>454</i>&nbsp;         * -&gt; dans l&#39;implémentation actuelle, les départs &amp; les arrivées sont stockées dans un même objet TupleRequete
+<i>455</i>&nbsp;         * (on ne supprime pas un point de départ du pool, on met juste à jour isDepart de son objet TupleRequete)
+<i>456</i>&nbsp;         * */
+<i>457</i>&nbsp;
+<i>458</i>&nbsp;        // initialisation du pool
+<b class="nc"><i>459</i>&nbsp;        ArrayList&lt;TupleRequete&gt; pool = new ArrayList&lt;&gt;(planning.getRequestList().size());</b>
+<i>460</i>&nbsp;//        Set&lt;TupleRequete&gt; poolset = new HashSet&lt;&gt;();      // todo tester avec le set pour optimiser les suppressions
+<b class="nc"><i>461</i>&nbsp;        for (Request req : planning.getRequestList()) {</b>
+<b class="nc"><i>462</i>&nbsp;            pool.add(new TupleRequete(req, true));</b>
+<b class="nc"><i>463</i>&nbsp;        }</b>
+<i>464</i>&nbsp;
+<b class="nc"><i>465</i>&nbsp;        TupleRequete pick = pickRandom(pool);</b>
+<i>466</i>&nbsp;
+<i>467</i>&nbsp;        // initialisation du chemin
+<b class="nc"><i>468</i>&nbsp;        ArrayList&lt;SuperArete&gt; chemin = new ArrayList&lt;&gt;();</b>
+<b class="nc"><i>469</i>&nbsp;        int indexDernierPt = 0;</b>
+<b class="nc"><i>470</i>&nbsp;        int indexActuel = ptsIdToIndex.get(pick.requete.getPickup().getId());</b>
+<i>471</i>&nbsp;        // ajout de la nouvelle portion de chemin
+<b class="nc"><i>472</i>&nbsp;        if (indexActuel != indexDernierPt) {</b>
+<b class="nc"><i>473</i>&nbsp;            if (matAdj[indexDernierPt][indexActuel] != null) {</b>
+<b class="nc"><i>474</i>&nbsp;                chemin.add(matAdj[indexDernierPt][indexActuel]);  // dépôt -&gt; premier départ</b>
+<i>475</i>&nbsp;            } else {
+<b class="nc"><i>476</i>&nbsp;                System.err.println(&quot;null found where it should not be ! (&quot; + indexDernierPt + &quot; -&gt; &quot; + indexActuel + &quot;)&quot;);</b>
+<i>477</i>&nbsp;            }
+<i>478</i>&nbsp;        } else {
+<b class="nc"><i>479</i>&nbsp;            System.err.println(&quot;Path with identical pickup &amp; delivery ignored&quot;);</b>
+<i>480</i>&nbsp;        }
+<b class="nc"><i>481</i>&nbsp;        pick.isDepart = false;</b>
+<i>482</i>&nbsp;
+<i>483</i>&nbsp;        // debug
+<b class="nc"><i>484</i>&nbsp;        if (matAdj[indexDernierPt][indexActuel] == null) {</b>
+<b class="nc"><i>485</i>&nbsp;            if (indexActuel == indexDernierPt) {</b>
+<b class="nc"><i>486</i>&nbsp;                System.err.println(&quot;null added to chemin at &quot; + indexDernierPt + &quot;, &quot; + indexActuel);</b>
+<i>487</i>&nbsp;            }
+<i>488</i>&nbsp;        }
+<i>489</i>&nbsp;
+<b class="nc"><i>490</i>&nbsp;        while (pool.size() &gt; 0) {</b>
+<i>491</i>&nbsp;            // choix d&#39;un chemin &amp; update des indices
+<b class="nc"><i>492</i>&nbsp;            pick = pickRandom(pool);</b>
+<b class="nc"><i>493</i>&nbsp;            indexDernierPt = indexActuel;</b>
+<b class="nc"><i>494</i>&nbsp;            indexActuel = ptsIdToIndex.get(pick.requete.getPickup().getId());</b>
+<i>495</i>&nbsp;
+<i>496</i>&nbsp;            // ajout de la nouvelle portion de chemin
+<b class="nc"><i>497</i>&nbsp;            if (indexActuel != indexDernierPt) {</b>
+<b class="nc"><i>498</i>&nbsp;                if (matAdj[indexDernierPt][indexActuel] != null) {</b>
+<b class="nc"><i>499</i>&nbsp;                    chemin.add(matAdj[indexDernierPt][indexActuel]);  // dépôt -&gt; premier départ</b>
+<i>500</i>&nbsp;                } else {
+<b class="nc"><i>501</i>&nbsp;                    System.err.println(&quot;null found where it should not be ! (&quot; + indexDernierPt + &quot; -&gt; &quot; + indexActuel + &quot;)&quot;);</b>
+<i>502</i>&nbsp;                }
+<i>503</i>&nbsp;            } else {
+<b class="nc"><i>504</i>&nbsp;                System.err.println(&quot;Path with identical pickup &amp; delivery ignored&quot;);</b>
+<i>505</i>&nbsp;            }
+<i>506</i>&nbsp;
+<b class="nc"><i>507</i>&nbsp;            if (pick.isDepart) {</b>
+<b class="nc"><i>508</i>&nbsp;                pick.isDepart = false;</b>
+<i>509</i>&nbsp;            } else {
+<b class="nc"><i>510</i>&nbsp;                pool.remove(pick);</b>
+<i>511</i>&nbsp;            }
+<i>512</i>&nbsp;        }
+<i>513</i>&nbsp;
+<i>514</i>&nbsp;        // ajout du retour au dépôt
+<b class="nc"><i>515</i>&nbsp;        indexDernierPt = indexActuel;</b>
+<b class="nc"><i>516</i>&nbsp;        indexActuel = 0;</b>
+<i>517</i>&nbsp;        // ajout de la nouvelle portion de chemin
+<b class="nc"><i>518</i>&nbsp;        if (indexActuel != indexDernierPt) {</b>
+<b class="nc"><i>519</i>&nbsp;            if (matAdj[indexDernierPt][indexActuel] != null) {</b>
+<b class="nc"><i>520</i>&nbsp;                chemin.add(matAdj[indexDernierPt][indexActuel]);  // dépôt -&gt; premier départ</b>
+<i>521</i>&nbsp;            } else {
+<b class="nc"><i>522</i>&nbsp;                System.err.println(&quot;null found where it should not be ! (&quot; + indexDernierPt + &quot; -&gt; &quot; + indexActuel + &quot;)&quot;);</b>
+<i>523</i>&nbsp;            }
+<i>524</i>&nbsp;        } else {
+<b class="nc"><i>525</i>&nbsp;            System.err.println(&quot;Path with identical pickup &amp; delivery ignored&quot;);</b>
+<i>526</i>&nbsp;        }
+<i>527</i>&nbsp;
+<b class="nc"><i>528</i>&nbsp;        return chemin;</b>
+<i>529</i>&nbsp;    }
+<i>530</i>&nbsp;
+<i>531</i>&nbsp;    // ----------------------------- Heuristics
+<i>532</i>&nbsp;
+<i>533</i>&nbsp;    /**
+<i>534</i>&nbsp;     * Computes a Tour in the fastest possible way, by iteratively going from a request&#39;s pickup to its delivery,
+<i>535</i>&nbsp;     * then to the next request&#39;s pickup, for each Request.
+<i>536</i>&nbsp;     *
+<i>537</i>&nbsp;     * @param map               The map representing the graph on which we search
+<i>538</i>&nbsp;     * @param planning          The planning that includes a list of requests to deal with as well as the
+<i>539</i>&nbsp;     *                          departure address
+<i>540</i>&nbsp;     * @param intersecIdToIndex The dictionnary giving the index of an Intersection in the Intersection list of the map,
+<i>541</i>&nbsp;     *                          from its ID
+<i>542</i>&nbsp;     * @return the computed Tour
+<i>543</i>&nbsp;     */
+<i>544</i>&nbsp;    private static Tournee tourneeTriviale(Map map, PlanningRequest planning, HashMap&lt;Long, Integer&gt; intersecIdToIndex) {
+<b class="nc"><i>545</i>&nbsp;        LocalTime curTime = planning.getDepot().getDepartureTime();</b>
+<b class="nc"><i>546</i>&nbsp;        ArrayList&lt;TupleRequete&gt; ptsPassage = new ArrayList&lt;TupleRequete&gt;();</b>
+<b class="nc"><i>547</i>&nbsp;        ArrayList&lt;Segment&gt; chemin = new ArrayList&lt;Segment&gt;();</b>
+<b class="nc"><i>548</i>&nbsp;        ArrayList&lt;Intersection&gt; intersections = map.getIntersectionList();</b>
+<i>549</i>&nbsp;
+<b class="nc"><i>550</i>&nbsp;        Intersection previousDelivery = planning.getDepot().getAdresse();</b>
+<i>551</i>&nbsp;        LinkedList&lt;Intersection&gt; ptsInteret;
+<i>552</i>&nbsp;        ArrayList&lt;Segment&gt; predList;
+<b class="nc"><i>553</i>&nbsp;        for (Request request : planning.getRequestList()) {</b>
+<b class="nc"><i>554</i>&nbsp;            ptsInteret = new LinkedList&lt;Intersection&gt;();</b>
+<b class="nc"><i>555</i>&nbsp;            ptsInteret.add(request.getPickup());</b>
+<b class="nc"><i>556</i>&nbsp;            predList = dijkstra(map, previousDelivery, ptsInteret, intersecIdToIndex);</b>
+<b class="nc"><i>557</i>&nbsp;            ArrayList&lt;Segment&gt; curChemin = recreateChemin(predList, previousDelivery, request.getPickup(), intersections, intersecIdToIndex);</b>
+<b class="nc"><i>558</i>&nbsp;            chemin.addAll(curChemin);</b>
+<i>559</i>&nbsp;
+<b class="nc"><i>560</i>&nbsp;            float travelDur = 0;</b>
+<b class="nc"><i>561</i>&nbsp;            for (Segment seg : curChemin) {</b>
+<b class="nc"><i>562</i>&nbsp;                travelDur += seg.getLength();</b>
+<b class="nc"><i>563</i>&nbsp;            }</b>
+<b class="nc"><i>564</i>&nbsp;            travelDur *= 3600.0 / 15000.0; // conversion de metres vers secondes</b>
+<b class="nc"><i>565</i>&nbsp;            curTime = curTime.plusSeconds((long) travelDur);</b>
+<i>566</i>&nbsp;
+<b class="nc"><i>567</i>&nbsp;            ptsPassage.add(new TupleRequete(request, true, curTime, curChemin));</b>
+<i>568</i>&nbsp;
+<b class="nc"><i>569</i>&nbsp;            curTime = curTime.plusSeconds((long) request.getPickupDur());</b>
+<i>570</i>&nbsp;
+<i>571</i>&nbsp;
+<b class="nc"><i>572</i>&nbsp;            ptsInteret = new LinkedList&lt;Intersection&gt;();</b>
+<b class="nc"><i>573</i>&nbsp;            ptsInteret.add(request.getDelivery());</b>
+<b class="nc"><i>574</i>&nbsp;            predList = dijkstra(map, request.getPickup(), ptsInteret, intersecIdToIndex);</b>
+<b class="nc"><i>575</i>&nbsp;            curChemin = recreateChemin(predList, request.getPickup(), request.getDelivery(), intersections, intersecIdToIndex);</b>
+<b class="nc"><i>576</i>&nbsp;            chemin.addAll(curChemin);</b>
+<i>577</i>&nbsp;
+<b class="nc"><i>578</i>&nbsp;            travelDur = 0;</b>
+<b class="nc"><i>579</i>&nbsp;            for (Segment seg : curChemin) {</b>
+<b class="nc"><i>580</i>&nbsp;                travelDur += seg.getLength();</b>
+<b class="nc"><i>581</i>&nbsp;            }</b>
+<b class="nc"><i>582</i>&nbsp;            travelDur *= 3600.0 / 15000.0; // conversion de metres vers secondes</b>
+<b class="nc"><i>583</i>&nbsp;            curTime = curTime.plusSeconds((long) travelDur);</b>
+<i>584</i>&nbsp;
+<b class="nc"><i>585</i>&nbsp;            ptsPassage.add(new TupleRequete(request, false, curTime, curChemin));</b>
+<i>586</i>&nbsp;
+<b class="nc"><i>587</i>&nbsp;            curTime = curTime.plusSeconds((long) request.getPickupDur());</b>
+<i>588</i>&nbsp;
+<b class="nc"><i>589</i>&nbsp;            previousDelivery = request.getDelivery();</b>
+<b class="nc"><i>590</i>&nbsp;        }</b>
+<i>591</i>&nbsp;
+<i>592</i>&nbsp;        // retour au depot
+<b class="nc"><i>593</i>&nbsp;        ptsInteret = new LinkedList&lt;Intersection&gt;();</b>
+<b class="nc"><i>594</i>&nbsp;        ptsInteret.add(planning.getDepot().getAdresse());</b>
+<b class="nc"><i>595</i>&nbsp;        predList = dijkstra(map, previousDelivery, ptsInteret, intersecIdToIndex);</b>
+<b class="nc"><i>596</i>&nbsp;        ArrayList&lt;Segment&gt; lastChemin = recreateChemin(predList, previousDelivery, planning.getDepot().getAdresse(), intersections, intersecIdToIndex);</b>
+<b class="nc"><i>597</i>&nbsp;        float travelDur = 0;</b>
+<b class="nc"><i>598</i>&nbsp;        for (Segment seg : lastChemin) {</b>
+<b class="nc"><i>599</i>&nbsp;            travelDur += seg.getLength();</b>
+<b class="nc"><i>600</i>&nbsp;        }</b>
+<b class="nc"><i>601</i>&nbsp;        travelDur *= 3600.0 / 15000.0; // conversion de metres vers secondes</b>
+<b class="nc"><i>602</i>&nbsp;        curTime = curTime.plusSeconds((long) travelDur);</b>
+<b class="nc"><i>603</i>&nbsp;        chemin.addAll(lastChemin);</b>
+<b class="nc"><i>604</i>&nbsp;        ptsPassage.add(new TupleRequete(new Request(planning.getRequestList().size(), previousDelivery, planning.getDepot().getAdresse(), 0, 0), false, curTime, lastChemin));</b>
+<i>605</i>&nbsp;
+<b class="nc"><i>606</i>&nbsp;        return new Tournee(chemin, planning.getRequestList(), ptsPassage);</b>
+<i>607</i>&nbsp;    }
+<i>608</i>&nbsp;
+<i>609</i>&nbsp;    /**
+<i>610</i>&nbsp;     * Todo : pas encore implémentée
+<i>611</i>&nbsp;     *
+<i>612</i>&nbsp;     * @param matAdj       The optimal full sub-graph of the map as an adjacence matrix
+<i>613</i>&nbsp;     * @param planning     The planning that includes a list of requests to deal with as well as the
+<i>614</i>&nbsp;     *                     departure address
+<i>615</i>&nbsp;     * @return the computed Tour
+<i>616</i>&nbsp;     */
+<i>617</i>&nbsp;    private static Tournee geneticATSP(SuperArete[][] matAdj, PlanningRequest planning) {
+<b class="nc"><i>618</i>&nbsp;        HashMap&lt;Long, Integer&gt; ptIdToIndex = new HashMap&lt;&gt;();       // !! pas les mêmes index qu&#39;avant</b>
+<b class="nc"><i>619</i>&nbsp;        return null;</b>
+<i>620</i>&nbsp;    }
+<i>621</i>&nbsp;
+<i>622</i>&nbsp;    /**
+<i>623</i>&nbsp;     * Computes a Tour using a greedy algorithm, heading at each iteration to the closest remaining interest point
+<i>624</i>&nbsp;     * to the current position.
+<i>625</i>&nbsp;     *
+<i>626</i>&nbsp;     * @param matAdj       The optimal full sub-graph of the map as an adjacence matrix
+<i>627</i>&nbsp;     * @param planning          The planning that includes a list of requests to deal with as well as the
+<i>628</i>&nbsp;     *                          departure address
+<i>629</i>&nbsp;     * @param intersecIdToIndex The dictionnary giving the index of an Intersection in the Intersection list of the map,
+<i>630</i>&nbsp;     *                          from its ID
+<i>631</i>&nbsp;     * @return the computed Tour
+<i>632</i>&nbsp;     */
+<i>633</i>&nbsp;    private static Tournee greedy(SuperArete[][] matAdj, PlanningRequest planning, HashMap&lt;Long, Integer&gt; intersecIdToIndex) {
+<i>634</i>&nbsp;
+<i>635</i>&nbsp;        /* Principe :
+<i>636</i>&nbsp;         *  - initialiser un pool à la liste des départs
+<i>637</i>&nbsp;         *  - prendre le départ le plus proche du dépot du pool
+<i>638</i>&nbsp;         *  - ajouter son arrivée au pool
+<i>639</i>&nbsp;         *  - tant qu&#39;on a pas fini le chemin (= tant que le pool n&#39;est pas vide)
+<i>640</i>&nbsp;         *    - prendre le point du pool le plus proche du dernier point choisi
+<i>641</i>&nbsp;         *    - si c&#39;est un départ, ajouter son arrivée au pool
+<i>642</i>&nbsp;         */
+<i>643</i>&nbsp;
+<b class="nc"><i>644</i>&nbsp;        LocalTime curTime = planning.getDepot().getDepartureTime();</b>
+<b class="nc"><i>645</i>&nbsp;        ArrayList&lt;Segment&gt; chemin = new ArrayList&lt;Segment&gt;();</b>
+<b class="nc"><i>646</i>&nbsp;        ArrayList&lt;TupleRequete&gt; ptsPassage = new ArrayList&lt;TupleRequete&gt;();</b>
+<b class="nc"><i>647</i>&nbsp;        ArrayList&lt;Request&gt; requests = planning.getRequestList();</b>
+<i>648</i>&nbsp;
+<b class="nc"><i>649</i>&nbsp;        LinkedList&lt;TupleRequete&gt; pool = new LinkedList&lt;TupleRequete&gt;();</b>
+<b class="nc"><i>650</i>&nbsp;        for (Request req : requests) {</b>
+<b class="nc"><i>651</i>&nbsp;            pool.add(new TupleRequete(req, true));</b>
+<b class="nc"><i>652</i>&nbsp;        }</b>
+<i>653</i>&nbsp;        //pool.add(new TupleRequete(new Request(planning.getDepot().getAdresse(), planning.getDepot().getAdresse(), 0, 0), true));
+<i>654</i>&nbsp;
+<b class="nc"><i>655</i>&nbsp;        int curDepartInd = 0;</b>
+<b class="nc"><i>656</i>&nbsp;        for (TupleRequete req : pool) {</b>
+<b class="nc"><i>657</i>&nbsp;            if (req.requete.getPickup().getId() == matAdj[curDepartInd][1].depart.getId()) {</b>
+<i>658</i>&nbsp;//                System.out.println(&quot;Pickup, attente de &quot; + req.requete.getPickupDur() + &quot; s&quot;);
+<b class="nc"><i>659</i>&nbsp;                curTime = curTime.plusSeconds((long) req.requete.getPickupDur());</b>
+<b class="nc"><i>660</i>&nbsp;                req.isDepart = false;</b>
+<i>661</i>&nbsp;            }
+<b class="nc"><i>662</i>&nbsp;        }</b>
+<i>663</i>&nbsp;        SuperArete curChemin;
+<b class="nc"><i>664</i>&nbsp;        int curArriveeInd = 0;</b>
+<i>665</i>&nbsp;
+<b class="nc"><i>666</i>&nbsp;        while (!pool.isEmpty()) {</b>
+<i>667</i>&nbsp;            // trouver le plus proche
+<i>668</i>&nbsp;            //     choper l&#39;indice de curDepartInd dans matAdj
+<i>669</i>&nbsp;            //     parcourir matAdj[index] et chercher le min -&gt; minNode
+<i>670</i>&nbsp;
+<i>671</i>&nbsp;//            for (SuperArete[] line : matAdj) {
+<i>672</i>&nbsp;//                for (SuperArete arete : line) {
+<i>673</i>&nbsp;//                    if(arete == null) {
+<i>674</i>&nbsp;//                        System.out.print(&quot;nul &quot;);
+<i>675</i>&nbsp;//                    } else {
+<i>676</i>&nbsp;//                        System.out.print(&quot;okk &quot;);
+<i>677</i>&nbsp;//                    }
+<i>678</i>&nbsp;//                }
+<i>679</i>&nbsp;//                System.out.println();
+<i>680</i>&nbsp;//            }
+<i>681</i>&nbsp;
+<i>682</i>&nbsp;            // on trouve le point le plus proche de curDepartInd ou on a une requete a traiter (-&gt; curIdArrivee)
+<b class="nc"><i>683</i>&nbsp;            curChemin = null;</b>
+<b class="nc"><i>684</i>&nbsp;            curArriveeInd = 0;</b>
+<b class="nc"><i>685</i>&nbsp;            for (int i = 0; i &lt; matAdj.length; i++) {</b>
+<b class="nc"><i>686</i>&nbsp;                if (matAdj[curDepartInd][i] != null &amp;&amp; (curChemin == null || matAdj[curDepartInd][i].longueur &lt; curChemin.longueur)) {</b>
+<i>687</i>&nbsp;
+<b class="nc"><i>688</i>&nbsp;                    boolean found = false;</b>
+<b class="nc"><i>689</i>&nbsp;                    for (TupleRequete req : pool) {</b>
+<b class="nc"><i>690</i>&nbsp;                        if (req.isDepart &amp;&amp; req.getRequete().getPickup().getId() == matAdj[curDepartInd][i].arrivee.getId()) {</b>
+<b class="nc"><i>691</i>&nbsp;                            found = true;</b>
+<b class="nc"><i>692</i>&nbsp;                            break;</b>
+<i>693</i>&nbsp;                        }
+<b class="nc"><i>694</i>&nbsp;                        if (!req.isDepart &amp;&amp; req.getRequete().getDelivery().getId() == matAdj[curDepartInd][i].arrivee.getId()) {</b>
+<b class="nc"><i>695</i>&nbsp;                            found = true;</b>
+<b class="nc"><i>696</i>&nbsp;                            break;</b>
+<i>697</i>&nbsp;                        }
+<b class="nc"><i>698</i>&nbsp;                    }</b>
+<b class="nc"><i>699</i>&nbsp;                    if (found) {</b>
+<b class="nc"><i>700</i>&nbsp;                        curChemin = matAdj[curDepartInd][i];</b>
+<b class="nc"><i>701</i>&nbsp;                        curArriveeInd = i;</b>
+<i>702</i>&nbsp;                    }
+<i>703</i>&nbsp;
+<i>704</i>&nbsp;                }
+<i>705</i>&nbsp;            }
+<i>706</i>&nbsp;
+<i>707</i>&nbsp;            // calcul du temps de trajet
+<b class="nc"><i>708</i>&nbsp;            long curIDarrivee = curChemin.arrivee.getId();</b>
+<b class="nc"><i>709</i>&nbsp;            float travelDur = 0;</b>
+<b class="nc"><i>710</i>&nbsp;            for (Segment seg : curChemin.chemin) {</b>
+<b class="nc"><i>711</i>&nbsp;                travelDur += seg.getLength();</b>
+<b class="nc"><i>712</i>&nbsp;            }</b>
+<b class="nc"><i>713</i>&nbsp;            travelDur *= 3600.0 / 15000.0; // conversion de metres vers secondes</b>
+<i>714</i>&nbsp;//            System.out.println(&quot;On va aller de &quot; + curChemin.depart.getId() + &quot; à &quot; + curIDarrivee + &quot; en &quot; + travelDur + &quot; s&quot;);
+<b class="nc"><i>715</i>&nbsp;            curTime = curTime.plusSeconds((long) travelDur);</b>
+<i>716</i>&nbsp;
+<i>717</i>&nbsp;            // parcourir pool, pour chaque requete où il faut actuellement aller à minNode :
+<i>718</i>&nbsp;            //      si c&#39;est un départ : transformer en arrivee
+<i>719</i>&nbsp;            //      si c&#39;est une arrivee : virer du pool
+<b class="nc"><i>720</i>&nbsp;            LinkedList&lt;TupleRequete&gt; aDelete = new LinkedList&lt;TupleRequete&gt;();</b>
+<b class="nc"><i>721</i>&nbsp;            for (TupleRequete dest : pool) {</b>
+<b class="nc"><i>722</i>&nbsp;                if (dest.isDepart &amp;&amp; dest.requete.getPickup().getId() == curIDarrivee) {</b>
+<b class="nc"><i>723</i>&nbsp;                    ptsPassage.add(new TupleRequete(dest.requete, true, curTime, curChemin.chemin));</b>
+<i>724</i>&nbsp;//                    System.out.println(&quot;Pickup, attente de &quot; + dest.requete.getPickupDur() + &quot; s&quot;);
+<b class="nc"><i>725</i>&nbsp;                    curTime = curTime.plusSeconds((long) dest.requete.getPickupDur());</b>
+<b class="nc"><i>726</i>&nbsp;                    dest.isDepart = false;</b>
+<i>727</i>&nbsp;                }
+<b class="nc"><i>728</i>&nbsp;                if (!dest.isDepart &amp;&amp; dest.requete.getDelivery().getId() == curIDarrivee) {</b>
+<b class="nc"><i>729</i>&nbsp;                    ptsPassage.add(new TupleRequete(dest.requete, false, curTime, curChemin.chemin));</b>
+<i>730</i>&nbsp;//                    System.out.println(&quot;Delivery, attente de &quot; + dest.requete.getDeliveryDur() + &quot; s&quot;);
+<b class="nc"><i>731</i>&nbsp;                    curTime = curTime.plusSeconds((long) dest.requete.getDeliveryDur());</b>
+<b class="nc"><i>732</i>&nbsp;                    aDelete.add(dest);</b>
+<i>733</i>&nbsp;                }
+<b class="nc"><i>734</i>&nbsp;            }</b>
+<b class="nc"><i>735</i>&nbsp;            pool.removeAll(aDelete);</b>
+<i>736</i>&nbsp;
+<b class="nc"><i>737</i>&nbsp;            boolean stillUsed = false;</b>
+<b class="nc"><i>738</i>&nbsp;            for (TupleRequete dest : pool) {</b>
+<b class="nc"><i>739</i>&nbsp;                if (dest.isDepart &amp;&amp; dest.requete.getPickup().getId() == curChemin.depart.getId()) {</b>
+<b class="nc"><i>740</i>&nbsp;                    stillUsed = true;</b>
+<b class="nc"><i>741</i>&nbsp;                    break;</b>
+<i>742</i>&nbsp;                }
+<b class="nc"><i>743</i>&nbsp;                if (!dest.isDepart &amp;&amp; dest.requete.getDelivery().getId() == curChemin.depart.getId()) {</b>
+<b class="nc"><i>744</i>&nbsp;                    stillUsed = true;</b>
+<b class="nc"><i>745</i>&nbsp;                    break;</b>
+<i>746</i>&nbsp;                }
+<b class="nc"><i>747</i>&nbsp;            }</b>
+<i>748</i>&nbsp;//            if(!stillUsed) {
+<i>749</i>&nbsp;//                for (int i = 0; i &lt; matAdj.length; i++) {
+<i>750</i>&nbsp;//                    matAdj[i][curDepartInd] = null;
+<i>751</i>&nbsp;//                }
+<i>752</i>&nbsp;//            }
+<i>753</i>&nbsp;            // ajouter au chemin
+<b class="nc"><i>754</i>&nbsp;            chemin.addAll(curChemin.chemin);</b>
+<i>755</i>&nbsp;            // curDepartInd = minNode
+<b class="nc"><i>756</i>&nbsp;            curDepartInd = curArriveeInd;</b>
+<b class="nc"><i>757</i>&nbsp;        }</b>
+<i>758</i>&nbsp;
+<i>759</i>&nbsp;        // retour au depot
+<b class="nc"><i>760</i>&nbsp;        curChemin = matAdj[curArriveeInd][0];</b>
+<i>761</i>&nbsp;
+<b class="nc"><i>762</i>&nbsp;        long curIDarrivee = curChemin.arrivee.getId();</b>
+<b class="nc"><i>763</i>&nbsp;        float travelDur = 0;</b>
+<b class="nc"><i>764</i>&nbsp;        for (Segment seg : curChemin.chemin) {</b>
+<b class="nc"><i>765</i>&nbsp;            travelDur += seg.getLength();</b>
+<b class="nc"><i>766</i>&nbsp;        }</b>
+<b class="nc"><i>767</i>&nbsp;        travelDur *= 3600.0 / 15000.0; // conversion de metres vers secondes</b>
+<i>768</i>&nbsp;//        System.out.println(&quot;On va aller de &quot; + curChemin.depart.getId() + &quot; au depot &quot; + curIDarrivee + &quot; en &quot; + travelDur + &quot; s&quot;);
+<b class="nc"><i>769</i>&nbsp;        curTime = curTime.plusSeconds((long) travelDur);</b>
+<i>770</i>&nbsp;
+<b class="nc"><i>771</i>&nbsp;        chemin.addAll(curChemin.chemin);</b>
+<b class="nc"><i>772</i>&nbsp;        ptsPassage.add(new TupleRequete(new Request(planning.getRequestList().size(), planning.getDepot().getAdresse(), planning.getDepot().getAdresse(), 0, 0), false, curTime, curChemin.chemin));</b>
+<i>773</i>&nbsp;
+<b class="nc"><i>774</i>&nbsp;        Tournee tournee = new Tournee(chemin, requests);</b>
+<i>775</i>&nbsp;//        Tournee tournee = new Tournee(chemin, requests, ptsPassage);
+<b class="nc"><i>776</i>&nbsp;        recreateTimesTournee(tournee, planning);</b>
+<i>777</i>&nbsp;
+<b class="nc"><i>778</i>&nbsp;        return tournee;</b>
+<i>779</i>&nbsp;    }
+<i>780</i>&nbsp;
+<i>781</i>&nbsp;    /**
+<i>782</i>&nbsp;     * Generates a random Tour that respects the pickup -&gt; delivery order constraints, with the Requests and the Map
+<i>783</i>&nbsp;     * given as parameters
+<i>784</i>&nbsp;     * FIXME apparemment passe pas par tous les points nécessaires
+<i>785</i>&nbsp;     *
+<i>786</i>&nbsp;     * @param map               The map representing the graph on which we search
+<i>787</i>&nbsp;     * @param planning          The planning that includes a list of requests to deal with as well as the
+<i>788</i>&nbsp;     *                          departure address
+<i>789</i>&nbsp;     * @param intersecIdToIndex The dictionnary giving the index of an Intersection in the Intersection list of the map,
+<i>790</i>&nbsp;     *                          from its ID
+<i>791</i>&nbsp;     * @return the computed Tour
+<i>792</i>&nbsp;     */
+<i>793</i>&nbsp;    private static Tournee tourneeRandom(Map map, PlanningRequest planning, HashMap&lt;Long, Integer&gt; intersecIdToIndex) {
+<i>794</i>&nbsp;
+<i>795</i>&nbsp;        // dijkstra pour le graphe complet des plus courts chemins entre les points d&#39;intérêt
+<b class="nc"><i>796</i>&nbsp;        SuperArete[][] matAdj = getOptimalFullGraph(map, planning, intersecIdToIndex);</b>
+<i>797</i>&nbsp;        // indexation de ces points d&#39;intérêt
+<b class="nc"><i>798</i>&nbsp;        HashMap&lt;Long, Integer&gt; ptsIdToIndex = indexerPtsInteret(planning);</b>
+<i>799</i>&nbsp;
+<i>800</i>&nbsp;        // ligne à changer en fonction de la méthode choisie si copié-collé
+<i>801</i>&nbsp;        // ici, chemin aléatoire qui respecte les contraintes de précédence départ -&gt; arrivée
+<b class="nc"><i>802</i>&nbsp;        ArrayList&lt;SuperArete&gt; chemin = cheminAleatoire(matAdj, planning, ptsIdToIndex);</b>
+<i>803</i>&nbsp;
+<i>804</i>&nbsp;        // construction de l&#39;objet Tournee à partir du résultat obtenu
+<b class="nc"><i>805</i>&nbsp;        Tournee tournee = cheminVersTournee(planning, chemin);</b>
+<b class="nc"><i>806</i>&nbsp;        recreateTimesTournee(tournee, planning);</b>
+<b class="nc"><i>807</i>&nbsp;        return tournee;</b>
+<i>808</i>&nbsp;    }
+<i>809</i>&nbsp;
+<i>810</i>&nbsp;    /**
+<i>811</i>&nbsp;     * Computes a Tour using the Branch and Bound paradigm. The computed tour is optimal : its path is
+<i>812</i>&nbsp;     * the shortest possible. Execution time may as such be longer than the other heuristics.
+<i>813</i>&nbsp;     *
+<i>814</i>&nbsp;     * @param matAdj       The optimal full sub-graph of the map as an adjacence matrix
+<i>815</i>&nbsp;     * @param planning     The planning that includes a list of requests to deal with as well as the
+<i>816</i>&nbsp;     *                     departure address
+<i>817</i>&nbsp;     * @return the computed Tour
+<i>818</i>&nbsp;     */
+<i>819</i>&nbsp;    private static Tournee branchAndBoundOpti(SuperArete[][] matAdj, PlanningRequest planning) {
+<i>820</i>&nbsp;
+<b class="fc"><i>821</i>&nbsp;        BnB_TSP tsp = new BnB_TSP2();</b>
+<b class="fc"><i>822</i>&nbsp;        tsp.searchSolution(20 * 1000, matAdj, planning.getRequestList());</b>
+<i>823</i>&nbsp;//        System.out.println(&quot;Solution trouvee en &quot; + tsp.getExecTime() + &quot; secondes&quot;);
+<b class="fc"><i>824</i>&nbsp;        Integer[] solution = tsp.getSolution();</b>
+<i>825</i>&nbsp;
+<b class="fc"><i>826</i>&nbsp;        ArrayList&lt;Segment&gt; chemin = new ArrayList&lt;Segment&gt;();</b>
+<i>827</i>&nbsp;
+<b class="fc"><i>828</i>&nbsp;        for (int i = 1; i &lt; solution.length; i++) {</b>
+<b class="fc"><i>829</i>&nbsp;            if (!solution[i - 1].equals(solution[i])) {</b>
+<b class="fc"><i>830</i>&nbsp;                chemin.addAll(matAdj[solution[i - 1]][solution[i]].getChemin());</b>
+<i>831</i>&nbsp;            }
+<i>832</i>&nbsp;        }
+<b class="fc"><i>833</i>&nbsp;        if (!solution[solution.length - 1].equals(0)) {</b>
+<b class="fc"><i>834</i>&nbsp;            chemin.addAll(matAdj[solution[solution.length - 1]][0].getChemin());</b>
+<i>835</i>&nbsp;        }
+<b class="fc"><i>836</i>&nbsp;        return new Tournee(chemin, planning.getRequestList());</b>
+<i>837</i>&nbsp;    }
+<i>838</i>&nbsp;
+<i>839</i>&nbsp;    /**
+<i>840</i>&nbsp;     * Computes a Tour using the Branch and Bound paradigm. The computed tour is optimal : its path is
+<i>841</i>&nbsp;     * the shortest possible. Execution time may as such be longer than the other heuristics.
+<i>842</i>&nbsp;     * Uses a worse heuristic than the function above, making it a near-exhaustive search.
+<i>843</i>&nbsp;     *
+<i>844</i>&nbsp;     * @param matAdj       The optimal full sub-graph of the map as an adjacence matrix
+<i>845</i>&nbsp;     * @param planning     The planning that includes a list of requests to deal with as well as the
+<i>846</i>&nbsp;     *                     departure address
+<i>847</i>&nbsp;     * @return the computed Tour
+<i>848</i>&nbsp;     */
+<i>849</i>&nbsp;    private static Tournee branchAndBoundExhaustif(SuperArete[][] matAdj, PlanningRequest planning) {
+<i>850</i>&nbsp;
+<b class="fc"><i>851</i>&nbsp;        BnB_TSP tsp = new BnB_TSP1();</b>
+<b class="fc"><i>852</i>&nbsp;        tsp.searchSolution(20 * 1000, matAdj, planning.getRequestList());</b>
+<i>853</i>&nbsp;//        System.out.println(&quot;Solution trouvee en &quot; + tsp.getExecTime() + &quot; secondes&quot;);
+<b class="fc"><i>854</i>&nbsp;        Integer[] solution = tsp.getSolution();</b>
+<i>855</i>&nbsp;
+<b class="fc"><i>856</i>&nbsp;        ArrayList&lt;Segment&gt; chemin = new ArrayList&lt;Segment&gt;();</b>
+<i>857</i>&nbsp;
+<b class="fc"><i>858</i>&nbsp;        for (int i = 1; i &lt; solution.length; i++) {</b>
+<b class="fc"><i>859</i>&nbsp;            if (!solution[i - 1].equals(solution[i])) {</b>
+<b class="fc"><i>860</i>&nbsp;                chemin.addAll(matAdj[solution[i - 1]][solution[i]].getChemin());</b>
+<i>861</i>&nbsp;            }
+<i>862</i>&nbsp;        }
+<b class="fc"><i>863</i>&nbsp;        if (!solution[solution.length - 1].equals(0)) {</b>
+<b class="fc"><i>864</i>&nbsp;            chemin.addAll(matAdj[solution[solution.length - 1]][0].getChemin());</b>
+<i>865</i>&nbsp;        }
+<b class="fc"><i>866</i>&nbsp;        return new Tournee(chemin, planning.getRequestList());</b>
+<i>867</i>&nbsp;    }
+<i>868</i>&nbsp;
+<i>869</i>&nbsp;}
+</div>
+</div>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2020-12-15 11:46</div>
+</div>
+</body>
+</html>

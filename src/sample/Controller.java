@@ -1502,7 +1502,7 @@ public class Controller {
 
                         for( LocationTagContent ltc: cards ){
                             if( Integer.parseInt(ltc.name.split(" ")[1]) == Integer.parseInt(getItem().name.split(" ")[1])
-                                    && ltc.getName() != getItem().getName() ){
+                                    && !ltc.getName().equals(getItem().getName())){
                                 break;
                             }
                             cursor++;

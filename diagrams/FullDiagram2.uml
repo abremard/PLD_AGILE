@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement>command</OriginalElement>
+  <nodes>
+    <node x="1560.0" y="1788.0">objects.Request</node>
+    <node x="0.0" y="0.0">controller.MVCController</node>
+    <node x="450.5" y="738.0">state.State</node>
+    <node x="1154.0" y="2064.0">processing.TupleDijkstra</node>
+    <node x="1854.0" y="2064.0">sample.Main</node>
+    <node x="1647.0" y="2064.0">processing.TupleDijkstra.Color</node>
+    <node x="497.0" y="1914.0">command.LoadRequestPlanCommand</node>
+    <node x="0.0" y="1315.0">processing.ComputeTour</node>
+    <node x="1323.0" y="1788.0">sample.Controller.LocationTagContent</node>
+    <node x="0.0" y="2274.0">observable.Observer</node>
+    <node x="816.0" y="1315.0">sample.Controller</node>
+    <node x="365.0" y="1172.0">state.RequestState</node>
+    <node x="0.0" y="2064.0">objects.Segment</node>
+    <node x="434.0" y="2064.0">objects.Tournee</node>
+    <node x="1235.0" y="1315.0">objects.PlanningRequest</node>
+    <node x="0.0" y="1788.0">processing.TupleRequete</node>
+    <node x="842.0" y="1183.0">state.TourState</node>
+    <node x="707.0" y="2064.0">processing.SuperArete</node>
+    <node x="1401.0" y="2064.0">observable.Observable</node>
+    <node x="1031.0" y="1925.5">command.LoadMapCommand</node>
+    <node x="1169.0" y="1183.0">state.MapState</node>
+    <node x="764.0" y="1925.5">command.NewTourCommand</node>
+    <node x="1777.0" y="1788.0">command.ListOfCommands</node>
+    <node x="937.0" y="2064.0">objects.Depot</node>
+    <node x="230.0" y="1925.5">command.ComputeTourCommand</node>
+    <node x="1533.0" y="1315.0">objects.Map</node>
+    <node x="0.0" y="1194.0">state.InitialState</node>
+    <node x="630.5" y="1788.0">command.Command</node>
+    <node x="217.0" y="2064.0">objects.Intersection</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="command.LoadMapCommand" target="command.Command">
+      <point x="0.0" y="-38.0" />
+      <point x="1154.5" y="1884.0" />
+      <point x="846.625" y="1884.0" />
+      <point x="92.625" y="38.0" />
+    </edge>
+    <edge source="state.InitialState" target="state.State">
+      <point x="0.0" y="-27.0" />
+      <point x="172.5" y="1147.0" />
+      <point x="536.5" y="1147.0" />
+      <point x="-258.0" y="192.0" />
+    </edge>
+    <edge source="command.LoadRequestPlanCommand" target="command.Command">
+      <point x="0.0" y="-49.5" />
+      <point x="620.5" y="1894.0" />
+      <point x="723.125" y="1894.0" />
+      <point x="-30.875" y="38.0" />
+    </edge>
+    <edge source="command.NewTourCommand" target="command.Command">
+      <point x="0.0" y="-38.0" />
+      <point x="887.5" y="1894.0" />
+      <point x="784.875" y="1894.0" />
+      <point x="30.875" y="38.0" />
+    </edge>
+    <edge source="state.MapState" target="state.State">
+      <point x="0.0" y="-38.0" />
+      <point x="1362.0" y="1147.0" />
+      <point x="1052.5" y="1147.0" />
+      <point x="258.0" y="192.0" />
+    </edge>
+    <edge source="command.ComputeTourCommand" target="command.Command">
+      <point x="0.0" y="-38.0" />
+      <point x="353.5" y="1884.0" />
+      <point x="661.375" y="1884.0" />
+      <point x="-92.625" y="38.0" />
+    </edge>
+    <edge source="state.RequestState" target="state.State">
+      <point x="0.0" y="-49.0" />
+      <point x="593.5" y="1147.0" />
+      <point x="708.5" y="1147.0" />
+      <point x="-86.0" y="192.0" />
+    </edge>
+    <edge source="state.TourState" target="state.State">
+      <point x="0.0" y="-38.0" />
+      <point x="995.5" y="1147.0" />
+      <point x="880.5" y="1147.0" />
+      <point x="86.0" y="192.0" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Group" zoom="0.20442930153321975" x="1017.0" y="1164.0" />
+  <SelectedNodes>
+    <node>observable.Observable</node>
+    <node>observable.Observer</node>
+  </SelectedNodes>
+  <Categories>
+    <Category>Methods</Category>
+    <Category>Properties</Category>
+  </Categories>
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>private</VISIBILITY>
+</Diagram>
+

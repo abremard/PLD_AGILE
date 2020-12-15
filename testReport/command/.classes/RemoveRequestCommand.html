@@ -1,0 +1,207 @@
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html id="htmlId">
+<head>
+  <title>Coverage Report :: RemoveRequestCommand</title>
+  <style type="text/css">
+    @import "../../.css/coverage.css";
+  </style>
+</head>
+
+<body>
+<div class="header"></div>
+
+<div class="content">
+<div class="breadCrumbs">
+    [ <a href="../../index.html">all classes</a> ]
+    [ <a href="../index.html">command</a> ]
+</div>
+
+<h1>Coverage Summary for Class: RemoveRequestCommand (command)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">RemoveRequestCommand</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/ 1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    60%
+  </span>
+  <span class="absValue">
+    (3/ 5)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    75.9%
+  </span>
+  <span class="absValue">
+    (22/ 29)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<div class="sourceCode"><i>1</i>&nbsp;package command;
+<i>2</i>&nbsp;
+<i>3</i>&nbsp;import controller.MVCController;
+<i>4</i>&nbsp;import objects.PlanningRequest;
+<i>5</i>&nbsp;import objects.Request;
+<i>6</i>&nbsp;import sample.Controller;
+<i>7</i>&nbsp;
+<i>8</i>&nbsp;import java.util.ArrayList;
+<i>9</i>&nbsp;
+<i>10</i>&nbsp;/**
+<i>11</i>&nbsp; * &lt;h1&gt;Remove Request Command Class&lt;/h1&gt;
+<i>12</i>&nbsp; * &lt;p&gt;The Remove Request Command defines the command to be called when user confirms the removal of a request&lt;/p&gt;
+<i>13</i>&nbsp; *
+<i>14</i>&nbsp; * @author H4302
+<i>15</i>&nbsp; * @see Command
+<i>16</i>&nbsp; * @see MVCController
+<i>17</i>&nbsp; */
+<i>18</i>&nbsp;public class RemoveRequestCommand implements Command {
+<i>19</i>&nbsp;
+<i>20</i>&nbsp;    /**
+<i>21</i>&nbsp;     * The request to be removed
+<i>22</i>&nbsp;     */
+<i>23</i>&nbsp;    private Request requestToRemove;
+<i>24</i>&nbsp;
+<i>25</i>&nbsp;    /**
+<i>26</i>&nbsp;     * The index of the first LocationTagContent to be removed in the MvcController&#39;s LtcList
+<i>27</i>&nbsp;     */
+<i>28</i>&nbsp;    private int removedCardIndex1;
+<i>29</i>&nbsp;
+<i>30</i>&nbsp;    /**
+<i>31</i>&nbsp;     * The index of the second LocationTagContent to be removed in the MvcController&#39;s LtcList
+<i>32</i>&nbsp;     */
+<i>33</i>&nbsp;    private int removedCardIndex2;
+<i>34</i>&nbsp;
+<i>35</i>&nbsp;    /**
+<i>36</i>&nbsp;     * The first LocationTagContent to be removed in the MvcController&#39;s LtcList
+<i>37</i>&nbsp;     */
+<i>38</i>&nbsp;    private Controller.LocationTagContent removedCard1;
+<i>39</i>&nbsp;
+<i>40</i>&nbsp;    /**
+<i>41</i>&nbsp;     * The second LocationTagContent to be removed in the MvcController&#39;s LtcList
+<i>42</i>&nbsp;     */
+<i>43</i>&nbsp;    private Controller.LocationTagContent removedCard2;
+<i>44</i>&nbsp;
+<i>45</i>&nbsp;    /**
+<i>46</i>&nbsp;     * The request list before the removal
+<i>47</i>&nbsp;     */
+<i>48</i>&nbsp;    private ArrayList&lt;Request&gt; oldRequestList;
+<i>49</i>&nbsp;
+<i>50</i>&nbsp;    /**
+<i>51</i>&nbsp;     * The requests&#39; planning before the removal
+<i>52</i>&nbsp;     */
+<i>53</i>&nbsp;    private PlanningRequest oldPlanningRequest;
+<i>54</i>&nbsp;
+<i>55</i>&nbsp;    /**
+<i>56</i>&nbsp;     * The requests&#39; planning after the removal
+<i>57</i>&nbsp;     */
+<i>58</i>&nbsp;    private PlanningRequest newPlanningRequest;
+<i>59</i>&nbsp;
+<i>60</i>&nbsp;    public Request getRemovedRequestIndex() {
+<b class="nc"><i>61</i>&nbsp;        return requestToRemove;</b>
+<i>62</i>&nbsp;    }
+<i>63</i>&nbsp;
+<i>64</i>&nbsp;    public void setRemovedRequestIndex(Request request) {
+<b class="nc"><i>65</i>&nbsp;        this.requestToRemove = request;</b>
+<b class="nc"><i>66</i>&nbsp;    }</b>
+<i>67</i>&nbsp;
+<i>68</i>&nbsp;    /**
+<i>69</i>&nbsp;     * constructor
+<i>70</i>&nbsp;     * @param oldPlanningRequest The requests&#39; planning before the removal
+<i>71</i>&nbsp;     * @param ltcList The LocationTagContents&#39; list before the removal
+<i>72</i>&nbsp;     * @param requestToRemove The request to be removed
+<i>73</i>&nbsp;     * @param removedCardIndex1 The index of the first LocationTagContent to be removed in the MvcController&#39;s LtcList
+<i>74</i>&nbsp;     * @param removedCardIndex2 The index of the second LocationTagContent to be removed in the MvcController&#39;s LtcList
+<i>75</i>&nbsp;     */
+<b class="fc"><i>76</i>&nbsp;    public RemoveRequestCommand(PlanningRequest oldPlanningRequest, ArrayList&lt;Controller.LocationTagContent&gt; ltcList, Request requestToRemove, int removedCardIndex1, int removedCardIndex2) {</b>
+<b class="fc"><i>77</i>&nbsp;        this.requestToRemove = requestToRemove;</b>
+<b class="fc"><i>78</i>&nbsp;        this.oldRequestList = new ArrayList&lt;&gt;(oldPlanningRequest.getRequestList());</b>
+<b class="fc"><i>79</i>&nbsp;        this.oldPlanningRequest = new PlanningRequest(oldPlanningRequest);</b>
+<b class="fc"><i>80</i>&nbsp;        this.newPlanningRequest = new PlanningRequest(oldPlanningRequest);</b>
+<b class="fc"><i>81</i>&nbsp;        this.removedCardIndex1 = removedCardIndex1;</b>
+<b class="fc"><i>82</i>&nbsp;        this.removedCardIndex2 = removedCardIndex2;</b>
+<b class="fc"><i>83</i>&nbsp;        this.removedCard1 = ltcList.get(removedCardIndex1);</b>
+<b class="fc"><i>84</i>&nbsp;        this.removedCard2 = ltcList.get(removedCardIndex2);</b>
+<b class="fc"><i>85</i>&nbsp;    }</b>
+<i>86</i>&nbsp;
+<i>87</i>&nbsp;    /**
+<i>88</i>&nbsp;     * Execute Command : remove the request we want to be removed from the MvcController&#39;s planning request
+<i>89</i>&nbsp;     *      and the corresponding cards in its ltcList
+<i>90</i>&nbsp;     * @param c the MVCController pointer used to update its map
+<i>91</i>&nbsp;     */
+<i>92</i>&nbsp;    @Override
+<i>93</i>&nbsp;    public void doCommand(MVCController c) {
+<b class="fc"><i>94</i>&nbsp;        if (removedCardIndex1&lt;removedCardIndex2) {</b>
+<b class="fc"><i>95</i>&nbsp;            c.getLtcList().remove(removedCardIndex2);</b>
+<b class="fc"><i>96</i>&nbsp;            c.getLtcList().remove(removedCardIndex1);</b>
+<i>97</i>&nbsp;        }
+<i>98</i>&nbsp;        else {
+<b class="nc"><i>99</i>&nbsp;            c.getLtcList().remove(removedCardIndex1);</b>
+<b class="nc"><i>100</i>&nbsp;            c.getLtcList().remove(removedCardIndex2);</b>
+<i>101</i>&nbsp;        }
+<b class="fc"><i>102</i>&nbsp;        this.newPlanningRequest.removeRequest(requestToRemove);</b>
+<b class="fc"><i>103</i>&nbsp;        c.setPlanningRequest(this.newPlanningRequest);</b>
+<b class="fc"><i>104</i>&nbsp;        c.getPlanningRequest().resetIndexOfRequestList();</b>
+<b class="fc"><i>105</i>&nbsp;    }</b>
+<i>106</i>&nbsp;
+<i>107</i>&nbsp;    /**
+<i>108</i>&nbsp;     * Undo command : revert this command&#39;s previous execution, it adds the previously removed request
+<i>109</i>&nbsp;     *      to the MvcController&#39;s List and the corresponding cards in its ltcList
+<i>110</i>&nbsp;     * @param c the MVCController pointer used to update its planning request and ltcList
+<i>111</i>&nbsp;     */
+<i>112</i>&nbsp;    @Override
+<i>113</i>&nbsp;    public void undoCommand(MVCController c) {
+<b class="fc"><i>114</i>&nbsp;        if (removedCardIndex1&lt;removedCardIndex2) {</b>
+<b class="fc"><i>115</i>&nbsp;            c.getLtcList().add(removedCardIndex1, removedCard1);</b>
+<b class="fc"><i>116</i>&nbsp;            c.getLtcList().add(removedCardIndex2, removedCard2);</b>
+<i>117</i>&nbsp;        }
+<i>118</i>&nbsp;        else {
+<b class="nc"><i>119</i>&nbsp;            c.getLtcList().add(removedCardIndex2, removedCard2);</b>
+<b class="nc"><i>120</i>&nbsp;            c.getLtcList().add(removedCardIndex1, removedCard1);</b>
+<i>121</i>&nbsp;        }
+<b class="fc"><i>122</i>&nbsp;        c.setPlanningRequest(this.oldPlanningRequest);</b>
+<b class="fc"><i>123</i>&nbsp;    }</b>
+<i>124</i>&nbsp;}
+</div>
+</div>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2020-12-15 11:46</div>
+</div>
+</body>
+</html>

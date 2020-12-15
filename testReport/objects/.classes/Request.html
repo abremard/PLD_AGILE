@@ -1,0 +1,237 @@
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html id="htmlId">
+<head>
+  <title>Coverage Report :: Request</title>
+  <style type="text/css">
+    @import "../../.css/coverage.css";
+  </style>
+</head>
+
+<body>
+<div class="header"></div>
+
+<div class="content">
+<div class="breadCrumbs">
+    [ <a href="../../index.html">all classes</a> ]
+    [ <a href="../index.html">objects</a> ]
+</div>
+
+<h1>Coverage Summary for Class: Request (objects)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Request</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/ 1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    80%
+  </span>
+  <span class="absValue">
+    (12/ 15)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    70%
+  </span>
+  <span class="absValue">
+    (28/ 40)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<div class="sourceCode"><i>1</i>&nbsp;
+<i>2</i>&nbsp;package objects;
+<i>3</i>&nbsp;
+<i>4</i>&nbsp;import java.time.LocalTime;
+<i>5</i>&nbsp;import java.util.Objects;
+<i>6</i>&nbsp;
+<i>7</i>&nbsp;/**
+<i>8</i>&nbsp; * Business class representing a request, containing the Intersections of delivery and pickup, as well as the
+<i>9</i>&nbsp; * pickup and delivery durations.
+<i>10</i>&nbsp; * @author H4302
+<i>11</i>&nbsp; * @see Intersection
+<i>12</i>&nbsp; */
+<i>13</i>&nbsp;public class Request {
+<i>14</i>&nbsp;
+<i>15</i>&nbsp;    /**
+<i>16</i>&nbsp;     * The Intersection of the Request&#39;s delivery.
+<i>17</i>&nbsp;     */
+<i>18</i>&nbsp;    Intersection pickup;
+<i>19</i>&nbsp;
+<i>20</i>&nbsp;    /**
+<i>21</i>&nbsp;     * The Intersection of the Request&#39;s pickup.
+<i>22</i>&nbsp;     */
+<i>23</i>&nbsp;    Intersection delivery;
+<i>24</i>&nbsp;
+<i>25</i>&nbsp;    /**
+<i>26</i>&nbsp;     * The necessary duration to complete the pickup, in seconds.
+<i>27</i>&nbsp;     */
+<i>28</i>&nbsp;    double pickupDur;
+<i>29</i>&nbsp;
+<i>30</i>&nbsp;    /**
+<i>31</i>&nbsp;     * The necessary duration to complete the delivery, in seconds.
+<i>32</i>&nbsp;     */
+<i>33</i>&nbsp;    double deliveryDur;
+<i>34</i>&nbsp;
+<i>35</i>&nbsp;    /**
+<i>36</i>&nbsp;     * The ID of the Request.
+<i>37</i>&nbsp;     */
+<i>38</i>&nbsp;    int id;
+<i>39</i>&nbsp;
+<i>40</i>&nbsp;    // Constructors
+<i>41</i>&nbsp;
+<b class="fc"><i>42</i>&nbsp;    public Request(int id, Intersection pickup, Intersection delivery, double pickupDur, double deliveryDur) {</b>
+<b class="fc"><i>43</i>&nbsp;        this.pickup = pickup;</b>
+<b class="fc"><i>44</i>&nbsp;        this.delivery = delivery;</b>
+<b class="fc"><i>45</i>&nbsp;        this.pickupDur = pickupDur;</b>
+<b class="fc"><i>46</i>&nbsp;        this.deliveryDur = deliveryDur;</b>
+<b class="fc"><i>47</i>&nbsp;        this.id = id;</b>
+<b class="fc"><i>48</i>&nbsp;    }</b>
+<i>49</i>&nbsp;
+<b class="nc"><i>50</i>&nbsp;    public Request(Request referencedRequest) {</b>
+<b class="nc"><i>51</i>&nbsp;        this.pickup = referencedRequest.pickup;</b>
+<b class="nc"><i>52</i>&nbsp;        this.delivery = referencedRequest.delivery;</b>
+<b class="nc"><i>53</i>&nbsp;        this.pickupDur = referencedRequest.pickupDur;</b>
+<b class="nc"><i>54</i>&nbsp;        this.deliveryDur = referencedRequest.deliveryDur;</b>
+<b class="nc"><i>55</i>&nbsp;        this.id = referencedRequest.id;</b>
+<b class="nc"><i>56</i>&nbsp;    }</b>
+<i>57</i>&nbsp;
+<i>58</i>&nbsp;    // Getters and setters
+<i>59</i>&nbsp;
+<i>60</i>&nbsp;    public int getId() {
+<b class="fc"><i>61</i>&nbsp;        return id;</b>
+<i>62</i>&nbsp;    }
+<i>63</i>&nbsp;
+<b class="fc"><i>64</i>&nbsp;    public void setId(int id) { this.id = id; }</b>
+<i>65</i>&nbsp;
+<i>66</i>&nbsp;    public Intersection getPickup() {
+<b class="fc"><i>67</i>&nbsp;        return pickup;</b>
+<i>68</i>&nbsp;    }
+<i>69</i>&nbsp;
+<i>70</i>&nbsp;    public void setPickup(Intersection pickup) {
+<b class="nc"><i>71</i>&nbsp;        this.pickup = pickup;</b>
+<b class="nc"><i>72</i>&nbsp;    }</b>
+<i>73</i>&nbsp;
+<i>74</i>&nbsp;    public Intersection getDelivery() {
+<b class="fc"><i>75</i>&nbsp;        return delivery;</b>
+<i>76</i>&nbsp;    }
+<i>77</i>&nbsp;
+<i>78</i>&nbsp;    public void setDelivery(Intersection delivery) {
+<b class="nc"><i>79</i>&nbsp;        this.delivery = delivery;</b>
+<b class="nc"><i>80</i>&nbsp;    }</b>
+<i>81</i>&nbsp;
+<i>82</i>&nbsp;    public double getPickupDur() {
+<b class="fc"><i>83</i>&nbsp;        return pickupDur;</b>
+<i>84</i>&nbsp;    }
+<i>85</i>&nbsp;
+<i>86</i>&nbsp;    public void setPickupDur(double pickupDur) {
+<b class="fc"><i>87</i>&nbsp;        this.pickupDur = pickupDur;</b>
+<b class="fc"><i>88</i>&nbsp;    }</b>
+<i>89</i>&nbsp;
+<i>90</i>&nbsp;    public double getDeliveryDur() {
+<b class="fc"><i>91</i>&nbsp;        return deliveryDur;</b>
+<i>92</i>&nbsp;    }
+<i>93</i>&nbsp;
+<i>94</i>&nbsp;    public void setDeliveryDur(double deliveryDur) {
+<b class="fc"><i>95</i>&nbsp;        this.deliveryDur = deliveryDur;</b>
+<b class="fc"><i>96</i>&nbsp;    }</b>
+<i>97</i>&nbsp;
+<i>98</i>&nbsp;    // Overrides
+<i>99</i>&nbsp;
+<i>100</i>&nbsp;    @Override
+<i>101</i>&nbsp;    public String toString() {
+<b class="fc"><i>102</i>&nbsp;        return &quot;Request{&quot; +</b>
+<i>103</i>&nbsp;                &quot;id=&quot; + id +
+<i>104</i>&nbsp;                &quot;, pickup=&quot; + pickup +
+<i>105</i>&nbsp;                &quot;, delivery=&quot; + delivery +
+<i>106</i>&nbsp;                &quot;, pickupDur=&quot; + pickupDur +
+<i>107</i>&nbsp;                &quot;, deliveryDur=&quot; + deliveryDur +
+<i>108</i>&nbsp;                &#39;}&#39;;
+<i>109</i>&nbsp;    }
+<i>110</i>&nbsp;
+<i>111</i>&nbsp;    @Override
+<i>112</i>&nbsp;    public boolean equals(Object o) {
+<i>113</i>&nbsp;
+<i>114</i>&nbsp;        // If the object is compared with itself then return true
+<b class="fc"><i>115</i>&nbsp;        if (o == this) {</b>
+<b class="fc"><i>116</i>&nbsp;            return true;</b>
+<i>117</i>&nbsp;        }
+<i>118</i>&nbsp;
+<i>119</i>&nbsp;        /* Check if o is an instance of Complex or not
+<i>120</i>&nbsp;          &quot;null instanceof [type]&quot; also returns false */
+<b class="fc"><i>121</i>&nbsp;        if (!(o instanceof Request)) {</b>
+<b class="nc"><i>122</i>&nbsp;            return false;</b>
+<i>123</i>&nbsp;        }
+<i>124</i>&nbsp;
+<i>125</i>&nbsp;        // typecast o to Complex so that we can compare data members
+<b class="fc"><i>126</i>&nbsp;        Request r = (Request) o;</b>
+<i>127</i>&nbsp;
+<i>128</i>&nbsp;        // Compare the data members and return accordingly
+<b class="fc"><i>129</i>&nbsp;        return delivery.equals(r.getDelivery())</b>
+<b class="fc"><i>130</i>&nbsp;                &amp;&amp; pickup.equals(r.getPickup())</b>
+<b class="fc"><i>131</i>&nbsp;                &amp;&amp; pickupDur == r.getPickupDur()</b>
+<b class="fc"><i>132</i>&nbsp;                &amp;&amp; deliveryDur == r.getDeliveryDur()</b>
+<b class="fc"><i>133</i>&nbsp;                &amp;&amp; id == r.getId();</b>
+<i>134</i>&nbsp;
+<i>135</i>&nbsp;
+<i>136</i>&nbsp;
+<i>137</i>&nbsp;
+<i>138</i>&nbsp;        /*if (this.getClass() == object.getClass()) {
+<i>139</i>&nbsp;            Request request = (Request) object;
+<i>140</i>&nbsp;            if ((this.getDelivery() == request.getDelivery()) &amp;&amp; (this.getPickup() == request.getPickup()) &amp;&amp; (this.getDeliveryDur() == request.getDeliveryDur()) &amp;&amp; (this.getPickupDur() == request.getPickupDur())) {
+<i>141</i>&nbsp;                return true;
+<i>142</i>&nbsp;            } else {
+<i>143</i>&nbsp;                return false;
+<i>144</i>&nbsp;            }
+<i>145</i>&nbsp;        } else {
+<i>146</i>&nbsp;            return false;
+<i>147</i>&nbsp;        }*/
+<i>148</i>&nbsp;    }
+<i>149</i>&nbsp;
+<i>150</i>&nbsp;    @Override
+<i>151</i>&nbsp;    public int hashCode() {
+<b class="fc"><i>152</i>&nbsp;        return Objects.hash(id);</b>
+<i>153</i>&nbsp;    }
+<i>154</i>&nbsp;}
+</div>
+</div>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2020-12-15 11:46</div>
+</div>
+</body>
+</html>

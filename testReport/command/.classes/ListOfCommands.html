@@ -1,0 +1,185 @@
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html id="htmlId">
+<head>
+  <title>Coverage Report :: ListOfCommands</title>
+  <style type="text/css">
+    @import "../../.css/coverage.css";
+  </style>
+</head>
+
+<body>
+<div class="header"></div>
+
+<div class="content">
+<div class="breadCrumbs">
+    [ <a href="../../index.html">all classes</a> ]
+    [ <a href="../index.html">command</a> ]
+</div>
+
+<h1>Coverage Summary for Class: ListOfCommands (command)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">ListOfCommands</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/ 1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    71.4%
+  </span>
+  <span class="absValue">
+    (5/ 7)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    53.8%
+  </span>
+  <span class="absValue">
+    (14/ 26)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<div class="sourceCode"><i>1</i>&nbsp;package command;
+<i>2</i>&nbsp;
+<i>3</i>&nbsp;import controller.MVCController;
+<i>4</i>&nbsp;
+<i>5</i>&nbsp;import java.util.LinkedList;
+<i>6</i>&nbsp;
+<i>7</i>&nbsp;/**
+<i>8</i>&nbsp; * &lt;h1&gt;List of Commands Class&lt;/h1&gt;
+<i>9</i>&nbsp; * &lt;p&gt;List of Commands keeps track of the user&#39;s history of executed commands, which allows the system to undo/redo changes&lt;/p&gt;
+<i>10</i>&nbsp; *
+<i>11</i>&nbsp; * @author H4302
+<i>12</i>&nbsp; * @see Command
+<i>13</i>&nbsp; * @see MVCController
+<i>14</i>&nbsp; */
+<i>15</i>&nbsp;public class ListOfCommands {
+<i>16</i>&nbsp;
+<i>17</i>&nbsp;    /**
+<i>18</i>&nbsp;     * History of executed commands, kept as a LinkedList
+<i>19</i>&nbsp;     */
+<i>20</i>&nbsp;    private LinkedList&lt;Command&gt; l;
+<i>21</i>&nbsp;    /**
+<i>22</i>&nbsp;     * Index of the most recent executed command
+<i>23</i>&nbsp;     */
+<i>24</i>&nbsp;    private int i;
+<i>25</i>&nbsp;    /**
+<i>26</i>&nbsp;     * Index of a lower bound that prevents user from undoing any commands with a lower index
+<i>27</i>&nbsp;     */
+<i>28</i>&nbsp;    private int lowerBound;
+<i>29</i>&nbsp;
+<i>30</i>&nbsp;    /**
+<i>31</i>&nbsp;     * Getter for history of commands
+<i>32</i>&nbsp;     * @return the history of commands
+<i>33</i>&nbsp;     */
+<i>34</i>&nbsp;    public LinkedList&lt;Command&gt; getL() {
+<b class="fc"><i>35</i>&nbsp;        return l;</b>
+<i>36</i>&nbsp;    }
+<i>37</i>&nbsp;    /**
+<i>38</i>&nbsp;     * Getter for most recent command&#39;s index
+<i>39</i>&nbsp;     * @return the index of the most recent command
+<i>40</i>&nbsp;     */
+<i>41</i>&nbsp;    public int getI() {
+<b class="fc"><i>42</i>&nbsp;        return i;</b>
+<i>43</i>&nbsp;    }
+<i>44</i>&nbsp;
+<i>45</i>&nbsp;    /**
+<i>46</i>&nbsp;     * Constructor : index i is initially set to -1 because no command has been executed yet, lower bound is set to 0 meaning user can undo the first command right away if permitted elsewhere
+<i>47</i>&nbsp;     */
+<b class="fc"><i>48</i>&nbsp;    public ListOfCommands() {</b>
+<b class="fc"><i>49</i>&nbsp;        i = -1;</b>
+<b class="fc"><i>50</i>&nbsp;        l = new LinkedList&lt;&gt;();</b>
+<b class="fc"><i>51</i>&nbsp;        lowerBound = 0;</b>
+<b class="fc"><i>52</i>&nbsp;    }</b>
+<i>53</i>&nbsp;
+<i>54</i>&nbsp;    /**
+<i>55</i>&nbsp;     * Add a command object to the history of commands and execute it systematically
+<i>56</i>&nbsp;     * @param cmd the command being added
+<i>57</i>&nbsp;     * @param c the MVCController object being passed to the command execution for updating purposes
+<i>58</i>&nbsp;     */
+<i>59</i>&nbsp;    public void Add(Command cmd, MVCController c) {
+<b class="fc"><i>60</i>&nbsp;        i++;</b>
+<b class="fc"><i>61</i>&nbsp;        if (i == l.size()) {</b>
+<b class="fc"><i>62</i>&nbsp;            l.add(i, cmd);</b>
+<i>63</i>&nbsp;        }
+<i>64</i>&nbsp;        else {
+<b class="nc"><i>65</i>&nbsp;            l = new LinkedList&lt;&gt;(l.subList(0, i+1));</b>
+<b class="nc"><i>66</i>&nbsp;            l.set(i, cmd);</b>
+<i>67</i>&nbsp;        }
+<b class="fc"><i>68</i>&nbsp;        cmd.doCommand(c);</b>
+<b class="fc"><i>69</i>&nbsp;    }</b>
+<i>70</i>&nbsp;
+<i>71</i>&nbsp;    /**
+<i>72</i>&nbsp;     * Call undo function of the most recent command and decrement the index by 1
+<i>73</i>&nbsp;     * @param c the MVCController object being passed to the command execution for updating purposes
+<i>74</i>&nbsp;     */
+<i>75</i>&nbsp;    public void Undo(MVCController c) {
+<b class="nc"><i>76</i>&nbsp;        if (i&gt;=lowerBound) {</b>
+<b class="nc"><i>77</i>&nbsp;            System.out.println(&quot;Undo command number &quot;+i);</b>
+<b class="nc"><i>78</i>&nbsp;            l.get(i).undoCommand(c);</b>
+<b class="nc"><i>79</i>&nbsp;            i--;</b>
+<i>80</i>&nbsp;        }
+<b class="nc"><i>81</i>&nbsp;    }</b>
+<i>82</i>&nbsp;
+<i>83</i>&nbsp;    /**
+<i>84</i>&nbsp;     * For redo action, we will first need to increment the index, then execute the appropriate command (that has already been executed in the past)
+<i>85</i>&nbsp;     * @param c the MVCController object being passed to the command execution for updating purposes
+<i>86</i>&nbsp;     */
+<i>87</i>&nbsp;    public void Redo(MVCController c) {
+<b class="nc"><i>88</i>&nbsp;        if (i&lt;l.size()-1) {</b>
+<b class="nc"><i>89</i>&nbsp;            i++;</b>
+<b class="nc"><i>90</i>&nbsp;            l.get(i).doCommand(c);</b>
+<b class="nc"><i>91</i>&nbsp;            System.out.println(&quot;Redo command number &quot;+i);</b>
+<i>92</i>&nbsp;        }
+<b class="nc"><i>93</i>&nbsp;    }</b>
+<i>94</i>&nbsp;
+<i>95</i>&nbsp;    /**
+<i>96</i>&nbsp;     * When user applies modifications (ApplyModificationDone function), a new lowerBound is being set so that modifications are saved and user can no longer undo the modifications that happened before the apply modification function
+<i>97</i>&nbsp;     * @param lowerBound the new lower bound
+<i>98</i>&nbsp;     */
+<i>99</i>&nbsp;    public void setLowerBound(int lowerBound) {
+<b class="fc"><i>100</i>&nbsp;        this.lowerBound = lowerBound;</b>
+<b class="fc"><i>101</i>&nbsp;    }</b>
+<i>102</i>&nbsp;}
+</div>
+</div>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2020-12-15 11:46</div>
+</div>
+</body>
+</html>
